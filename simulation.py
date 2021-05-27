@@ -1,0 +1,208 @@
+import consts
+from board import Board
+from agent import Agent
+
+from typing import List
+from typing import Tuple
+
+import matplotlib.pyplot as plt
+from matplotlib import colors
+import numpy as np
+
+class Simulation(object):
+    object_id = 0
+
+    def __init__(self,
+                 name: str = None,
+                 board: Board = None,
+                 plans: List[List[Tuple[int, int]]] = None,
+                 agents: List[Agent] = None,
+                 threshold: float = 0.5) -> None:
+        if name is None:
+            name = 'Anonymous_Simulation_' + str(Simulation.object_id)
+        if board is None:
+            board = Board()
+        if plans is None:
+            plans = [[(j, i) for i in range(board.width)] for j in range(board.height)]
+        if agents is None:
+            agents = [Agent() for i in range(len(plans))]
+
+        self.id = Simulation.object_id
+        self.name = name
+        self.board = board
+        self.plans = plans
+        self.agents = agents
+        self.threshold = threshold
+        self.outcome = None
+        self.percentage_free = None
+        self.simulation_pass = None
+        self.agent_pass = []
+        Simulation.object_id += 1
+
+    def simulate(self, debug_num) -> None:  # TODO: remove the debug_num and implement a real simulation
+        assert self.board is not None, 'can not simulate without board'
+        assert self.agents is not None, 'can not simulate without agents'
+        assert self.agents != [], 'can not simulate without agents'
+        assert self.plans is not None, 'can not simulate without plans'
+        assert self.plans != [], 'can not simulate without plans'
+
+        # # Dummy outcome
+        self.outcome = []
+        self.agents[0].is_faulty = True
+        self.agents[1].is_faulty = True
+        self.outcome = consts.custom_outcome[debug_num]
+
+        # # Real outcome - considering the agents plans and whether they are faulty
+        # # TODO: implement
+        # self.outcome = self.generate_outcome()
+
+        # # Calculation of system success
+        self.calculate_simulation_pass()
+
+        # # Calculation of agent pass
+        self.calculate_agent_pass()
+
+    def visualize(self, mode: str = 'grid', what: str = 'plans') -> None:
+        if what == 'outcome':
+            matrix = self.outcome
+        else:
+            matrix = self.plans
+        board = np.zeros((self.board.width, self.board.height))
+        for ca in self.board.critical_areas:
+            board[ca[0][0]:ca[1][0], ca[0][1]: ca[1][1]] = 1
+        plt.figure()
+        cmap = colors.ListedColormap(['white', 'red'])
+        im = plt.imshow(board, interpolation='none', vmin=0, vmax=1, aspect='equal', cmap=cmap)
+
+        ax = plt.gca()
+
+        # Major ticks
+        ax.set_xticks(np.arange(0, self.board.width, 1))
+        ax.set_yticks(np.arange(0, self.board.height, 1))
+
+        # Labels for major ticks
+        ax.set_xticklabels(np.arange(0, self.board.width, 1))
+        ax.set_yticklabels(np.arange(0, self.board.height, 1))
+
+        # Minor ticks
+        ax.set_xticks(np.arange(-.5, self.board.width, 1), minor=True)
+        ax.set_yticks(np.arange(-.5, self.board.height, 1), minor=True)
+
+        # Gridlines based on minor ticks
+        if mode == 'net':
+            ax.grid(which='major', color='black', linestyle='-', linewidth=2, zorder=0)
+        elif mode == 'grid':
+            ax.grid(which='minor', color='black', linestyle='-', linewidth=2, zorder=0)
+        else:
+            raise Exception("mode needs to be either 'grid' or 'net'")
+
+        ax.xaxis.tick_top()
+        for ai, a in enumerate(self.agents):
+            for i in range(len(matrix[ai][:-2])):
+                plt.arrow(matrix[ai][i][0], matrix[ai][i][1],
+                          matrix[ai][i + 1][0] - matrix[ai][i][0],
+                          matrix[ai][i + 1][1] - matrix[ai][i][1],
+                          width=0.5 - (0.5 / len(self.agents)) * (a.id % len(self.agents)), color=a.color,
+                          head_length=0, head_width=0, zorder=3 + a.id % len(self.agents))
+            plt.arrow(matrix[ai][-2][0], matrix[ai][-2][1],
+                      matrix[ai][-1][0] - matrix[ai][-2][0],
+                      matrix[ai][-1][1] - matrix[ai][-2][1],
+                      width=0.5 - (0.5 / len(self.agents)) * (a.id % len(self.agents)), color=a.color,
+                      head_width=0.5, head_length=0.5, zorder=3 + a.id % len(self.agents))
+
+        plt.show()
+
+    def summary(self) -> None:
+        critical_areas_string = ""
+        for ca in self.board.critical_areas:
+            critical_areas_string += '\t\t' + str(ca) + '\n# '
+
+        plans_string = '\t[\n#'
+        for plan in self.plans:
+            plans_string += '\t [ '
+            i = 0
+            for p in plan:
+                plans_string += str(p) + ' '
+                i += 1
+                if i % 5 == 0:
+                    plans_string += '\n# \t   '
+            if plans_string[-7:] == '\n# \t   ':
+                plans_string = plans_string[:-7] + ']\n#'
+            else:
+                plans_string += ']\n#'
+        plans_string += '\t]\n#'
+
+        agents_string = '\t[\n'
+        for agent in self.agents:
+            agents_string += f'#\t [\n#\t  ID: {agent.id}\n'
+            agents_string += f'#\t  Name: {agent.name}\n'
+            agents_string += f'#\t  Color: {agent.color}\n'
+            agents_string += f'#\t  Plan: \n'
+            agents_string += f'#\t  Faulty: {agent.is_faulty}\n#\t '
+            agents_string += ']\n'
+        agents_string += '#\t]\n#'
+
+        print(f"""
+#######################################################
+#                 Simulation Summary
+# 
+# ID: {self.id}
+# Name: {self.name}
+# 
+# Board:
+#   ID: {self.board.id}
+#   Name: {self.board.name}
+#   Width: {self.board.width}
+#   Height: {self.board.height}
+#   Critical areas:
+# {critical_areas_string}
+# Plans:
+# {plans_string}
+# Agents:
+# {agents_string}
+# Failure threshold: {self.threshold}
+#######################################################
+        """)
+
+    def generate_outcome(self) -> List[List[Tuple[int, int]]]:
+        # # TODO: implement
+        pass
+
+    def calculate_simulation_pass(self) -> None:
+        # # Pass criteria is whether a certain percentage
+        # # of the critical area is free
+        self.calculate_simulation_pass_percentage_free_critical_area()
+
+        # # Need to explore other criteria
+
+    def calculate_simulation_pass_percentage_free_critical_area(self) -> None:
+        # # Get all the occupied positions
+        occupied_positions: List[Tuple[int, int]] = []
+        for a in self.outcome:
+            occupied_positions.append(a[-1])
+
+        # # For each critical area, check how much of its positions
+        # # is not in the occupied positions
+        critical_positions: List[List[Tuple[int, int]]] = []
+        for ca in self.board.critical_areas:
+            ca_positions = [(i, j) for i in range(ca[0][0], ca[1][0]) for j in range(ca[0][1], ca[1][1])]
+            critical_positions.append(ca_positions)
+        critical_positions_flat = [position for ca in critical_positions for position in ca]
+
+        # # Calculate the percentage
+        number_of_ca_that_are_free = 0
+        for ca in critical_positions_flat:
+            if ca not in occupied_positions:
+                number_of_ca_that_are_free += 1
+        self.percentage_free = number_of_ca_that_are_free / len(critical_positions_flat)
+        self.simulation_pass = self.percentage_free > self.threshold
+
+    def calculate_agent_pass(self) -> None:
+        # # agent passes if it hold its final intended resource
+        # # at the final time
+        self.calculate_agent_pass_final_resource_held()
+
+        # # Need to explore other criteria
+
+    def calculate_agent_pass_final_resource_held(self) -> None:
+        self.agent_pass = [True if self.outcome[j][-1] == self.plans[j][-1] else False for j in range(len(self.outcome))]
