@@ -25,35 +25,49 @@ class MGSD(object):
         for i, s in enumerate(self.simulations_to_run):
             s.simulate(debug_num=i)
 
-        self.calculate_spectra_and_error_vector()
+        self.calculate_error_vector_spectra('percentage_free_ca',
+                                            {'threshold': 0.95},
+                                            'reach_final_res',
+                                            {},
+                                            'agent_pass_fail_contribution',
+                                            {})
         self.calculate_diagnoses_and_probabilities(method=statics.calculate_diagnoses_and_probabilities_ochiai)
         self.print_and_visualize_output()
         print('fin')
 
-    def calculate_spectra_and_error_vector(self):
-        for i, s in enumerate(self.simulations_to_run):
-            if s.simulation_pass:
-                self.error_vector.append(0)
-                self.spectra.append([])
-                for j, _ in enumerate(s.outcome):
-                    if s.agent_pass[j]:
-                        self.spectra[i].append(1)  # Original
-                        # self.spectra[i].append(0)  # Alternative
-                    else:
-                        self.spectra[i].append(0)  # Original
-                        # self.spectra[i].append(1)  # Alternative
-            else:
-                self.error_vector.append(1)
-                self.spectra.append([])
-                for j, _ in enumerate(s.outcome):
-                    if s.agent_pass[j]:
-                        self.spectra[i].append(0)
-                    else:
-                        self.spectra[i].append(1)
-        print('Spectra and error vector calculated')
+    def calculate_error_vector_spectra(
+            self,
+            simulation_success_method: str,
+            ssm_args: Dict,
+            agent_success_method: str,
+            asm_args: Dict,
+            error_vector_and_spectra_fill_method: str,
+            evsfm_args: Dict):
+        """
+
+        :param simulation_success_method: name of the function that will determine a simulation success/fail
+        :param ssm_args: supporting arguments for the above function
+        :param agent_success_method: name of the function that will determine the agents success/fail
+        :param asm_args: supporting arguments for the above function
+        :param error_vector_and_spectra_fill_method: name of the function that will determine how to populate the
+               spectra
+        :param evsfm_args: supporting arguments for the above function
+        :return:
+        """
+        print('Calculating spectra and error vector...')
+        self.error_vector, self.spectra = statics.methods[error_vector_and_spectra_fill_method](
+            self.simulations_to_run,
+            simulation_success_method,
+            ssm_args,
+            agent_success_method,
+            asm_args,
+            evsfm_args
+        )
+        print('Spectra and error vector calculated.\n')
 
     def calculate_diagnoses_and_probabilities(self, method: Callable[[List[List[int]], List[int], Dict],
                                                                      Tuple[List[List[int]], List[float]]] = None):
+        print('Calculating diagnoses and probabilities...')
         if method is None:
             self.diagnoses, self.probabilities = \
                 statics.calculate_diagnoses_and_probabilities_ochiai(self.spectra, self.error_vector, {})
@@ -61,16 +75,11 @@ class MGSD(object):
             self.diagnoses, self.probabilities = \
                 method(self.spectra, self.error_vector, {})
 
-        print('Diagnoses and probabilities calculated')
+        print('Diagnoses and probabilities calculated.\n')
 
     def print_and_visualize_output(self) -> None:
         print('\nPrinting and visualizing:')
         print('========================')
-        for i, s in enumerate(self.simulations_to_run):
-            print(f'Percentage free critical areas in {s.name}: {s.percentage_free}')
-            s.visualize(what='plans')
-            s.visualize(what='outcome')
-
         print('Spectra and Error vector:')
         for j in range(len(self.spectra)):
             for i in range(len(self.spectra[0])):
@@ -80,3 +89,6 @@ class MGSD(object):
         for i, d in enumerate(self.diagnoses):
             print(f'{d}, {self.probabilities[i]}')
         print('')
+        for i, s in enumerate(self.simulations_to_run):
+            s.visualize(what='plans')
+            s.visualize(what='outcome')

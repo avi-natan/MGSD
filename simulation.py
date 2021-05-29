@@ -17,8 +17,7 @@ class Simulation(object):
                  name: str = None,
                  board: Board = None,
                  plans: List[List[Tuple[int, int]]] = None,
-                 agents: List[Agent] = None,
-                 threshold: float = 0.5) -> None:
+                 agents: List[Agent] = None) -> None:
         if name is None:
             name = 'Anonymous_Simulation_' + str(Simulation.object_id)
         if board is None:
@@ -33,11 +32,7 @@ class Simulation(object):
         self.board = board
         self.plans = plans
         self.agents = agents
-        self.threshold = threshold
         self.outcome = None
-        self.percentage_free = None
-        self.simulation_pass = None
-        self.agent_pass = []
         Simulation.object_id += 1
 
     def simulate(self, debug_num) -> None:  # TODO: remove the debug_num and implement a real simulation
@@ -56,12 +51,6 @@ class Simulation(object):
         # # Real outcome - considering the agents plans and whether they are faulty
         # # TODO: implement
         # self.outcome = self.generate_outcome()
-
-        # # Calculation of system success
-        self.calculate_simulation_pass()
-
-        # # Calculation of agent pass
-        self.calculate_agent_pass()
 
     def visualize(self, mode: str = 'grid', what: str = 'plans') -> None:
         if what == 'outcome':
@@ -161,50 +150,9 @@ class Simulation(object):
 # {plans_string}
 # Agents:
 # {agents_string}
-# Failure threshold: {self.threshold}
 #######################################################
         """)
 
     def generate_outcome(self) -> List[List[Tuple[int, int]]]:
         # # TODO: implement
         pass
-
-    def calculate_simulation_pass(self) -> None:
-        # # Pass criteria is whether a certain percentage
-        # # of the critical area is free
-        self.calculate_simulation_pass_percentage_free_critical_area()
-
-        # # Need to explore other criteria
-
-    def calculate_simulation_pass_percentage_free_critical_area(self) -> None:
-        # # Get all the occupied positions
-        occupied_positions: List[Tuple[int, int]] = []
-        for a in self.outcome:
-            occupied_positions.append(a[-1])
-
-        # # For each critical area, check how much of its positions
-        # # is not in the occupied positions
-        critical_positions: List[List[Tuple[int, int]]] = []
-        for ca in self.board.critical_areas:
-            ca_positions = [(i, j) for i in range(ca[0][0], ca[1][0]) for j in range(ca[0][1], ca[1][1])]
-            critical_positions.append(ca_positions)
-        critical_positions_flat = [position for ca in critical_positions for position in ca]
-
-        # # Calculate the percentage
-        number_of_ca_that_are_free = 0
-        for ca in critical_positions_flat:
-            if ca not in occupied_positions:
-                number_of_ca_that_are_free += 1
-        self.percentage_free = number_of_ca_that_are_free / len(critical_positions_flat)
-        self.simulation_pass = self.percentage_free > self.threshold
-
-    def calculate_agent_pass(self) -> None:
-        # # agent passes if it hold its final intended resource
-        # # at the final time
-        self.calculate_agent_pass_final_resource_held()
-
-        # # Need to explore other criteria
-
-    def calculate_agent_pass_final_resource_held(self) -> None:
-        self.agent_pass = [True if self.outcome[j][-1] == self.plans[j][-1]
-                           else False for j in range(len(self.outcome))]
