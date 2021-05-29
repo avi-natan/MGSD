@@ -26,11 +26,11 @@ class MGSD(object):
             s.simulate(debug_num=i)
 
         self.calculate_error_vector_spectra('percentage_free_ca',
-                                            {'threshold': 0.95},
+                                            {'threshold': 0.85},
                                             'reach_final_res',
                                             {},
                                             'agent_pass_fail_contribution',
-                                            {})
+                                            {'invert_for_success': True})
         self.calculate_diagnoses_and_probabilities(method=statics.calculate_diagnoses_and_probabilities_ochiai)
         self.print_and_visualize_output()
         print('fin')

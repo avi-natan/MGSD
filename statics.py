@@ -139,11 +139,15 @@ def error_vector_and_spectra_fill_method_agent_pass_fail_contribution(simulation
             for j, _ in enumerate(s.outcome):
                 agent_success = methods[agent_success_method](s, j, asm_args)
                 if agent_success:
-                    spectra[i].append(1)  # Original
-                    # spectra[i].append(0)  # Alternative
+                    if evsfm_args['invert_for_success']:
+                        spectra[i].append(1)  # Original
+                    else:
+                        spectra[i].append(0)  # Alternative
                 else:
-                    spectra[i].append(0)  # Original
-                    # spectra[i].append(1)  # Alternative
+                    if evsfm_args['invert_for_success']:
+                        spectra[i].append(0)  # Original
+                    else:
+                        spectra[i].append(1)  # Alternative
         else:
             error_vector.append(1)
             spectra.append([])
