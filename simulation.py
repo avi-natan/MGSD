@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib import colors
 import numpy as np
 
+
 class Simulation(object):
     object_id = 0
 
@@ -25,7 +26,7 @@ class Simulation(object):
         if plans is None:
             plans = [[(j, i) for i in range(board.width)] for j in range(board.height)]
         if agents is None:
-            agents = [Agent() for i in range(len(plans))]
+            agents = [Agent() for _ in range(len(plans))]
 
         self.id = Simulation.object_id
         self.name = name
@@ -72,7 +73,7 @@ class Simulation(object):
             board[ca[0][0]:ca[1][0], ca[0][1]: ca[1][1]] = 1
         plt.figure()
         cmap = colors.ListedColormap(['white', 'red'])
-        im = plt.imshow(board, interpolation='none', vmin=0, vmax=1, aspect='equal', cmap=cmap)
+        plt.imshow(board, interpolation='none', vmin=0, vmax=1, aspect='equal', cmap=cmap)
 
         ax = plt.gca()
 
@@ -205,4 +206,5 @@ class Simulation(object):
         # # Need to explore other criteria
 
     def calculate_agent_pass_final_resource_held(self) -> None:
-        self.agent_pass = [True if self.outcome[j][-1] == self.plans[j][-1] else False for j in range(len(self.outcome))]
+        self.agent_pass = [True if self.outcome[j][-1] == self.plans[j][-1]
+                           else False for j in range(len(self.outcome))]

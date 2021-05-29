@@ -33,7 +33,7 @@ class Board(object):
             board[ca[0][0]:ca[1][0], ca[0][1]: ca[1][1]] = 1
         plt.figure()
         cmap = colors.ListedColormap(['white', 'red'])
-        im = plt.imshow(board, interpolation='none', vmin=0, vmax=1, aspect='equal', cmap=cmap)
+        plt.imshow(board, interpolation='none', vmin=0, vmax=1, aspect='equal', cmap=cmap)
 
         ax = plt.gca()
 
