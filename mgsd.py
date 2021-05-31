@@ -5,7 +5,37 @@ from typing import List, Tuple, Callable, Dict
 
 
 class MGSD(object):
-    def __init__(self):
+    def __init__(self,
+                 simulation_success_method: str,
+                 ssm_args: Dict,
+                 agent_success_method: str,
+                 asm_args: Dict,
+                 error_vector_and_spectra_fill_method: str,
+                 evsfm_args: Dict,
+                 diagnoses_and_probabilities_calculation_method: str,
+                 dpcm_args: Dict) -> None:
+        """
+        Initializes the Multi Game SFL based Diagnosis (MGSD) Algorithm, with the following
+        custom calculation methods:
+        :param simulation_success_method: name of the function that will determine a simulation success/fail
+        :param ssm_args: supporting arguments for the above function
+        :param agent_success_method: name of the function that will determine the agents success/fail
+        :param asm_args: supporting arguments for the above function
+        :param error_vector_and_spectra_fill_method: name of the function that will determine how to populate the
+               spectra
+        :param evsfm_args: supporting arguments for the above function
+        :param diagnoses_and_probabilities_calculation_method: the method for calculating diagnoses and probabilities
+        :param dpcm_args: supporting arguments for the above function
+        :return: Nothing
+        """
+        self.simulation_success_method = simulation_success_method
+        self.ssm_args = ssm_args
+        self.agent_success_method = agent_success_method
+        self.asm_args = asm_args
+        self.error_vector_and_spectra_fill_method = error_vector_and_spectra_fill_method
+        self.evsfm_args = evsfm_args
+        self.diagnoses_and_probabilities_calculation_method = diagnoses_and_probabilities_calculation_method
+        self.dpcm_args = dpcm_args
         self.simulations_to_run: List[Simulation] = []
         self.error_vector: List[int] = []
         self.spectra: List[List[int]] = []
@@ -25,55 +55,27 @@ class MGSD(object):
         for i, s in enumerate(self.simulations_to_run):
             s.simulate(debug_num=i)
 
-        self.calculate_error_vector_spectra('percentage_free_ca',
-                                            {'threshold': 0.85},
-                                            'reach_final_res',
-                                            {},
-                                            'agent_pass_fail_contribution',
-                                            {'invert_for_success': True})
-        self.calculate_diagnoses_and_probabilities(method=statics.calculate_diagnoses_and_probabilities_ochiai)
+        self.calculate_error_vector_spectra()
+        self.calculate_diagnoses_and_probabilities()
         self.print_and_visualize_output()
         print('fin')
 
-    def calculate_error_vector_spectra(
-            self,
-            simulation_success_method: str,
-            ssm_args: Dict,
-            agent_success_method: str,
-            asm_args: Dict,
-            error_vector_and_spectra_fill_method: str,
-            evsfm_args: Dict):
-        """
-
-        :param simulation_success_method: name of the function that will determine a simulation success/fail
-        :param ssm_args: supporting arguments for the above function
-        :param agent_success_method: name of the function that will determine the agents success/fail
-        :param asm_args: supporting arguments for the above function
-        :param error_vector_and_spectra_fill_method: name of the function that will determine how to populate the
-               spectra
-        :param evsfm_args: supporting arguments for the above function
-        :return:
-        """
+    def calculate_error_vector_spectra(self):
         print('Calculating spectra and error vector...')
-        self.error_vector, self.spectra = statics.methods[error_vector_and_spectra_fill_method](
+        self.error_vector, self.spectra = statics.methods[self.error_vector_and_spectra_fill_method](
             self.simulations_to_run,
-            simulation_success_method,
-            ssm_args,
-            agent_success_method,
-            asm_args,
-            evsfm_args
+            self.simulation_success_method,
+            self.ssm_args,
+            self.agent_success_method,
+            self.asm_args,
+            self.evsfm_args
         )
         print('Spectra and error vector calculated.\n')
 
-    def calculate_diagnoses_and_probabilities(self, method: Callable[[List[List[int]], List[int], Dict],
-                                                                     Tuple[List[List[int]], List[float]]] = None):
+    def calculate_diagnoses_and_probabilities(self):
         print('Calculating diagnoses and probabilities...')
-        if method is None:
-            self.diagnoses, self.probabilities = \
-                statics.calculate_diagnoses_and_probabilities_ochiai(self.spectra, self.error_vector, {})
-        else:
-            self.diagnoses, self.probabilities = \
-                method(self.spectra, self.error_vector, {})
+        self.diagnoses, self.probabilities = \
+            statics.methods[self.diagnoses_and_probabilities_calculation_method](self.spectra, self.error_vector, {})
 
         print('Diagnoses and probabilities calculated.\n')
 

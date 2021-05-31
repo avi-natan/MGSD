@@ -272,5 +272,8 @@ methods = {
     'reach_final_res': agent_success_method_reach_final_res,
 
     # Methods that determine how to populate the spectra
-    'agent_pass_fail_contribution': error_vector_and_spectra_fill_method_agent_pass_fail_contribution
+    'agent_pass_fail_contribution': error_vector_and_spectra_fill_method_agent_pass_fail_contribution,
+
+    # Methods for calculating diagnoses and their probabilities
+    'ochiai': calculate_diagnoses_and_probabilities_ochiai
 }

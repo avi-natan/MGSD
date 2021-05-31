@@ -26,7 +26,14 @@ def sandbox() -> None:
     # tests.test_simulate()
 
     # # Running the algorithm
-    mgsd: MGSD = MGSD()
+    mgsd: MGSD = MGSD('percentage_free_ca',
+                      {'threshold': 0.85},
+                      'reach_final_res',
+                      {},
+                      'agent_pass_fail_contribution',
+                      {'invert_for_success': True},
+                      'ochiai',
+                      {})
     mgsd.run_algorithm()
 
 
