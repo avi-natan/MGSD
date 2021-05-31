@@ -35,7 +35,7 @@ class Simulation(object):
         self.outcome = None
         Simulation.object_id += 1
 
-    def simulate(self, debug_num) -> None:  # TODO: remove the debug_num and implement a real simulation
+    def simulate(self) -> None:
         assert self.board is not None, 'can not simulate without board'
         assert self.agents is not None, 'can not simulate without agents'
         assert self.agents != [], 'can not simulate without agents'
@@ -46,7 +46,6 @@ class Simulation(object):
         self.outcome = []
         self.agents[0].is_faulty = True
         self.agents[1].is_faulty = True
-        self.outcome = consts.custom_outcome[debug_num]
 
         # # Real outcome - considering the agents plans and whether they are faulty
         # # TODO: implement

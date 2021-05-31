@@ -1,3 +1,4 @@
+import consts
 import statics
 from simulation import Simulation
 
@@ -16,7 +17,8 @@ class MGSD(object):
                  dpcm_args: Dict) -> None:
         """
         Initializes the Multi Game SFL based Diagnosis (MGSD) Algorithm, with the following
-        custom calculation methods:
+        custom calculation methods
+
         :param simulation_success_method: name of the function that will determine a simulation success/fail
         :param ssm_args: supporting arguments for the above function
         :param agent_success_method: name of the function that will determine the agents success/fail
@@ -42,18 +44,27 @@ class MGSD(object):
         self.diagnoses: List[List[int]] = []
         self.probabilities: List[float] = []
 
-    def run_algorithm(self, config_filename: str = None):
+    def run_algorithm(self, config_filename: str = None) -> None:
+        """
+        Runs the algorithm for simulations specified in an input filename.
+        In absence of such filename, the algorithm loads a custom made simulations.
+
+        :param config_filename: Specifies the simulations to run
+        :return: Nothing
+        """
         if config_filename is None:
             print('No input file specified, running algorithm with default simulations')
             self.simulations_to_run = statics.get_hardcoded_simulations()
+            for i, s in enumerate(self.simulations_to_run):
+                s.summary()
+            for i, s in enumerate(self.simulations_to_run):
+                s.outcome = consts.custom_outcome[i]
         else:
             self.simulations_to_run = statics.get_from_filename(config_filename)
-
-        for i, s in enumerate(self.simulations_to_run):
-            s.summary()
-
-        for i, s in enumerate(self.simulations_to_run):
-            s.simulate(debug_num=i)
+            for i, s in enumerate(self.simulations_to_run):
+                s.summary()
+            for i, s in enumerate(self.simulations_to_run):
+                s.simulate()
 
         self.calculate_error_vector_spectra()
         self.calculate_diagnoses_and_probabilities()
