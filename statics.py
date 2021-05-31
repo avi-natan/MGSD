@@ -63,6 +63,22 @@ def get_hardcoded_simulations() -> List[Simulation]:
                                 board=b1,
                                 plans=consts.custom_plans_traffic_circle,
                                 agents=agents)
+    s10: Simulation = Simulation(name='Simulation Traffic circle10',
+                                 board=b1,
+                                 plans=consts.custom_plans_traffic_circle,
+                                 agents=agents)
+    s11: Simulation = Simulation(name='Simulation Traffic circle11',
+                                 board=b1,
+                                 plans=consts.custom_plans_traffic_circle,
+                                 agents=agents)
+    s12: Simulation = Simulation(name='Simulation Traffic circle12',
+                                 board=b1,
+                                 plans=consts.custom_plans_traffic_circle,
+                                 agents=agents)
+    s13: Simulation = Simulation(name='Simulation Traffic circle13',
+                                 board=b1,
+                                 plans=consts.custom_plans_traffic_circle,
+                                 agents=agents)
 
     return [
         # s0,
@@ -74,7 +90,11 @@ def get_hardcoded_simulations() -> List[Simulation]:
         s6,
         s7,
         s8,
-        s9
+        s9,
+        s10,
+        s11,
+        s12,
+        s13
     ]
 
 
@@ -275,5 +295,6 @@ methods = {
     'agent_pass_fail_contribution': error_vector_and_spectra_fill_method_agent_pass_fail_contribution,
 
     # Methods for calculating diagnoses and their probabilities
-    'ochiai': calculate_diagnoses_and_probabilities_ochiai
+    'ochiai': calculate_diagnoses_and_probabilities_ochiai,
+    'barinel': calculate_diagnoses_and_probabilities_barinel
 }

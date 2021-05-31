@@ -32,7 +32,7 @@ def sandbox() -> None:
                       {},
                       'agent_pass_fail_contribution',
                       {'invert_for_success': True},
-                      'ochiai',
+                      'barinel',
                       {})
     mgsd.run_algorithm()
 
