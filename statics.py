@@ -17,34 +17,64 @@ def get_hardcoded_simulations() -> List[Simulation]:
     agents: List[Agent] = [Agent(name='a' + str(i), is_faulty=(i == 0 or i == 1)) for i in list(range(6))]
 
     # Initializing boards
-    b0: Board = Board(name='Intersection', width=12, height=12, critical_areas=[((4, 4), (8, 8))])
+    # b0: Board = Board(name='Intersection', width=12, height=12, critical_areas=[((4, 4), (8, 8))])
     b1: Board = Board(name='Traffic circle', width=12, height=12,
                       critical_areas=[((4, 4), (8, 5)), ((4, 7), (8, 8)),
                                       ((4, 5), (5, 7)), ((7, 5), (8, 7))])
 
     # Creating simulations
-    s0: Simulation = Simulation(name='Simulation Intersection',
-                                board=b0,
-                                plans=consts.custom_plans_intersection,
-                                agents=agents)
+    # s0: Simulation = Simulation(name='Simulation Intersection',
+    #                             board=b0,
+    #                             plans=consts.custom_plans_intersection,
+    #                             agents=agents)
     s1: Simulation = Simulation(name='Simulation Traffic circle1',
                                 board=b1,
                                 plans=consts.custom_plans_traffic_circle,
                                 agents=agents)
-    # s2: Simulation = Simulation(name='Simulation Traffic circle2',
-    #                             board=b1,
-    #                             plans=consts.custom_plans_traffic_circle,
-    #                             agents=agents)
-    # s3: Simulation = Simulation(name='Simulation Traffic circle3',
-    #                             board=b1,
-    #                             plans=consts.custom_plans_traffic_circle,
-    #                             agents=agents)
+    s2: Simulation = Simulation(name='Simulation Traffic circle2',
+                                board=b1,
+                                plans=consts.custom_plans_traffic_circle,
+                                agents=agents)
+    s3: Simulation = Simulation(name='Simulation Traffic circle3',
+                                board=b1,
+                                plans=consts.custom_plans_traffic_circle,
+                                agents=agents)
+    s4: Simulation = Simulation(name='Simulation Traffic circle4',
+                                board=b1,
+                                plans=consts.custom_plans_traffic_circle,
+                                agents=agents)
+    s5: Simulation = Simulation(name='Simulation Traffic circle5',
+                                board=b1,
+                                plans=consts.custom_plans_traffic_circle,
+                                agents=agents)
+    s6: Simulation = Simulation(name='Simulation Traffic circle6',
+                                board=b1,
+                                plans=consts.custom_plans_traffic_circle,
+                                agents=agents)
+    s7: Simulation = Simulation(name='Simulation Traffic circle7',
+                                board=b1,
+                                plans=consts.custom_plans_traffic_circle,
+                                agents=agents)
+    s8: Simulation = Simulation(name='Simulation Traffic circle8',
+                                board=b1,
+                                plans=consts.custom_plans_traffic_circle,
+                                agents=agents)
+    s9: Simulation = Simulation(name='Simulation Traffic circle9',
+                                board=b1,
+                                plans=consts.custom_plans_traffic_circle,
+                                agents=agents)
 
     return [
-        s0,
+        # s0,
         s1,
-        # s2,
-        # s3
+        s2,
+        s3,
+        s4,
+        s5,
+        s6,
+        s7,
+        s8,
+        s9
     ]
 
 
