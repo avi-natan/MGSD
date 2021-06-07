@@ -2,7 +2,7 @@ import consts
 import statics
 from simulation import Simulation
 
-from typing import List, Tuple, Callable, Dict
+from typing import List, Dict
 
 
 class MGSD(object):

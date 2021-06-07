@@ -5,7 +5,9 @@ from board import Board
 from simulation import Simulation
 from agent import Agent
 
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Callable
+from scipy.optimize import minimize
+import numpy as np
 
 
 def get_pick_color(color_id):
@@ -236,6 +238,64 @@ def calculate_dichotomy_matrix(spectra: List[List[int]], error_vector: List[int]
         dichotomy_matrix[3].append(n00)
     return dichotomy_matrix
 
+def calculate_e_dk(dk: List[int], spectra: List[List[int]], error_vector: List[int]):
+    funcArr = ['(-1)']
+    objective: Callable[[List[float]], float] = None
+    active_vars = [False] * len(spectra[0])
+
+    # get the active vars in this diagnosis
+    for i, e in enumerate(error_vector):
+        for j, c in enumerate(spectra[i]):
+            if spectra[i][j] == 1 and j in dk:
+                active_vars[j] = True
+
+    # re-labeling variables to conform to scipy's requirements
+    index_rv = 0
+    renamed_vars = {}
+    for i, av in enumerate(active_vars):
+        if av:
+            renamed_vars[str(i)] = index_rv
+            index_rv += 1
+
+    # building the target function as a string
+    for i, e in enumerate(error_vector):
+        fa = "1*"
+        for j, c in enumerate(spectra[i]):
+            if spectra[i][j] == 1 and j in dk:
+                fa = fa + f"x[{renamed_vars[str(j)]}]*"
+        fa = fa[:-1]
+        if error_vector[i] == 1:
+            fa = "*(1-" + fa + ")"
+        else:
+            fa = "*(" + fa + ")"
+        funcArr.append(fa)
+
+    # using dynamic programming to initialize the target function
+    func = ""
+    for fa in funcArr:
+        func = func + fa
+    objective = eval(f'lambda x: {func}')
+
+    # building bounds over the variables
+    # and the initial health vector
+    b = (0.0, 1.0)
+    initial_h = 0.5
+    bnds = []
+    h0 = []
+    for av in active_vars:
+        if av:
+            bnds.append(b)
+            h0.append(initial_h)
+
+    # solving the minimization problem
+    h0 = np.array(h0)
+    sol = minimize(objective, h0, method='SLSQP', bounds=bnds)
+
+    # print(sol)
+    # print(-sol.fun)
+    # print(sol.x)
+    return -sol.fun
+
 
 def calculate_diagnoses_and_probabilities_ochiai(spectra: List[List[int]],
                                                  error_vector: List[int],
@@ -264,7 +324,7 @@ def calculate_diagnoses_and_probabilities_ochiai(spectra: List[List[int]],
 
 def calculate_diagnoses_and_probabilities_barinel(spectra: List[List[int]],
                                                   error_vector: List[int],
-                                                  kwargs: Dict) -> Tuple[List[List[int]], List[float]]:
+                                                  kwargs: Dict) -> Tuple[List[List[int]], np.ndarray]:
     # # Calculate diagnoses using hitting sets with CDS
     conflicts = []
     for i in range(len(error_vector)):
@@ -278,8 +338,31 @@ def calculate_diagnoses_and_probabilities_barinel(spectra: List[List[int]],
 
     # # calculate probabilities
     # Dummy implementation
-    probabilities: List[float] = [1 / len(diagnoses) for _ in diagnoses]
-    # TODO - implement real calculation
+    # probabilities = [1 / len(diagnoses) for _ in diagnoses]
+
+    # Real implementation
+    probabilities = [0 for _ in diagnoses]
+    e_dks = []
+    for i, dk in enumerate(diagnoses):
+        e_dk = calculate_e_dk(dk, spectra, error_vector)
+        e_dks.append(e_dk)
+
+    # # sanity check
+    # print('e_dks')
+    # for i, d in enumerate(diagnoses):
+    #     print(f'{d}: {e_dks[i]}')
+
+    # normalize probabilities and order them
+    e_dks_sum = sum(e_dks)
+    for i, e_dk in enumerate(e_dks):
+        probabilities[i] = e_dk / e_dks_sum
+    probabilities = np.array(probabilities)
+    probabilities = -np.sort(-probabilities)
+
+    # # another sanity check
+    # print('probabilities')
+    # for i, d in enumerate(diagnoses):
+    #     print(f'{d}: {probabilities[i]}')
 
     return diagnoses, probabilities
 

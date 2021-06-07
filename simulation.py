@@ -1,4 +1,3 @@
-import consts
 from board import Board
 from agent import Agent
 
