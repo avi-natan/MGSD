@@ -26,6 +26,35 @@ def sandbox() -> None:
     # tests.test_simulate()
 
     # # Running the algorithm
+    """
+    Available parameters
+    ====================
+    
+    Methods that determine a simulation success/fail:
+    * percentage_free_ca
+      - args: {'threshold': float}
+    
+    Methods that determine the agents success/fail:
+    * reach_final_res
+      - args: {}
+      
+    Methods that determine how to populate the spectra:
+    * agent_pass_fail_contribution
+      - args: {'invert_for_success': bool}
+      
+    Methods for calculating diagnoses and their probabilities:
+    * ochiai
+      - args: {}
+    * barinel
+      - args: {}
+      
+    Methods for evaluating the algorithm:
+    * wasted_effort
+      - args: {}
+    * precision_recall
+      - args: {}
+    
+    """
     mgsd: MGSD = MGSD('percentage_free_ca',
                       {'threshold': 0.85},
                       'reach_final_res',
@@ -33,6 +62,8 @@ def sandbox() -> None:
                       'agent_pass_fail_contribution',
                       {'invert_for_success': True},
                       'barinel',
+                      {},
+                      'wasted_effort',
                       {})
     mgsd.run_algorithm()
 

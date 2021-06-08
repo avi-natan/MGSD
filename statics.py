@@ -367,6 +367,18 @@ def calculate_diagnoses_and_probabilities_barinel(spectra: List[List[int]],
     return diagnoses, probabilities
 
 
+#############################################################
+#           Methods for evaluating the algorithm            #
+#############################################################
+def evaluate_algorithm_wasted_effort(kwargs: Dict) -> Dict:
+    # TODO: implement
+    return {'wasted_effort': 420}
+
+def evaluate_algorithm_precision_recall(kwargs: Dict) -> Dict:
+    # TODO: implement
+    return {'Precision': 420, 'Recall': 420}
+
+
 methods = {
     # Methods that determine a simulation success/fail
     'percentage_free_ca': simulation_success_method_percentage_free_ca,
@@ -379,5 +391,9 @@ methods = {
 
     # Methods for calculating diagnoses and their probabilities
     'ochiai': calculate_diagnoses_and_probabilities_ochiai,
-    'barinel': calculate_diagnoses_and_probabilities_barinel
+    'barinel': calculate_diagnoses_and_probabilities_barinel,
+
+    # Methods for evaluating the algorithm
+    'wasted_effort': evaluate_algorithm_wasted_effort,
+    'precision_recall': evaluate_algorithm_precision_recall
 }

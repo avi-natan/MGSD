@@ -14,7 +14,9 @@ class MGSD(object):
                  error_vector_and_spectra_fill_method: str,
                  evsfm_args: Dict,
                  diagnoses_and_probabilities_calculation_method: str,
-                 dpcm_args: Dict) -> None:
+                 dpcm_args: Dict,
+                 evaluation_method: str,
+                 em_args: Dict) -> None:
         """
         Initializes the Multi Game SFL based Diagnosis (MGSD) Algorithm, with the following
         custom calculation methods
@@ -28,6 +30,8 @@ class MGSD(object):
         :param evsfm_args: supporting arguments for the above function
         :param diagnoses_and_probabilities_calculation_method: the method for calculating diagnoses and probabilities
         :param dpcm_args: supporting arguments for the above function
+        :param evaluation_method: the method for evaluating the algorithm
+        :param em_args: supporting arguments for the above function
         :return: Nothing
         """
         self.simulation_success_method = simulation_success_method
@@ -38,11 +42,14 @@ class MGSD(object):
         self.evsfm_args = evsfm_args
         self.diagnoses_and_probabilities_calculation_method = diagnoses_and_probabilities_calculation_method
         self.dpcm_args = dpcm_args
+        self.evaluation_method = evaluation_method
+        self.em_args = em_args
         self.simulations_to_run: List[Simulation] = []
         self.error_vector: List[int] = []
         self.spectra: List[List[int]] = []
         self.diagnoses: List[List[int]] = []
         self.probabilities: List[float] = []
+        self.evaluation_results: Dict = {}
 
     def run_algorithm(self, config_filename: str = None) -> None:
         """
@@ -68,6 +75,7 @@ class MGSD(object):
 
         self.calculate_error_vector_spectra()
         self.calculate_diagnoses_and_probabilities()
+        self.evaluate_algorithm()
         self.print_and_visualize_output()
         print('fin')
 
@@ -86,9 +94,14 @@ class MGSD(object):
     def calculate_diagnoses_and_probabilities(self):
         print('Calculating diagnoses and probabilities...')
         self.diagnoses, self.probabilities = \
-            statics.methods[self.diagnoses_and_probabilities_calculation_method](self.spectra, self.error_vector, {})
-
+            statics.methods[self.diagnoses_and_probabilities_calculation_method](self.spectra, self.error_vector,
+                                                                                 self.dpcm_args)
         print('Diagnoses and probabilities calculated.\n')
+
+    def evaluate_algorithm(self):
+        print('Evaluating algorithm...')
+        self.evaluation_results = statics.methods[self.evaluation_method](self.em_args)
+        print('Algorithm evaluated.')
 
     def print_and_visualize_output(self) -> None:
         print('\nPrinting and visualizing:')
@@ -101,6 +114,8 @@ class MGSD(object):
         print(f'Diagnoses and probabilities:')
         for i, d in enumerate(self.diagnoses):
             print(f'{d}, {self.probabilities[i]}')
+        print(f'Evaluation results:')
+        print(self.evaluation_results)
         print('')
         for i, s in enumerate(self.simulations_to_run):
             s.visualize(what='plans')
