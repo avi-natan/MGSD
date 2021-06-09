@@ -2,6 +2,7 @@ import math
 
 import consts
 from board import Board
+from sfl.Diagnoser.FullMatrix import FullMatrix
 from simulation import Simulation
 from agent import Agent
 
@@ -324,7 +325,7 @@ def calculate_diagnoses_and_probabilities_ochiai(spectra: List[List[int]],
 
 def calculate_diagnoses_and_probabilities_barinel(spectra: List[List[int]],
                                                   error_vector: List[int],
-                                                  kwargs: Dict) -> Tuple[List[List[int]], np.ndarray]:
+                                                  kwargs: Dict) -> Tuple[List[List[int]], List[float]]:
     # # Calculate diagnoses using hitting sets with CDS
     conflicts = []
     for i in range(len(error_vector)):
@@ -356,15 +357,60 @@ def calculate_diagnoses_and_probabilities_barinel(spectra: List[List[int]],
     e_dks_sum = sum(e_dks)
     for i, e_dk in enumerate(e_dks):
         probabilities[i] = e_dk / e_dks_sum
-    probabilities = np.array(probabilities)
-    probabilities = -np.sort(-probabilities)
+    z_probabilities, z_diagnoses = zip(*[(d, p) for d, p in sorted(zip(probabilities, diagnoses))])
+    lz_diagnoses = list(z_diagnoses)
+    lz_probabilities = list(z_probabilities)
+    lz_diagnoses.reverse()
+    lz_probabilities.reverse()
 
     # # another sanity check
     # print('probabilities')
     # for i, d in enumerate(diagnoses):
     #     print(f'{d}: {probabilities[i]}')
 
-    return diagnoses, probabilities
+    return lz_diagnoses, lz_probabilities
+
+
+def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
+                                                  error_vector: List[int],
+                                                  kwargs: Dict) -> Tuple[List[List[int]], List[float]]:
+    priors = [0.1 for _ in spectra[0]]
+    tests_components = []
+    for i, t in enumerate(spectra):
+        tc = []
+        for j, c in enumerate(spectra[i]):
+            if spectra[i][j] == 1:
+                tc.append(j)
+        tests_components.append(tc)
+    full_matrix = FullMatrix()
+    full_matrix.set_probabilities(priors)
+    full_matrix.set_error(error_vector)
+    full_matrix.set_matrix(list(map(lambda test: list(map(lambda comp: 1 if comp in test else 0, range(len(priors)))), tests_components)))
+    print(6)
+    fullM, used_components, used_tests = full_matrix.optimize()
+    opt_diagnoses = fullM.diagnose()
+    diags = []
+    for diag in opt_diagnoses:
+        diag = diag.clone()
+        diag_comps = [used_components[x] for x in diag.diagnosis]
+        diag.diagnosis = list(diag_comps)
+        diags.append(diag)
+    print(7)
+
+    # transform diagnoses to 2 lists like the default barinel
+    diagnoses, probabilities = [], []
+    for d in diags:
+        diagnoses.append(d.diagnosis)
+        probabilities.append(d.probability)
+
+    # sort the diagnoses and probabilities
+    z_probabilities, z_diagnoses = zip(*[(d, p) for d, p in sorted(zip(probabilities, diagnoses))])
+    lz_diagnoses = list(z_diagnoses)
+    lz_probabilities = list(z_probabilities)
+    lz_diagnoses.reverse()
+    lz_probabilities.reverse()
+
+    return lz_diagnoses, lz_probabilities
 
 
 #############################################################
@@ -392,6 +438,7 @@ methods = {
     # Methods for calculating diagnoses and their probabilities
     'ochiai': calculate_diagnoses_and_probabilities_ochiai,
     'barinel': calculate_diagnoses_and_probabilities_barinel,
+    'barinel_amir': calculate_diagnoses_and_probabilities_barinel_amir,
 
     # Methods for evaluating the algorithm
     'wasted_effort': evaluate_algorithm_wasted_effort,

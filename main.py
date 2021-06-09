@@ -47,6 +47,8 @@ def sandbox() -> None:
       - args: {}
     * barinel
       - args: {}
+    * barinel_amir
+      - args: {}
       
     Methods for evaluating the algorithm:
     * wasted_effort
@@ -61,7 +63,7 @@ def sandbox() -> None:
                       {},
                       'agent_pass_fail_contribution',
                       {'invert_for_success': True},
-                      'barinel',
+                      'barinel_amir',
                       {},
                       'wasted_effort',
                       {})
