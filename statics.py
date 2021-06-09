@@ -20,85 +20,31 @@ def get_hardcoded_simulations() -> List[Simulation]:
     agents: List[Agent] = [Agent(name='a' + str(i), is_faulty=(i == 0 or i == 1)) for i in list(range(6))]
 
     # Initializing boards
-    # b0: Board = Board(name='Intersection', width=12, height=12, critical_areas=[((4, 4), (8, 8))])
+    b0: Board = Board(name='Intersection', width=12, height=12, critical_areas=[((4, 4), (8, 8))])
     b1: Board = Board(name='Traffic circle', width=12, height=12,
                       critical_areas=[((4, 4), (8, 5)), ((4, 7), (8, 8)),
                                       ((4, 5), (5, 7)), ((7, 5), (8, 7))])
 
     # Creating simulations
-    # s0: Simulation = Simulation(name='Simulation Intersection',
-    #                             board=b0,
-    #                             plans=consts.custom_plans_intersection,
-    #                             agents=agents)
-    s1: Simulation = Simulation(name='Simulation Traffic circle1',
-                                board=b1,
-                                plans=consts.custom_plans_traffic_circle,
-                                agents=agents)
-    s2: Simulation = Simulation(name='Simulation Traffic circle2',
-                                board=b1,
-                                plans=consts.custom_plans_traffic_circle,
-                                agents=agents)
-    s3: Simulation = Simulation(name='Simulation Traffic circle3',
-                                board=b1,
-                                plans=consts.custom_plans_traffic_circle,
-                                agents=agents)
-    s4: Simulation = Simulation(name='Simulation Traffic circle4',
-                                board=b1,
-                                plans=consts.custom_plans_traffic_circle,
-                                agents=agents)
-    s5: Simulation = Simulation(name='Simulation Traffic circle5',
-                                board=b1,
-                                plans=consts.custom_plans_traffic_circle,
-                                agents=agents)
-    s6: Simulation = Simulation(name='Simulation Traffic circle6',
-                                board=b1,
-                                plans=consts.custom_plans_traffic_circle,
-                                agents=agents)
-    s7: Simulation = Simulation(name='Simulation Traffic circle7',
-                                board=b1,
-                                plans=consts.custom_plans_traffic_circle,
-                                agents=agents)
-    s8: Simulation = Simulation(name='Simulation Traffic circle8',
-                                board=b1,
-                                plans=consts.custom_plans_traffic_circle,
-                                agents=agents)
-    s9: Simulation = Simulation(name='Simulation Traffic circle9',
-                                board=b1,
-                                plans=consts.custom_plans_traffic_circle,
-                                agents=agents)
-    s10: Simulation = Simulation(name='Simulation Traffic circle10',
-                                 board=b1,
-                                 plans=consts.custom_plans_traffic_circle,
-                                 agents=agents)
-    s11: Simulation = Simulation(name='Simulation Traffic circle11',
-                                 board=b1,
-                                 plans=consts.custom_plans_traffic_circle,
-                                 agents=agents)
-    s12: Simulation = Simulation(name='Simulation Traffic circle12',
-                                 board=b1,
-                                 plans=consts.custom_plans_traffic_circle,
-                                 agents=agents)
-    s13: Simulation = Simulation(name='Simulation Traffic circle13',
-                                 board=b1,
-                                 plans=consts.custom_plans_traffic_circle,
-                                 agents=agents)
+    sims_intersection1 = []
+    for i in range(len(consts.intersection_custom_plan1_outcomes)):
+        s: Simulation = Simulation(name='Simulation Intersection' + str(i),
+                                   board=b0,
+                                   plans=consts.intersection_custom_plan1,
+                                   agents=agents)
+        s.outcome = consts.intersection_custom_plan1_outcomes[i]
+        sims_intersection1.append(s)
 
-    return [
-        # s0,
-        s1,
-        s2,
-        s3,
-        s4,
-        s5,
-        s6,
-        s7,
-        s8,
-        s9,
-        s10,
-        s11,
-        s12,
-        s13
-    ]
+    sims_traffic_circle1 = []
+    for i in range(len(consts.traffic_circle_custom_plan1_outcomes)):
+        s: Simulation = Simulation(name='Simulation Traffic circle' + str(i),
+                                   board=b1,
+                                   plans=consts.traffic_circle_custom_plan1,
+                                   agents=agents)
+        s.outcome = consts.traffic_circle_custom_plan1_outcomes[i]
+        sims_traffic_circle1.append(s)
+
+    return sims_intersection1 + sims_traffic_circle1
 
 
 def get_from_filename(config_filename: str) -> List[Simulation]:
@@ -180,7 +126,7 @@ def error_vector_and_spectra_fill_method_agent_pass_fail_contribution(simulation
                                                                       ssm_args: Dict,
                                                                       agent_success_method: str,
                                                                       asm_args: Dict,
-                                                                      evsfm_args: Dict)\
+                                                                      evsfm_args: Dict) \
         -> Tuple[List[int], List[List[int]]]:
     error_vector = []
     spectra = []
@@ -238,6 +184,7 @@ def calculate_dichotomy_matrix(spectra: List[List[int]], error_vector: List[int]
         dichotomy_matrix[2].append(n01)
         dichotomy_matrix[3].append(n00)
     return dichotomy_matrix
+
 
 def calculate_e_dk(dk: List[int], spectra: List[List[int]], error_vector: List[int]):
     funcArr = ['(-1)']
@@ -372,8 +319,8 @@ def calculate_diagnoses_and_probabilities_barinel(spectra: List[List[int]],
 
 
 def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
-                                                  error_vector: List[int],
-                                                  kwargs: Dict) -> Tuple[List[List[int]], List[float]]:
+                                                       error_vector: List[int],
+                                                       kwargs: Dict) -> Tuple[List[List[int]], List[float]]:
     priors = [0.1 for _ in spectra[0]]
     tests_components = []
     for i, t in enumerate(spectra):
@@ -385,7 +332,8 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
     full_matrix = FullMatrix()
     full_matrix.set_probabilities(priors)
     full_matrix.set_error(error_vector)
-    full_matrix.set_matrix(list(map(lambda test: list(map(lambda comp: 1 if comp in test else 0, range(len(priors)))), tests_components)))
+    full_matrix.set_matrix(
+        list(map(lambda test: list(map(lambda comp: 1 if comp in test else 0, range(len(priors)))), tests_components)))
     print(6)
     fullM, used_components, used_tests = full_matrix.optimize()
     opt_diagnoses = fullM.diagnose()
@@ -419,6 +367,7 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
 def evaluate_algorithm_wasted_effort(kwargs: Dict) -> Dict:
     # TODO: implement
     return {'wasted_effort': 420}
+
 
 def evaluate_algorithm_precision_recall(kwargs: Dict) -> Dict:
     # TODO: implement

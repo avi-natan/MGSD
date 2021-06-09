@@ -64,8 +64,7 @@ class MGSD(object):
             self.simulations_to_run = statics.get_hardcoded_simulations()
             for i, s in enumerate(self.simulations_to_run):
                 s.summary()
-            for i, s in enumerate(self.simulations_to_run):
-                s.outcome = consts.custom_outcome[i]
+            # no simulating. the outcome is already included
         else:
             self.simulations_to_run = statics.get_from_filename(config_filename)
             for i, s in enumerate(self.simulations_to_run):
