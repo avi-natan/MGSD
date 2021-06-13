@@ -1,8 +1,12 @@
 import math
+from functools import reduce
 
 import consts
 from board import Board
+from sfl.Diagnoser.Diagnosis import Diagnosis
 from sfl.Diagnoser.FullMatrix import FullMatrix
+from sfl.Diagnoser.Barinel import Barinel
+from sfl.Diagnoser.Staccato import Staccato
 from simulation import Simulation
 from agent import Agent
 
@@ -247,7 +251,8 @@ def calculate_e_dk(dk: List[int], spectra: List[List[int]], error_vector: List[i
 
 def calculate_diagnoses_and_probabilities_ochiai(spectra: List[List[int]],
                                                  error_vector: List[int],
-                                                 kwargs: Dict) -> Tuple[List[List[int]], List[float]]:
+                                                 kwargs: Dict,
+                                                 simulations: List[Simulation]) -> Tuple[List[List[int]], List[float]]:
     diagnoses = [[i] for i in range(len(spectra[0]))]
 
     dm = calculate_dichotomy_matrix(spectra, error_vector)
@@ -272,7 +277,8 @@ def calculate_diagnoses_and_probabilities_ochiai(spectra: List[List[int]],
 
 def calculate_diagnoses_and_probabilities_barinel(spectra: List[List[int]],
                                                   error_vector: List[int],
-                                                  kwargs: Dict) -> Tuple[List[List[int]], List[float]]:
+                                                  kwargs: Dict,
+                                                  simulations: List[Simulation]) -> Tuple[List[List[int]], List[float]]:
     # # Calculate diagnoses using hitting sets with CDS
     conflicts = []
     for i in range(len(error_vector)):
@@ -285,8 +291,11 @@ def calculate_diagnoses_and_probabilities_barinel(spectra: List[List[int]],
     diagnoses: List[List[int]] = conflict_directed_search(conflicts=conflicts)
 
     # # calculate probabilities
-    p = 0.1  # TODO: smart calculation of the priors
-    priors = [(p**len(diag))*((1-p)**(len(spectra[0])-len(diag))) for diag in diagnoses]  # priors
+    priors = methods[kwargs['method_for_calculating_priors']](spectra,
+                                                              error_vector,
+                                                              kwargs,
+                                                              simulations,
+                                                              diagnoses)
     probabilities = [0.0 for _ in diagnoses]
     e_dks = []
     for i, dk in enumerate(diagnoses):
@@ -310,23 +319,76 @@ def calculate_diagnoses_and_probabilities_barinel(spectra: List[List[int]],
 
 def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
                                                        error_vector: List[int],
-                                                       kwargs: Dict) -> Tuple[List[List[int]], List[float]]:
-    priors = [0.1 for _ in spectra[0]]  # TODO: smart calculation of the priors
-    tests_components = []
-    for i, t in enumerate(spectra):
-        tc = []
-        for j, c in enumerate(spectra[i]):
-            if spectra[i][j] == 1:
-                tc.append(j)
-        tests_components.append(tc)
-    full_matrix = FullMatrix()
-    full_matrix.set_probabilities(priors)
-    full_matrix.set_error(error_vector)
-    full_matrix.set_matrix(
-        list(map(lambda test: list(map(lambda comp: 1 if comp in test else 0, range(len(priors)))), tests_components)))
-    print(6)
-    fullM, used_components, used_tests = full_matrix.optimize()
-    opt_diagnoses = fullM.diagnose()
+                                                       kwargs: Dict,
+                                                       simulations: List[Simulation]) -> \
+        Tuple[List[List[int]], List[float]]:
+    # Calculate diagnoses using the Staccato algorithm
+    staccato_diagnoses = Staccato().run(spectra, error_vector)
+    diagnoses_list = []
+    for i, td in enumerate(staccato_diagnoses):
+        diagnoses_list.append([c for c in td])
+
+    # Calculate probabilities
+    priors = methods[kwargs['method_for_calculating_priors']](spectra,
+                                                              error_vector,
+                                                              kwargs,
+                                                              simulations,
+                                                              diagnoses_list)
+
+    # tests_components = []
+    # for i, t in enumerate(spectra):
+    #     tc = []
+    #     for j, c in enumerate(spectra[i]):
+    #         if spectra[i][j] == 1:
+    #             tc.append(j)
+    #     tests_components.append(tc)
+    # full_matrix = FullMatrix()
+    # full_matrix.set_probabilities(priors)
+    # full_matrix.set_error(error_vector)
+    # full_matrix.set_matrix(
+    #     list(map(lambda test: list(map(lambda comp: 1 if comp in test else 0, range(len(priors)))), tests_components)))
+    # print(6)
+    # fullM, used_components, used_tests = full_matrix.optimize()
+    # opt_diagnoses = fullM.diagnose()
+
+    failed_tests = list(
+        map(lambda test: list(enumerate(test[0])), filter(lambda test: test[1] == 1, zip(spectra, error_vector))))
+    used_components = dict(enumerate(sorted(reduce(set.__or__, map(
+        lambda test: set(map(lambda comp: comp[0], filter(lambda comp: comp[1] == 1, test))), failed_tests), set()))))
+    bar = Barinel()
+    bar.set_matrix_error(spectra, error_vector)
+    bar.set_prior_probs([])
+
+    new_diagnoses = []
+    for staccato_diagnoses in staccato_diagnoses:
+        new_diagnoses.append(Diagnosis(staccato_diagnoses))
+    bar.set_diagnoses(new_diagnoses)
+
+    new_diagnoses = []
+    probs_sum = 0.0
+    bar_diagnoses = bar.get_diagnoses()
+    for i, diag in enumerate(bar_diagnoses):
+        dk = 0.0
+        # if bar.prior_probs == []:
+        #     dk = math.pow(0.1, len(diag.get_diag()))
+        # else:
+        #     dk = bar.non_uniform_prior(diag)
+        dk = priors[i]
+        tf = bar.tf_for_diag(diag.get_diag())
+        diag.set_probability(tf.maximize() * dk)
+        # diag.set_from_tf(tf)
+        probs_sum += diag.get_prob()
+    for diag in bar_diagnoses:
+        if probs_sum < 1e-5:
+            # set uniform to avoid nan
+            temp_prob = 1.0 / len(bar.diagnoses)
+        else:
+            temp_prob = diag.get_prob() / probs_sum
+        diag.set_probability(temp_prob)
+        new_diagnoses.append(diag)
+    bar.set_diagnoses(new_diagnoses)
+    opt_diagnoses = bar.get_diagnoses()
+
     diags = []
     for diag in opt_diagnoses:
         diag = diag.clone()
@@ -349,6 +411,40 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
     lz_probabilities.reverse()
 
     return lz_diagnoses, lz_probabilities
+
+
+#############################################################
+#              Methods for calculating priors               #
+#############################################################
+# TODO: smart calculation of the priors
+def calculate_priors_static(spectra: List[List[int]],
+                            error_vector: List[int],
+                            kwargs: Dict,
+                            simulations: List[Simulation],
+                            diagnoses: List[List[int]]) -> List[float]:
+    p = 0.1
+    priors = [p for _ in diagnoses]  # priors
+    return priors
+
+
+def calculate_priors_amir(spectra: List[List[int]],
+                          error_vector: List[int],
+                          kwargs: Dict,
+                          simulations: List[Simulation],
+                          diagnoses: List[List[int]]) -> List[float]:
+    p = 0.1
+    priors = [math.pow(p, len(diag)) for diag in diagnoses]
+    return priors
+
+
+def calculate_priors_paper(spectra: List[List[int]],
+                           error_vector: List[int],
+                           kwargs: Dict,
+                           simulations: List[Simulation],
+                           diagnoses: List[List[int]]) -> List[float]:
+    p = 0.1
+    priors = [(p ** len(diag)) * ((1 - p) ** (len(spectra[0]) - len(diag))) for diag in diagnoses]  # priors
+    return priors
 
 
 #############################################################
@@ -378,6 +474,11 @@ methods = {
     'ochiai': calculate_diagnoses_and_probabilities_ochiai,
     'barinel': calculate_diagnoses_and_probabilities_barinel,
     'barinel_amir': calculate_diagnoses_and_probabilities_barinel_amir,
+
+    # Methods for calculating priors
+    'priors_static': calculate_priors_static,
+    'priors_amir': calculate_priors_amir,
+    'priors_paper': calculate_priors_paper,
 
     # Methods for evaluating the algorithm
     'wasted_effort': evaluate_algorithm_wasted_effort,

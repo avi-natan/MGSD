@@ -93,8 +93,10 @@ class MGSD(object):
     def calculate_diagnoses_and_probabilities(self):
         print('Calculating diagnoses and probabilities...')
         self.diagnoses, self.probabilities = \
-            statics.methods[self.diagnoses_and_probabilities_calculation_method](self.spectra, self.error_vector,
-                                                                                 self.dpcm_args)
+            statics.methods[self.diagnoses_and_probabilities_calculation_method](self.spectra,
+                                                                                 self.error_vector,
+                                                                                 self.dpcm_args,
+                                                                                 self.simulations_to_run)
         print('Diagnoses and probabilities calculated.\n')
 
     def evaluate_algorithm(self):
