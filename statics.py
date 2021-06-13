@@ -241,7 +241,7 @@ def calculate_e_dk(dk: List[int], spectra: List[List[int]], error_vector: List[i
 
     # solving the minimization problem
     h0 = np.array(h0)
-    sol = minimize(objective, h0, method='SLSQP', bounds=bnds)
+    sol = minimize(objective, h0, method="L-BFGS-B", bounds=bnds, tol=1e-3,options={'maxiter':100})
 
     # print(sol)
     # print(-sol.fun)
@@ -403,7 +403,10 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
         diagnoses.append(d.diagnosis)
         probabilities.append(d.probability)
 
-    # sort the diagnoses and probabilities
+    # normalize probabilities and order them
+    probabilities_sum = sum(probabilities)
+    for i, probability in enumerate(probabilities):
+        probabilities[i] = probabilities[i] / probabilities_sum
     z_probabilities, z_diagnoses = zip(*[(d, p) for d, p in sorted(zip(probabilities, diagnoses))])
     lz_diagnoses = list(z_diagnoses)
     lz_probabilities = list(z_probabilities)

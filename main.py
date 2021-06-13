@@ -64,7 +64,7 @@ def sandbox() -> None:
                       'agent_pass_fail_contribution',
                       {'invert_for_success': True},
                       'barinel_amir',
-                      {'method_for_calculating_priors': 'paper'},
+                      {'method_for_calculating_priors': 'priors_paper'},
                       'wasted_effort',
                       {})
     mgsd.run_algorithm()
