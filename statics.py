@@ -285,43 +285,33 @@ def calculate_diagnoses_and_probabilities_barinel(spectra: List[List[int]],
     diagnoses: List[List[int]] = conflict_directed_search(conflicts=conflicts)
 
     # # calculate probabilities
-    # Dummy implementation
-    # probabilities = [1 / len(diagnoses) for _ in diagnoses]
-
-    # Real implementation
-    probabilities = [0 for _ in diagnoses]
+    p = 0.1  # TODO: smart calculation of the priors
+    priors = [(p**len(diag))*((1-p)**(len(spectra[0])-len(diag))) for diag in diagnoses]  # priors
+    probabilities = [0.0 for _ in diagnoses]
     e_dks = []
     for i, dk in enumerate(diagnoses):
         e_dk = calculate_e_dk(dk, spectra, error_vector)
         e_dks.append(e_dk)
-
-    # # sanity check
-    # print('e_dks')
-    # for i, d in enumerate(diagnoses):
-    #     print(f'{d}: {e_dks[i]}')
+        probabilities[i] = priors[i] * e_dk
 
     # normalize probabilities and order them
-    e_dks_sum = sum(e_dks)
-    for i, e_dk in enumerate(e_dks):
-        probabilities[i] = e_dk / e_dks_sum
+    probabilities_sum = sum(probabilities)
+    for i, probability in enumerate(probabilities):
+        probabilities[i] = probabilities[i] / probabilities_sum
     z_probabilities, z_diagnoses = zip(*[(d, p) for d, p in sorted(zip(probabilities, diagnoses))])
     lz_diagnoses = list(z_diagnoses)
     lz_probabilities = list(z_probabilities)
     lz_diagnoses.reverse()
     lz_probabilities.reverse()
 
-    # # another sanity check
-    # print('probabilities')
-    # for i, d in enumerate(diagnoses):
-    #     print(f'{d}: {probabilities[i]}')
-
+    # return ordered and normalized diagnoses and probabilities
     return lz_diagnoses, lz_probabilities
 
 
 def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
                                                        error_vector: List[int],
                                                        kwargs: Dict) -> Tuple[List[List[int]], List[float]]:
-    priors = [0.1 for _ in spectra[0]]
+    priors = [0.1 for _ in spectra[0]]  # TODO: smart calculation of the priors
     tests_components = []
     for i, t in enumerate(spectra):
         tc = []

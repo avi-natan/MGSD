@@ -41,11 +41,6 @@ class Simulation(object):
         assert self.plans is not None, 'can not simulate without plans'
         assert self.plans != [], 'can not simulate without plans'
 
-        # # Dummy outcome
-        self.outcome = []
-        self.agents[0].is_faulty = True
-        self.agents[1].is_faulty = True
-
         # # Real outcome - considering the agents plans and whether they are faulty
         # # TODO: implement
         # self.outcome = self.generate_outcome()
