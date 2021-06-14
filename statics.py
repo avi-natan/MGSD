@@ -279,7 +279,7 @@ def calculate_diagnoses_and_probabilities_barinel_avi(spectra: List[List[int]],
                                                       error_vector: List[int],
                                                       kwargs: Dict,
                                                       simulations: List[Simulation]) -> Tuple[
-        List[List[int]], List[float]]:
+    List[List[int]], List[float]]:
     # # Calculate diagnoses using hitting sets with CDS
     conflicts = []
     for i in range(len(error_vector)):
@@ -421,6 +421,16 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
 #              Methods for calculating priors               #
 #############################################################
 # TODO: smart calculation of the priors
+def calculate_priors_one(spectra: List[List[int]],
+                         error_vector: List[int],
+                         kwargs: Dict,
+                         simulations: List[Simulation],
+                         diagnoses: List[List[int]]) -> List[float]:
+    p = 1
+    priors = [p for _ in diagnoses]  # priors
+    return priors
+
+
 def calculate_priors_static(spectra: List[List[int]],
                             error_vector: List[int],
                             kwargs: Dict,
@@ -451,12 +461,57 @@ def calculate_priors_paper(spectra: List[List[int]],
     return priors
 
 
-def calculate_priors_intersections(spectra: List[List[int]],
-                                   error_vector: List[int],
-                                   kwargs: Dict,
-                                   simulations: List[Simulation],
-                                   diagnoses: List[List[int]]) -> List[float]:
-    pass
+def calculate_priors_intersections1(spectra: List[List[int]],
+                                    error_vector: List[int],
+                                    kwargs: Dict,
+                                    simulations: List[Simulation],
+                                    diagnoses: List[List[int]]) -> List[float]:
+    """
+    Simple method for calculating priors using intersections. A single table that holds information about
+    agents intersections throughout the entire spectra is created.
+    An agent has the number of times it passes first in an intersection and the number of
+    times it passes as the second one. We call the difference between the two: forepass coefficient
+    Diagnoses that involve agents with higher forepass coefficients have higher probabilities.
+    :param spectra:
+    :param error_vector:
+    :param kwargs:
+    :param simulations:
+    :param diagnoses:
+    :return:
+    """
+    # initialize intersections table
+    intersections_table = np.zeros((len(spectra[0]), len(spectra[0])), dtype=int)
+    print(9)
+
+    # populate intersections table across the different simulations
+    for i, simulation in enumerate(simulations):
+        current_plans = simulation.plans
+        for a in range(len(current_plans)):
+            for t in range(len(current_plans[a]) - 1):
+                print(f'checking for agent {a} at time {t}: {current_plans[a][t]}')
+                for a2 in range(len(current_plans)):
+                    if a2 != a:
+                        print(f'other agent is: {a2}')
+                        for t2 in range(t + 1, len(current_plans[a2])):
+                            print(f'time {t2}: {current_plans[a2][t2]}')
+                            if current_plans[a][t] == current_plans[a2][t2]:
+                                intersections_table[a][a2] += 1
+    print(6)
+    passed_first = [sum(row) for row in intersections_table]
+    passed_last = [sum(row) for row in intersections_table.transpose()]
+    forepass_coefficient = np.subtract(passed_first, passed_last)
+    print(6)
+
+    priors = []
+    for diagnosis in diagnoses:
+        prior = 0.0
+        for c in diagnosis:
+            prior += forepass_coefficient[c]
+        priors.append(prior)
+    normalized_priors = [(float(i)-min(priors))/(max(priors)-min(priors)) for i in priors]
+    sum_normalized_priors = sum(normalized_priors)
+    normalized_priors = [i/sum_normalized_priors for i in normalized_priors]
+    return normalized_priors
 
 
 #############################################################
@@ -488,10 +543,11 @@ methods = {
     'barinel_amir': calculate_diagnoses_and_probabilities_barinel_amir,
 
     # Methods for calculating priors
+    'priors_one': calculate_priors_one,
     'priors_static': calculate_priors_static,
     'priors_amir': calculate_priors_amir,
     'priors_paper': calculate_priors_paper,
-    'priors_intersections': calculate_priors_intersections,
+    'priors_intersections1': calculate_priors_intersections1,
 
     # Methods for evaluating the algorithm
     'wasted_effort': evaluate_algorithm_wasted_effort,
