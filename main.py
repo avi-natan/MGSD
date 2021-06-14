@@ -45,10 +45,10 @@ def sandbox() -> None:
     Methods for calculating diagnoses and their probabilities:
     * ochiai
       - args: {}
-    * barinel
-      - args: {'method_for_calculating_priors': str <priors_static, priors_amir, priors_paper>}
+    * barinel_avi
+      - args: {'method_for_calculating_priors': str <priors_static, priors_amir, priors_paper, priors_intersections>}
     * barinel_amir
-      - args: {'method_for_calculating_priors': str <priors_static, priors_amir, priors_paper>}
+      - args: {'method_for_calculating_priors': str <priors_static, priors_amir, priors_paper, priors_intersections>}
       
     Methods for evaluating the algorithm:
     * wasted_effort
@@ -64,7 +64,7 @@ def sandbox() -> None:
                       'agent_pass_fail_contribution',
                       {'invert_for_success': True},
                       'barinel_amir',
-                      {'method_for_calculating_priors': 'priors_paper'},
+                      {'method_for_calculating_priors': 'priors_amir'},
                       'wasted_effort',
                       {})
     mgsd.run_algorithm()

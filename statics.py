@@ -241,7 +241,7 @@ def calculate_e_dk(dk: List[int], spectra: List[List[int]], error_vector: List[i
 
     # solving the minimization problem
     h0 = np.array(h0)
-    sol = minimize(objective, h0, method="L-BFGS-B", bounds=bnds, tol=1e-3,options={'maxiter':100})
+    sol = minimize(objective, h0, method="L-BFGS-B", bounds=bnds, tol=1e-3, options={'maxiter': 100})
 
     # print(sol)
     # print(-sol.fun)
@@ -275,10 +275,11 @@ def calculate_diagnoses_and_probabilities_ochiai(spectra: List[List[int]],
     return diagnoses, probabilities
 
 
-def calculate_diagnoses_and_probabilities_barinel(spectra: List[List[int]],
-                                                  error_vector: List[int],
-                                                  kwargs: Dict,
-                                                  simulations: List[Simulation]) -> Tuple[List[List[int]], List[float]]:
+def calculate_diagnoses_and_probabilities_barinel_avi(spectra: List[List[int]],
+                                                      error_vector: List[int],
+                                                      kwargs: Dict,
+                                                      simulations: List[Simulation]) -> Tuple[
+        List[List[int]], List[float]]:
     # # Calculate diagnoses using hitting sets with CDS
     conflicts = []
     for i in range(len(error_vector)):
@@ -360,8 +361,8 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
     bar.set_prior_probs([])
 
     new_diagnoses = []
-    for staccato_diagnoses in staccato_diagnoses:
-        new_diagnoses.append(Diagnosis(staccato_diagnoses))
+    for staccato_diagnosis in staccato_diagnoses:
+        new_diagnoses.append(Diagnosis(staccato_diagnosis))
     bar.set_diagnoses(new_diagnoses)
 
     new_diagnoses = []
@@ -450,6 +451,14 @@ def calculate_priors_paper(spectra: List[List[int]],
     return priors
 
 
+def calculate_priors_intersections(spectra: List[List[int]],
+                                   error_vector: List[int],
+                                   kwargs: Dict,
+                                   simulations: List[Simulation],
+                                   diagnoses: List[List[int]]) -> List[float]:
+    pass
+
+
 #############################################################
 #           Methods for evaluating the algorithm            #
 #############################################################
@@ -475,13 +484,14 @@ methods = {
 
     # Methods for calculating diagnoses and their probabilities
     'ochiai': calculate_diagnoses_and_probabilities_ochiai,
-    'barinel': calculate_diagnoses_and_probabilities_barinel,
+    'barinel_avi': calculate_diagnoses_and_probabilities_barinel_avi,
     'barinel_amir': calculate_diagnoses_and_probabilities_barinel_amir,
 
     # Methods for calculating priors
     'priors_static': calculate_priors_static,
     'priors_amir': calculate_priors_amir,
     'priors_paper': calculate_priors_paper,
+    'priors_intersections': calculate_priors_intersections,
 
     # Methods for evaluating the algorithm
     'wasted_effort': evaluate_algorithm_wasted_effort,
