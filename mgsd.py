@@ -7,6 +7,8 @@ from typing import List, Dict
 
 class MGSD(object):
     def __init__(self,
+                 fault_and_conflict_method: str,
+                 facm_args: Dict,
                  simulation_success_method: str,
                  ssm_args: Dict,
                  agent_success_method: str,
@@ -21,6 +23,8 @@ class MGSD(object):
         Initializes the Multi Game SFL based Diagnosis (MGSD) Algorithm, with the following
         custom calculation methods
 
+        :param fault_and_conflict_method: name of the fault method when running the simulation
+        :param facm_args: supporting arguments for the above function
         :param simulation_success_method: name of the function that will determine a simulation success/fail
         :param ssm_args: supporting arguments for the above function
         :param agent_success_method: name of the function that will determine the agents success/fail
@@ -34,6 +38,8 @@ class MGSD(object):
         :param em_args: supporting arguments for the above function
         :return: Nothing
         """
+        self.fault_and_conflict_method = fault_and_conflict_method
+        self.facm_args = facm_args
         self.simulation_success_method = simulation_success_method
         self.ssm_args = ssm_args
         self.agent_success_method = agent_success_method
@@ -70,7 +76,7 @@ class MGSD(object):
             for i, s in enumerate(self.simulations_to_run):
                 s.summary()
             for i, s in enumerate(self.simulations_to_run):
-                s.simulate()
+                s.simulate(self.fault_and_conflict_method, self.facm_args)
 
         self.calculate_error_vector_spectra()
         self.calculate_diagnoses_and_probabilities()

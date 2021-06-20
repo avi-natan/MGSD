@@ -1,8 +1,9 @@
 import consts
+import statics
 from board import Board
 from agent import Agent
 
-from typing import List
+from typing import List, Dict
 from typing import Tuple
 
 import matplotlib.pyplot as plt
@@ -35,7 +36,7 @@ class Simulation(object):
         self.outcome = None
         Simulation.object_id += 1
 
-    def simulate(self) -> None:
+    def simulate(self, fault_and_conflict_method: str, facm_args: Dict) -> None:
         assert self.board is not None, 'can not simulate without board'
         assert self.agents is not None, 'can not simulate without agents'
         assert self.agents != [], 'can not simulate without agents'
@@ -43,11 +44,10 @@ class Simulation(object):
         assert self.plans != [], 'can not simulate without plans'
 
         # # Dummy outcome
-        self.outcome = consts.traffic_circle_custom_plan1_outcomes[self.id]
+        # self.outcome = consts.traffic_circle_custom_plan1_outcomes[self.id]
 
         # # Real outcome - considering the agents plans and whether they are faulty
-        # # TODO: implement
-        # self.outcome = self.generate_outcome()
+        self.outcome = statics.methods[fault_and_conflict_method](self.plans, facm_args)
 
     def visualize(self, mode: str = 'grid', what: str = 'plans') -> None:
         if what == 'outcome':

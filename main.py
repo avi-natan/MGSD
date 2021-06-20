@@ -29,6 +29,9 @@ def sandbox() -> None:
     """
     Available parameters
     ====================
+    Methods that determine the fault and conflict for the simulation
+    * delay_and_wait_for_it
+      - args: {}
     
     Methods that determine a simulation success/fail:
     * percentage_free_ca
@@ -68,7 +71,9 @@ def sandbox() -> None:
       - args: {}
     
     """
-    mgsd: MGSD = MGSD('percentage_free_ca',
+    mgsd: MGSD = MGSD('delay_and_wait_for_it',
+                      {},
+                      'percentage_free_ca',
                       {'threshold': 0.85},
                       'reach_final_res',
                       {},

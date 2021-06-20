@@ -115,6 +115,14 @@ def conflict_directed_search(conflicts: List[List[int]]) -> List[List[int]]:
 
 
 #############################################################
+# Methods that determine the fault and conflict for the simulation
+#############################################################
+def simulate_delay_and_wait_for_it(plans: List[List[Tuple[int, int]]], facm_args: Dict) -> List[List[Tuple[int, int]]]:
+    # todo: implement real
+    return consts.traffic_circle_custom_plan1_outcomes[3]
+
+
+#############################################################
 #     Methods that determine a simulation success/fail      #
 #############################################################
 def simulation_success_method_percentage_free_ca(simulation: Simulation, ssm_args: Dict) -> bool:
@@ -611,6 +619,9 @@ def evaluate_algorithm_precision_recall(kwargs: Dict) -> Dict:
 
 
 methods = {
+    # Methods that determine the fault and conflict for the simulation
+    'delay_and_wait_for_it': simulate_delay_and_wait_for_it,
+
     # Methods that determine a simulation success/fail
     'percentage_free_ca': simulation_success_method_percentage_free_ca,
 
