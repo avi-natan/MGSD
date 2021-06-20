@@ -46,9 +46,20 @@ def sandbox() -> None:
     * ochiai
       - args: {}
     * barinel_avi
-      - args: {'method_for_calculating_priors': str <priors_one, priors_static, priors_amir, priors_paper, priors_intersections1>}
+      - args: {'method_for_calculating_priors': str 
+                                                <priors_one,
+                                                priors_static,
+                                                priors_amir,
+                                                priors_paper,
+                                                priors_intersections1,
+                                                priors_intersections2>}
     * barinel_amir
-      - args: {'method_for_calculating_priors': str <priors_one, priors_static, priors_amir, priors_paper, priors_intersections1>}
+      - args: {'method_for_calculating_priors': str <priors_one,
+                                                priors_static,
+                                                priors_amir,
+                                                priors_paper,
+                                                priors_intersections1,
+                                                priors_intersections2>}
       
     Methods for evaluating the algorithm:
     * wasted_effort
@@ -63,8 +74,8 @@ def sandbox() -> None:
                       {},
                       'agent_pass_fail_contribution',
                       {'invert_for_success': True},
-                      'barinel_avi',
-                      {'method_for_calculating_priors': 'priors_intersections1'},
+                      'barinel_amir',
+                      {'method_for_calculating_priors': 'priors_intersections2'},
                       'wasted_effort',
                       {})
     mgsd.run_algorithm()

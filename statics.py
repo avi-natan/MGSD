@@ -421,6 +421,25 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
 #              Methods for calculating priors               #
 #############################################################
 # TODO: smart calculation of the priors
+def populate_intersections_table(num_agents, simulations) -> np.ndarray:
+    # initialize intersections table
+    intersections_table = np.zeros((num_agents, num_agents), dtype=int)
+
+    # populate intersections table across the different simulations
+    for i, simulation in enumerate(simulations):
+        current_plans = simulation.plans
+        for a in range(len(current_plans)):
+            for t in range(len(current_plans[a]) - 1):
+                # print(f'checking for agent {a} at time {t}: {current_plans[a][t]}')
+                for a2 in range(len(current_plans)):
+                    if a2 != a:
+                        # print(f'other agent is: {a2}')
+                        for t2 in range(t + 1, len(current_plans[a2])):
+                            # print(f'time {t2}: {current_plans[a2][t2]}')
+                            if current_plans[a][t] == current_plans[a2][t2]:
+                                intersections_table[a][a2] += 1
+    return intersections_table
+
 def calculate_priors_one(spectra: List[List[int]],
                          error_vector: List[int],
                          kwargs: Dict,
@@ -479,29 +498,15 @@ def calculate_priors_intersections1(spectra: List[List[int]],
     :param diagnoses:
     :return:
     """
-    # initialize intersections table
-    intersections_table = np.zeros((len(spectra[0]), len(spectra[0])), dtype=int)
-    print(9)
+    # initialize and populate intersections table across the different simulations
+    intersections_table = populate_intersections_table(len(spectra[0]), simulations)
 
-    # populate intersections table across the different simulations
-    for i, simulation in enumerate(simulations):
-        current_plans = simulation.plans
-        for a in range(len(current_plans)):
-            for t in range(len(current_plans[a]) - 1):
-                print(f'checking for agent {a} at time {t}: {current_plans[a][t]}')
-                for a2 in range(len(current_plans)):
-                    if a2 != a:
-                        print(f'other agent is: {a2}')
-                        for t2 in range(t + 1, len(current_plans[a2])):
-                            print(f'time {t2}: {current_plans[a2][t2]}')
-                            if current_plans[a][t] == current_plans[a2][t2]:
-                                intersections_table[a][a2] += 1
-    print(6)
+    # calculate forepass coefficients
     passed_first = [sum(row) for row in intersections_table]
     passed_last = [sum(row) for row in intersections_table.transpose()]
     forepass_coefficient = np.subtract(passed_first, passed_last)
-    print(6)
 
+    # calculate priors
     priors = []
     for diagnosis in diagnoses:
         prior = 0.0
@@ -512,6 +517,53 @@ def calculate_priors_intersections1(spectra: List[List[int]],
     sum_normalized_priors = sum(normalized_priors)
     normalized_priors = [i/sum_normalized_priors for i in normalized_priors]
     return normalized_priors
+
+def calculate_priors_intersections2(spectra: List[List[int]],
+                                    error_vector: List[int],
+                                    kwargs: Dict,
+                                    simulations: List[Simulation],
+                                    diagnoses: List[List[int]]) -> List[float]:
+    """
+    Simple method for calculating priors using intersections. A single table that holds information about
+    agents intersections throughout the entire spectra is created.
+    An agent has the number of times it passes first in an intersection and the number of
+    times it passes as the second one. For each agent we calculate the total number that an agent passes in
+    intersections as the second agent (call this number pass_second), which gives an estimate on how probable
+    it is for an agent to not reach its final resource because of other agents. We then transform those
+    numbers to probabilities, giving agents with higher pass_second number a lower a-priori probability to
+    be faulty.
+    :param spectra:
+    :param error_vector:
+    :param kwargs:
+    :param simulations:
+    :param diagnoses:
+    :return:
+    """
+    # initialize and populate intersections table across the different simulations
+    intersections_table = populate_intersections_table(len(spectra[0]), simulations)
+
+    # calculate pass_second numbers
+    pass_second = [sum(row) for row in intersections_table.transpose()]
+    print(9)
+
+    # normalize and invert pass_second numbers to get agent-wise probabilities
+    alpha = 2
+    d = 5
+    normalized_pass_second = \
+        [(float(i) - min(pass_second) + alpha) / (max(pass_second) - min(pass_second) + alpha*d) for i in pass_second]
+    print(9)
+    inverted_normalized_pass_second = [1-p for p in normalized_pass_second]
+    print(9)
+
+    # calculate priors
+    priors = []
+    for diagnosis in diagnoses:
+        prior = 1.0
+        for c in diagnosis:
+            prior *= inverted_normalized_pass_second[c]
+        priors.append(prior)
+    print(9)
+    return priors
 
 
 #############################################################
@@ -548,6 +600,7 @@ methods = {
     'priors_amir': calculate_priors_amir,
     'priors_paper': calculate_priors_paper,
     'priors_intersections1': calculate_priors_intersections1,
+    'priors_intersections2': calculate_priors_intersections2,
 
     # Methods for evaluating the algorithm
     'wasted_effort': evaluate_algorithm_wasted_effort,
