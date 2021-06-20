@@ -1,3 +1,4 @@
+import consts
 from board import Board
 from agent import Agent
 
@@ -40,6 +41,9 @@ class Simulation(object):
         assert self.agents != [], 'can not simulate without agents'
         assert self.plans is not None, 'can not simulate without plans'
         assert self.plans != [], 'can not simulate without plans'
+
+        # # Dummy outcome
+        self.outcome = consts.traffic_circle_custom_plan1_outcomes[self.id]
 
         # # Real outcome - considering the agents plans and whether they are faulty
         # # TODO: implement

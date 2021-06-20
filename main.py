@@ -78,7 +78,11 @@ def sandbox() -> None:
                       {'method_for_calculating_priors': 'priors_intersections2'},
                       'wasted_effort',
                       {})
-    mgsd.run_algorithm()
+
+    # Make sure that the file with the same name is located inside the
+    # 'simulations_config_files' directory
+    # mgsd.run_algorithm()
+    mgsd.run_algorithm(config_filename='benchmark1.json')
 
 
 if __name__ == '__main__':

@@ -8,7 +8,8 @@ class Agent(object):
     def __init__(self,
                  name: str = None,
                  color: Tuple[float, float, float] = None,
-                 is_faulty: bool = False) -> None:
+                 is_faulty: bool = False,
+                 fail_prob: float = 0.0) -> None:
         if name is None:
             name = 'Anonymous_Agent_' + str(Agent.object_id)
         if color is None:
@@ -18,6 +19,7 @@ class Agent(object):
         self.name = name
         self.color = color
         self.is_faulty = is_faulty
+        self.fail_prob = fail_prob
         Agent.object_id += 1
 
     def summary(self) -> None:

@@ -1,4 +1,5 @@
 import math
+import json
 from functools import reduce
 
 import consts
@@ -54,7 +55,37 @@ def get_hardcoded_simulations() -> List[Simulation]:
 def get_from_filename(config_filename: str) -> List[Simulation]:
     print(f'Getting from configuration file {config_filename}')
     # # TODO: implement
-    return []
+
+    # Opening JSON file
+    f = open('simulations_config_files/' + config_filename)
+    # returns JSON object as
+    # a dictionary
+    data = json.load(f)
+
+    # Initializing agents
+    agents: List[Agent] = \
+        [Agent(name=a['agent_name'], is_faulty=a['agent_is_faulty'], fail_prob=a['agent_fail_prob'])
+         for a in data['agents']]
+
+    # Initializing boards
+    boards: List[Board] = \
+        [Board(name=b['board_name'], width=b['board_width'], height=b['board_height'],
+               critical_areas=[((ca[0][0], ca[0][1]), (ca[1][0], ca[1][1])) for ca in b['board_critical_areas']])
+         for b in data['boards']]
+
+    # Creating plans
+    plans: List[List[List[Tuple[int, int]]]] = \
+        [[[(pat[0], pat[1]) for pat in pa] for pa in p['plan']] for p in data['plans']]
+
+    # Creating simulations
+    simulations: List[Simulation] = \
+        [Simulation(name=s['simulation_name'],
+                    board=boards[s['simulation_board_num']],
+                    plans=plans[s['simulation_plan_num']],
+                    agents=agents)
+         for s in data['simulations']]
+
+    return simulations
 
 
 def conflict_directed_search(conflicts: List[List[int]]) -> List[List[int]]:
