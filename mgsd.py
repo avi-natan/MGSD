@@ -79,9 +79,12 @@ class MGSD(object):
                 s.simulate(self.fault_and_conflict_method, self.facm_args)
 
         self.calculate_error_vector_spectra()
+        self.print_error_vector_spectra()
         self.calculate_diagnoses_and_probabilities()
+        self.print_diagnoses_and_probabilities()
         self.evaluate_algorithm()
-        self.print_and_visualize_output()
+        self.print_evaluation_results()
+        # self.visualize_output()
         print('fin')
 
     def calculate_error_vector_spectra(self):
@@ -108,22 +111,28 @@ class MGSD(object):
     def evaluate_algorithm(self):
         print('Evaluating algorithm...')
         self.evaluation_results = statics.methods[self.evaluation_method](self.em_args)
-        print('Algorithm evaluated.')
+        print('Algorithm evaluated.\n')
 
-    def print_and_visualize_output(self) -> None:
-        print('\nPrinting and visualizing:')
-        print('========================')
-        print('Spectra and Error vector:')
+    def print_error_vector_spectra(self) -> None:
+        print('Printing spectra and error vector:')
         for j in range(len(self.spectra)):
             for i in range(len(self.spectra[0])):
                 print(f'{self.spectra[j][i]} ', end='')
             print(f'| {self.error_vector[j]}')
-        print(f'Diagnoses and probabilities:')
+        print('\n')
+
+    def print_diagnoses_and_probabilities(self) -> None:
+        print('Printing diagnoses and probabilities:')
         for i, d in enumerate(self.diagnoses):
             print(f'{d}, {self.probabilities[i]}')
-        print(f'Evaluation results:')
+        print('\n')
+
+    def print_evaluation_results(self) -> None:
+        print(f'Printing evaluation results:')
         print(self.evaluation_results)
-        print('')
+        print('\n')
+
+    def visualize_output(self) -> None:
         for i, s in enumerate(self.simulations_to_run):
             s.visualize(what='plans')
             s.visualize(what='outcome')

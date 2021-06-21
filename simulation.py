@@ -47,7 +47,7 @@ class Simulation(object):
         # self.outcome = consts.traffic_circle_custom_plan1_outcomes[self.id]
 
         # # Real outcome - considering the agents plans and whether they are faulty
-        self.outcome = statics.methods[fault_and_conflict_method](self.plans, facm_args)
+        self.outcome = statics.methods[fault_and_conflict_method](self.agents, self.plans, facm_args)
 
     def visualize(self, mode: str = 'grid', what: str = 'plans') -> None:
         if what == 'outcome':

@@ -1,11 +1,11 @@
 import math
 import json
 from functools import reduce
+import random
 
 import consts
 from board import Board
 from sfl.Diagnoser.Diagnosis import Diagnosis
-from sfl.Diagnoser.FullMatrix import FullMatrix
 from sfl.Diagnoser.Barinel import Barinel
 from sfl.Diagnoser.Staccato import Staccato
 from simulation import Simulation
@@ -114,12 +114,110 @@ def conflict_directed_search(conflicts: List[List[int]]) -> List[List[int]]:
     return diagnoses
 
 
+def has_collisions(plan):
+    for t in range(len(plan[0])):
+        for curr_a in range(0, len(plan)-1):
+            for other_a in range(curr_a+1, len(plan)):
+                # print(plan[curr_a][t], plan[other_a][t])
+                if plan[curr_a][t][0] == plan[other_a][t][0] and plan[curr_a][t][1] == plan[other_a][t][1]:
+                    return True
+    return False
+
+
 #############################################################
 # Methods that determine the fault and conflict for the simulation
 #############################################################
-def simulate_delay_and_wait_for_it(plans: List[List[Tuple[int, int]]], facm_args: Dict) -> List[List[Tuple[int, int]]]:
-    # todo: implement real
-    return consts.traffic_circle_custom_plan1_outcomes[3]
+def available(wanted_resource: Tuple[int, int], occupied_resources: List[Tuple[int, int]]) -> bool:
+    for ocr in occupied_resources:
+        if wanted_resource == ocr:
+            return False
+    return True
+
+def simulate_delay_and_wait_for_it(agents: List[Agent],
+                                   plans: List[List[Tuple[int, int]]],
+                                   facm_args: Dict) -> List[List[Tuple[int, int]]]:
+    # some consts
+    agent_count = len(agents)
+    timesteps_count = len(plans[0])
+
+    # generate a delay table
+    delay_table = \
+        [[True if a.is_faulty and random.uniform(0, 1) < a.fail_prob else False
+          for t in range(timesteps_count-1)] + [False]
+         for a in agents]
+
+    ############## DEBUG ##############
+    # plans = [[(6, 8), (6, 7), (7, 7), (7, 6), (7, 5), (7, 4), (6, 4), (5, 4), (4, 4), (4, 5), (3, 5), (2, 5)],
+    #          [(5, 3), (5, 4), (4, 4), (4, 5), (4, 6), (4, 7), (5, 7), (6, 7), (7, 7), (7, 6), (8, 6), (9, 6)],
+    #          [(8, 5), (7, 5), (7, 4), (6, 4), (5, 4), (4, 4), (4, 5), (4, 6), (4, 7), (5, 7), (5, 8), (5, 9)],
+    #          [(3, 6), (4, 6), (4, 7), (5, 7), (6, 7), (7, 7), (7, 6), (7, 5), (7, 4), (6, 4), (6, 3), (6, 2)],
+    #          [(6, 9), (6, 8), (6, 7), (7, 7), (7, 6), (7, 5), (7, 4), (6, 4), (6, 3), (6, 2), (6, 1), (6, 0)],
+    #          [(5, 2), (5, 3), (5, 4), (4, 4), (4, 5), (4, 6), (4, 7), (5, 7), (5, 8), (5, 9), (5, 10), (5, 11)]]
+    # delay_table = [[True, False, True, False, False, False, False, True, False, False, True, False],
+    #                [True, False, False, False, False, False, False, False, True, False, False, False],
+    #                [False, False, False, False, False, False, False, False, False, False, False, False],
+    #                [False, False, False, False, False, False, False, False, False, False, False, False],
+    #                [False, False, False, False, False, False, False, False, False, False, False, False],
+    #                [False, False, False, False, False, False, False, False, False, False, False, False]]
+    ############## DEBUG ##############
+
+    # initialize outcomes with the starting resources
+    outcomes = [[plans[i][0]] for i in range(agent_count)]
+
+    # initialize pointers
+    p = [0] * agent_count
+
+    # advance the agents step by step according to the delay table
+    for timestep in range(timesteps_count-1):
+        # initialize next step
+        next_step = [[(-1, -1)] * agent_count, [(-1, -1)] * agent_count]
+
+        # set next step for agents that have fault in this timestep
+        for ai in range(agent_count):
+            if delay_table[ai][timestep]:
+                next_step[0][ai] = plans[ai][p[ai]]
+        next_step.reverse()
+
+        # find all the agents that are blocked due to conflicts this round
+        # an iterative pass until there is a convergence
+        while next_step[0] != next_step[1]:
+            next_step[0] = list(next_step[1])
+            for ai in range(agent_count):
+                if next_step[0][ai] == (-1, -1):
+                    if not available(plans[ai][p[ai]+1], next_step[1]) \
+                            or not available(plans[ai][p[ai]+1], next_step[0]):
+                        next_step[0][ai] = plans[ai][p[ai]]
+            next_step.reverse()
+
+        # set next step for the remaining agents - agents could still get stuck due to mutual exclusions
+        # an iterative pass until there is a convergence
+        for ai in range(agent_count):
+            if next_step[0][ai] == (-1, -1):
+                p[ai] = p[ai] + 1
+                next_step[0][ai] = plans[ai][p[ai]]
+                next_step.reverse()
+
+                while next_step[0] != next_step[1]:
+                    next_step[0] = list(next_step[1])
+                    for ai2 in range(agent_count):
+                        if next_step[0][ai2] == (-1, -1):
+                            if not available(plans[ai2][p[ai2]+1], next_step[1]) \
+                                    or not available(plans[ai2][p[ai2]+1], next_step[0]):
+                                next_step[0][ai2] = plans[ai2][p[ai2]]
+                    next_step.reverse()
+
+        # insert the next step to the outcomes
+        for ai in range(agent_count):
+            outcomes[ai].append(next_step[0][ai])
+
+    # check for no collisions (this code should never get invoked in a correct code)
+    if has_collisions(outcomes):
+        for outcome in outcomes:
+            print(outcome)
+        raise Exception('found collisions')
+
+    return outcomes
+    # return consts.traffic_circle_custom_plan1_outcomes[3]
 
 
 #############################################################
@@ -282,9 +380,6 @@ def calculate_e_dk(dk: List[int], spectra: List[List[int]], error_vector: List[i
     h0 = np.array(h0)
     sol = minimize(objective, h0, method="L-BFGS-B", bounds=bnds, tol=1e-3, options={'maxiter': 100})
 
-    # print(sol)
-    # print(-sol.fun)
-    # print(sol.x)
     return -sol.fun
 
 
@@ -435,7 +530,7 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
         diag_comps = [used_components[x] for x in diag.diagnosis]
         diag.diagnosis = list(diag_comps)
         diags.append(diag)
-    print(7)
+    # print(7)
 
     # transform diagnoses to 2 lists like the default barinel
     diagnoses, probabilities = [], []
@@ -459,7 +554,6 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
 #############################################################
 #              Methods for calculating priors               #
 #############################################################
-# TODO: smart calculation of the priors
 def populate_intersections_table(num_agents, simulations) -> np.ndarray:
     # initialize intersections table
     intersections_table = np.zeros((num_agents, num_agents), dtype=int)
@@ -469,12 +563,9 @@ def populate_intersections_table(num_agents, simulations) -> np.ndarray:
         current_plans = simulation.plans
         for a in range(len(current_plans)):
             for t in range(len(current_plans[a]) - 1):
-                # print(f'checking for agent {a} at time {t}: {current_plans[a][t]}')
                 for a2 in range(len(current_plans)):
                     if a2 != a:
-                        # print(f'other agent is: {a2}')
                         for t2 in range(t + 1, len(current_plans[a2])):
-                            # print(f'time {t2}: {current_plans[a2][t2]}')
                             if current_plans[a][t] == current_plans[a2][t2]:
                                 intersections_table[a][a2] += 1
     return intersections_table
@@ -583,16 +674,13 @@ def calculate_priors_intersections2(spectra: List[List[int]],
 
     # calculate pass_second numbers
     pass_second = [sum(row) for row in intersections_table.transpose()]
-    print(9)
 
     # normalize and invert pass_second numbers to get agent-wise probabilities
     alpha = 2
     d = 5
     normalized_pass_second = \
         [(float(i) - min(pass_second) + alpha) / (max(pass_second) - min(pass_second) + alpha*d) for i in pass_second]
-    print(9)
     inverted_normalized_pass_second = [1-p for p in normalized_pass_second]
-    print(9)
 
     # calculate priors
     priors = []
@@ -601,7 +689,6 @@ def calculate_priors_intersections2(spectra: List[List[int]],
         for c in diagnosis:
             prior *= inverted_normalized_pass_second[c]
         priors.append(prior)
-    print(9)
     return priors
 
 

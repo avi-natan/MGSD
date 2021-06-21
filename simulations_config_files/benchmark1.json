@@ -4,13 +4,13 @@
 			"agent_num": 0,
 			"agent_name": "a0",
 			"agent_is_faulty": true,
-			"agent_fail_prob": 0.5
+			"agent_fail_prob": 0.2
 		},
 		{
 			"agent_num": 1,
 			"agent_name": "a1",
 			"agent_is_faulty": true,
-			"agent_fail_prob": 0.5
+			"agent_fail_prob": 0.2
 		},
 		{
 			"agent_num": 2,
