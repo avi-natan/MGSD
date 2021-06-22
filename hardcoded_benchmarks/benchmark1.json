@@ -92,70 +92,70 @@
 			"simulation_name": "simulation_traffic_circle0",
 			"simulation_board_num": 1,
 			"simulation_plan_num": 1,
-			"simualtion_agent_nums": [0, 1, 2, 3, 4, 5]
+			"simulation_agent_nums": [0, 1, 2, 3, 4, 5]
 		},
 		{
 			"simulation_num": 1,
 			"simulation_name": "simulation_traffic_circle1",
 			"simulation_board_num": 1,
 			"simulation_plan_num": 1,
-			"simualtion_agent_nums": [0, 1, 2, 3, 4, 5]
+			"simulation_agent_nums": [0, 1, 2, 3, 4, 5]
 		},
 		{
 			"simulation_num": 2,
 			"simulation_name": "simulation_traffic_circle2",
 			"simulation_board_num": 1,
 			"simulation_plan_num": 1,
-			"simualtion_agent_nums": [0, 1, 2, 3, 4, 5]
+			"simulation_agent_nums": [0, 1, 2, 3, 4, 5]
 		},
 		{
 			"simulation_num": 3,
 			"simulation_name": "simulation_traffic_circle3",
 			"simulation_board_num": 1,
 			"simulation_plan_num": 1,
-			"simualtion_agent_nums": [0, 1, 2, 3, 4, 5]
+			"simulation_agent_nums": [0, 1, 2, 3, 4, 5]
 		},
 		{
 			"simulation_num": 4,
 			"simulation_name": "simulation_traffic_circle4",
 			"simulation_board_num": 1,
 			"simulation_plan_num": 1,
-			"simualtion_agent_nums": [0, 1, 2, 3, 4, 5]
+			"simulation_agent_nums": [0, 1, 2, 3, 4, 5]
 		},
 		{
 			"simulation_num": 5,
 			"simulation_name": "simulation_traffic_circle5",
 			"simulation_board_num": 1,
 			"simulation_plan_num": 1,
-			"simualtion_agent_nums": [0, 1, 2, 3, 4, 5]
+			"simulation_agent_nums": [0, 1, 2, 3, 4, 5]
 		},
 		{
 			"simulation_num": 6,
 			"simulation_name": "simulation_traffic_circle6",
 			"simulation_board_num": 1,
 			"simulation_plan_num": 1,
-			"simualtion_agent_nums": [0, 1, 2, 3, 4, 5]
+			"simulation_agent_nums": [0, 1, 2, 3, 4, 5]
 		},
 		{
 			"simulation_num": 7,
 			"simulation_name": "simulation_traffic_circle7",
 			"simulation_board_num": 1,
 			"simulation_plan_num": 1,
-			"simualtion_agent_nums": [0, 1, 2, 3, 4, 5]
+			"simulation_agent_nums": [0, 1, 2, 3, 4, 5]
 		},
 		{
 			"simulation_num": 8,
 			"simulation_name": "simulation_traffic_circle8",
 			"simulation_board_num": 1,
 			"simulation_plan_num": 1,
-			"simualtion_agent_nums": [0, 1, 2, 3, 4, 5]
+			"simulation_agent_nums": [0, 1, 2, 3, 4, 5]
 		},
 		{
 			"simulation_num": 9,
 			"simulation_name": "simulation_traffic_circle9",
 			"simulation_board_num": 1,
 			"simulation_plan_num": 1,
-			"simualtion_agent_nums": [0, 1, 2, 3, 4, 5]
+			"simulation_agent_nums": [0, 1, 2, 3, 4, 5]
 		}
 	]
 }

@@ -57,7 +57,7 @@ def get_from_filename(config_filename: str) -> List[Simulation]:
     # # TODO: implement
 
     # Opening JSON file
-    f = open('simulations_config_files/' + config_filename)
+    f = open('benchmarks/' + config_filename)
     # returns JSON object as
     # a dictionary
     data = json.load(f)
@@ -82,7 +82,7 @@ def get_from_filename(config_filename: str) -> List[Simulation]:
         [Simulation(name=s['simulation_name'],
                     board=boards[s['simulation_board_num']],
                     plans=plans[s['simulation_plan_num']],
-                    agents=agents)
+                    agents=[agents[a] for a in s['simulation_agent_nums']])
          for s in data['simulations']]
 
     return simulations

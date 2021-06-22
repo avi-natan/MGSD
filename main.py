@@ -1,4 +1,6 @@
 # MGSD - Multi Game SFL based Diagnosis
+import os
+
 from mgsd import MGSD
 
 def print_hi(name: str) -> None:
@@ -25,31 +27,60 @@ def sandbox() -> None:
     # # Testing simulation
     # tests.test_simulate()
 
-    # # Running the algorithm
+def generate_benchmarks(agents_counts,
+        faulty_agents_counts,
+        faulty_agents_fail_probs,
+        boards,
+        plans_type,
+        generated_plans_length,
+        generated_plans_intersections_count):
+    pass
+
+def run_mgsd():
+    # Create benchmark files
+    agents_counts = [6, 8, 10]
+    faulty_agents_counts = [2, 3, 4]
+    faulty_agents_fail_probs = [0.05, 0.1, 0.2, 0.3]
+    boards = ['intersection', 'traffic_circle']
+    plans_type = ['manual']     # 'manual' or 'generated' in case of manual the generator will know
+    generated_plans_length = [10, 12, 14]
+    generated_plans_intersections_count = [10, 15, 20]
+
+    generate_benchmarks(
+        agents_counts,
+        faulty_agents_counts,
+        faulty_agents_fail_probs,
+        boards,
+        plans_type,
+        generated_plans_length,
+        generated_plans_intersections_count
+    )
+
+    # Running the algorithm
     """
     Available parameters
     ====================
     Methods that determine the fault and conflict for the simulation
     * delay_and_wait_for_it
       - args: {}
-    
+
     Methods that determine a simulation success/fail:
     * percentage_free_ca
       - args: {'threshold': float}
-    
+
     Methods that determine the agents success/fail:
     * reach_final_res
       - args: {}
-      
+
     Methods that determine how to populate the spectra:
     * agent_pass_fail_contribution
       - args: {'invert_for_success': bool}
-      
+
     Methods for calculating diagnoses and their probabilities:
     * ochiai
       - args: {}
     * barinel_avi
-      - args: {'method_for_calculating_priors': str 
+      - args: {'method_for_calculating_priors': str
                                                 <priors_one,
                                                 priors_static,
                                                 priors_amir,
@@ -63,13 +94,13 @@ def sandbox() -> None:
                                                 priors_paper,
                                                 priors_intersections1,
                                                 priors_intersections2>}
-      
+
     Methods for evaluating the algorithm:
     * wasted_effort
       - args: {}
     * precision_recall
       - args: {}
-    
+
     """
     mgsd: MGSD = MGSD('delay_and_wait_for_it',
                       {},
@@ -85,11 +116,14 @@ def sandbox() -> None:
                       {})
 
     # Make sure that the file with the same name is located inside the
-    # 'simulations_config_files' directory
+    # 'benchmarks' directory
     # mgsd.run_algorithm()
-    mgsd.run_algorithm(config_filename='benchmark1.json')
+    for filename in os.listdir('benchmarks'):
+        print(f'Running MGSD for benchmark: {filename}')
+        mgsd.run_algorithm(config_filename=filename)
 
 
 if __name__ == '__main__':
     print_hi('MGSD')
-    sandbox()
+    # sandbox()
+    run_mgsd()
