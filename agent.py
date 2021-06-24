@@ -31,6 +31,7 @@ class Agent(object):
 # Name: {self.name}
 # Color: {self.color}
 # Faulty: {self.is_faulty}
+# Fail Probability: {self.fail_prob}
 # 
 #######################################################
         """)

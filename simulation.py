@@ -124,8 +124,8 @@ class Simulation(object):
             agents_string += f'#\t [\n#\t  ID: {agent.id}\n'
             agents_string += f'#\t  Name: {agent.name}\n'
             agents_string += f'#\t  Color: {agent.color}\n'
-            agents_string += f'#\t  Plan: \n'
-            agents_string += f'#\t  Faulty: {agent.is_faulty}\n#\t '
+            agents_string += f'#\t  Faulty: {agent.is_faulty}\n'
+            agents_string += f'#\t  Fail Probability: {agent.fail_prob}\n#\t '
             agents_string += ']\n'
         agents_string += '#\t]\n#'
 
