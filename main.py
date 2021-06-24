@@ -70,7 +70,7 @@ def generate_benchmarks(agents_counts,
                                                      f'pl-{pl}#pic-{pic}#pt-{pt}#sc-{sc}'
                                     print(f'\t\t\t\t\t\t\t\tbenchmark: {benchmark_name}')
                                     benchmark_data = {}
-                                    # adding the agents to the json
+                                    # adding the agents to the json (ac, fac, fafp)
                                     faulty_agents_choice = [True] * fac + [False] * (ac-fac)
                                     random.shuffle(faulty_agents_choice)
                                     benchmark_data["agents"] = [{"agent_num": i,
@@ -79,19 +79,19 @@ def generate_benchmarks(agents_counts,
                                                                  "agent_fail_prob": fafp if faulty_agents_choice[i]
                                                                  else 0.0}
                                                                 for i in range(len(faulty_agents_choice))]
-                                    # adding the board to the json
+                                    # adding the board to the json (b)
                                     benchmark_data["board"] = consts.boards[b]
-                                    # adding plan to the json
+                                    # adding plan to the json (pl, pic, pt)
                                     plan_name = f'{b}_plan_pl_{pl}_pic_{pic}'
                                     if pt == 'manual':
-                                        plan = consts.plans['traffic_circle_plans'][plan_name]
+                                        plan = consts.plans['traffic_circle_plans'][plan_name]  # TODO: write manual plans for 10, 20, 30 intersections
                                     else:
                                         plan = consts.plans['traffic_circle_plans'][plan_name]  # TODO: implement generated plans
                                     benchmark_data["plan"] = {
                                         "plan_name": plan_name,
                                         "plan": plan
                                     }
-                                    # adding simulations to the json
+                                    # adding simulations to the json (sc)
                                     benchmark_data["simulations"] = [{
                                         "simulation_num": i,
                                         "simulation_name": f"s{i}",
@@ -109,7 +109,7 @@ def run_mgsd():
     # faulty_agents_fail_probs = [0.05, 0.1, 0.2, 0.3]
     # boards = ['intersection', 'traffic_circle']  # board must be manually built
     # plans_length = [10, 12, 14]
-    # plans_intersections_count = [10, 15, 20]
+    # plans_intersections_count = [10, 20, 30]
     """
     'manual' or 'generated' in case of manual the generator will pick a manual plan that was created for that kind
     of board from the consts module.
@@ -195,7 +195,7 @@ def run_mgsd():
                       'agent_pass_fail_contribution',
                       {'invert_for_success': True},
                       'barinel_amir',
-                      {'method_for_calculating_priors': 'priors_intersections2'},
+                      {'method_for_calculating_priors': 'priors_one'},
                       'wasted_effort',
                       {})
 
