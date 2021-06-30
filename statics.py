@@ -38,6 +38,7 @@ def get_hardcoded_simulations() -> List[Simulation]:
                                    plans=consts.intersection_manual_plan1,
                                    agents=agents)
         s.outcome = consts.intersection_custom_plan1_outcomes[i]
+        s.delay_table = consts.intersection_custom_plan1_delay_tables[i]
         sims_intersection1.append(s)
 
     sims_traffic_circle1 = []
@@ -47,6 +48,7 @@ def get_hardcoded_simulations() -> List[Simulation]:
                                    plans=consts.traffic_circle_manual_plan1,
                                    agents=agents)
         s.outcome = consts.traffic_circle_custom_plan1_outcomes[i]
+        s.delay_table = consts.traffic_circle_custom_plan1_delay_tables[i]
         sims_traffic_circle1.append(s)
 
     return sims_intersection1 + sims_traffic_circle1
@@ -124,6 +126,12 @@ def has_collisions(plan):
     return False
 
 
+def print_matrix(matrix_type: str, matrix: List[List]):
+    print(f'{matrix_type}:')
+    for row in matrix:
+        print(row)
+
+
 #############################################################
 # Methods that determine the fault and conflict for the simulation
 #############################################################
@@ -136,7 +144,7 @@ def available(wanted_resource: Tuple[int, int], occupied_resources: List[Tuple[i
 
 def simulate_delay_and_wait_for_it(agents: List[Agent],
                                    plans: List[List[Tuple[int, int]]],
-                                   facm_args: Dict) -> List[List[Tuple[int, int]]]:
+                                   facm_args: Dict) -> Tuple[List[List[bool]], List[List[Tuple[int, int]]]]:
     # some consts
     agent_count = len(agents)
     timesteps_count = len(plans[0])
@@ -162,8 +170,8 @@ def simulate_delay_and_wait_for_it(agents: List[Agent],
     #                [False, False, False, False, False, False, False, False, False, False, False, False]]
     ############## DEBUG ##############
 
-    # initialize outcomes with the starting resources
-    outcomes = [[plans[i][0]] for i in range(agent_count)]
+    # initialize outcome with the starting resources
+    outcome = [[plans[i][0]] for i in range(agent_count)]
 
     # initialize pointers
     p = [0] * agent_count
@@ -209,15 +217,15 @@ def simulate_delay_and_wait_for_it(agents: List[Agent],
 
         # insert the next step to the outcomes
         for ai in range(agent_count):
-            outcomes[ai].append(next_step[0][ai])
+            outcome[ai].append(next_step[0][ai])
 
     # check for no collisions (this code should never get invoked in a correct code)
-    if has_collisions(outcomes):
-        for outcome in outcomes:
-            print(outcome)
+    if has_collisions(outcome):
+        for oc in outcome:
+            print(oc)
         raise Exception('found collisions')
 
-    return outcomes
+    return delay_table, outcome
     # return consts.traffic_circle_custom_plan1_outcomes[3]
 
 
@@ -677,6 +685,9 @@ def calculate_priors_intersections2(spectra: List[List[int]],
 
     # calculate pass_second numbers
     pass_second = [sum(row) for row in intersections_table.transpose()]
+
+    # Print pass_second number
+    print(f'pass_second: {[ps / len(error_vector) for ps in pass_second]}')
 
     # normalize and invert pass_second numbers to get agent-wise probabilities
     alpha = 2

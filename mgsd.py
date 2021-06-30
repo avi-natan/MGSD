@@ -68,15 +68,22 @@ class MGSD(object):
         if config_filename is None:
             print('No input file specified, running algorithm with default simulations')
             self.simulations_to_run = statics.get_hardcoded_simulations()
-            for i, s in enumerate(self.simulations_to_run):
-                s.summary()
+            # for i, s in enumerate(self.simulations_to_run):
+            #     s.summary()
             # no simulating. the outcome is already included
         else:
             self.simulations_to_run = statics.get_from_filename(config_filename)
-            for i, s in enumerate(self.simulations_to_run):
-                s.summary()
+            # for i, s in enumerate(self.simulations_to_run):
+            #     s.summary()
             for i, s in enumerate(self.simulations_to_run):
                 s.simulate(self.fault_and_conflict_method, self.facm_args)
+
+        for i, s in enumerate(self.simulations_to_run):
+            print(f'Simulation name: {s.name}')
+            statics.print_matrix('plan', s.plans)
+            statics.print_matrix('delay_table', s.delay_table)
+            statics.print_matrix('outcome', s.outcome)
+            print('')
 
         self.calculate_error_vector_spectra()
         self.print_error_vector_spectra()

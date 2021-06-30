@@ -49,6 +49,13 @@ def generate_benchmarks(agents_counts,
     :param simulations_count                        sc
     :return: nothing
     """
+
+    # Delete old benchmarks
+    benchmarks_dir = 'benchmarks'
+    for f in os.listdir(benchmarks_dir):
+        os.remove(os.path.join(benchmarks_dir, f))
+
+    # generate new benchmarks
     generated_benchmarks_amount = 0
     for ac in agents_counts:
         print(f'ac: {ac}')
