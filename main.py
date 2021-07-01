@@ -174,15 +174,11 @@ def run_mgsd():
       - args: {'method_for_calculating_priors': str
                                                 <priors_one,
                                                 priors_static,
-                                                priors_amir,
-                                                priors_paper,
                                                 priors_intersections1,
                                                 priors_intersections2>}
     * barinel_amir
       - args: {'method_for_calculating_priors': str <priors_one,
                                                 priors_static,
-                                                priors_amir,
-                                                priors_paper,
                                                 priors_intersections1,
                                                 priors_intersections2>}
 

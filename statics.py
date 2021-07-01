@@ -1,3 +1,4 @@
+import copy
 import math
 import json
 from functools import reduce
@@ -445,7 +446,8 @@ def calculate_diagnoses_and_probabilities_barinel_avi(spectra: List[List[int]],
     for i, dk in enumerate(diagnoses):
         e_dk = calculate_e_dk(dk, spectra, error_vector)
         e_dks.append(e_dk)
-        probabilities[i] = priors[i] * e_dk
+        prior = math.prod([priors[c] for c in dk])
+        probabilities[i] = prior * e_dk
 
     # normalize probabilities and order them
     probabilities_sum = sum(probabilities)
@@ -472,7 +474,7 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
     for i, td in enumerate(staccato_diagnoses):
         diagnoses_list.append([c for c in td])
 
-    # Calculate probabilities
+    # Calculate prior probabilities
     priors = methods[kwargs['method_for_calculating_priors']](spectra,
                                                               error_vector,
                                                               kwargs,
@@ -517,7 +519,7 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
         #     dk = math.pow(0.1, len(diag.get_diag()))
         # else:
         #     dk = bar.non_uniform_prior(diag)
-        dk = priors[i]
+        dk = math.prod([priors[c] for c in diag.diagnosis])
         tf = bar.tf_for_diag(diag.get_diag())
         diag.set_probability(tf.maximize() * dk)
         # diag.set_from_tf(tf)
@@ -586,7 +588,7 @@ def calculate_priors_one(spectra: List[List[int]],
                          simulations: List[Simulation],
                          diagnoses: List[List[int]]) -> List[float]:
     p = 1
-    priors = [p for _ in diagnoses]  # priors
+    priors = [p for _ in range(len(spectra[0]))]  # priors
     return priors
 
 
@@ -596,27 +598,7 @@ def calculate_priors_static(spectra: List[List[int]],
                             simulations: List[Simulation],
                             diagnoses: List[List[int]]) -> List[float]:
     p = 0.1
-    priors = [p for _ in diagnoses]  # priors
-    return priors
-
-
-def calculate_priors_amir(spectra: List[List[int]],
-                          error_vector: List[int],
-                          kwargs: Dict,
-                          simulations: List[Simulation],
-                          diagnoses: List[List[int]]) -> List[float]:
-    p = 0.1
-    priors = [math.pow(p, len(diag)) for diag in diagnoses]
-    return priors
-
-
-def calculate_priors_paper(spectra: List[List[int]],
-                           error_vector: List[int],
-                           kwargs: Dict,
-                           simulations: List[Simulation],
-                           diagnoses: List[List[int]]) -> List[float]:
-    p = 0.1
-    priors = [(p ** len(diag)) * ((1 - p) ** (len(spectra[0]) - len(diag))) for diag in diagnoses]  # priors
+    priors = [p for _ in range(len(spectra[0]))]  # priors
     return priors
 
 
@@ -647,13 +629,10 @@ def calculate_priors_intersections1(spectra: List[List[int]],
     forepass_coefficient = np.subtract(passed_first, passed_last)
 
     # calculate priors
-    priors = []
-    for diagnosis in diagnoses:
-        prior = 0.0
-        for c in diagnosis:
-            prior += forepass_coefficient[c]
-        priors.append(prior)
-    normalized_priors = [(float(i) - min(priors)) / (max(priors) - min(priors)) for i in priors]
+    priors = copy.deepcopy(forepass_coefficient)
+    alpha = 2
+    d = 5
+    normalized_priors = [(float(i) - min(priors) + alpha) / (max(priors) - min(priors) + alpha * d) for i in priors]
     sum_normalized_priors = sum(normalized_priors)
     normalized_priors = [i / sum_normalized_priors for i in normalized_priors]
     return normalized_priors
@@ -690,20 +669,14 @@ def calculate_priors_intersections2(spectra: List[List[int]],
     print(f'pass_second: {[ps / len(error_vector) for ps in pass_second]}')
 
     # normalize and invert pass_second numbers to get agent-wise probabilities
+    priors = copy.deepcopy(pass_second)
     alpha = 2
     d = 5
-    normalized_pass_second = \
-        [(float(i) - min(pass_second) + alpha) / (max(pass_second) - min(pass_second) + alpha * d) for i in pass_second]
-    inverted_normalized_pass_second = [1 - p for p in normalized_pass_second]
-
-    # calculate priors
-    priors = []
-    for diagnosis in diagnoses:
-        prior = 1.0
-        for c in diagnosis:
-            prior *= inverted_normalized_pass_second[c]
-        priors.append(prior)
-    return priors
+    normalized_priors = [(float(i) - min(priors) + alpha) / (max(priors) - min(priors) + alpha * d) for i in priors]
+    normalized_priors = [1 - p for p in normalized_priors]
+    sum_normalized_priors = sum(normalized_priors)
+    normalized_priors = [i / sum_normalized_priors for i in normalized_priors]
+    return normalized_priors
 
 
 #############################################################
@@ -740,8 +713,6 @@ methods = {
     # Methods for calculating priors
     'priors_one': calculate_priors_one,
     'priors_static': calculate_priors_static,
-    'priors_amir': calculate_priors_amir,
-    'priors_paper': calculate_priors_paper,
     'priors_intersections1': calculate_priors_intersections1,
     'priors_intersections2': calculate_priors_intersections2,
 
