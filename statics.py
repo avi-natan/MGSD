@@ -37,7 +37,7 @@ def get_hardcoded_simulations() -> List[Simulation]:
     for i in range(len(consts.intersection_custom_plan1_outcomes)):
         s: Simulation = Simulation(name='Simulation Intersection' + str(i),
                                    board=b0,
-                                   plans=consts.intersection_manual_plan1,
+                                   plans=consts.intersection_plan_pl_12_pic_19,
                                    agents=agents)
         s.outcome = consts.intersection_custom_plan1_outcomes[i]
         s.delay_table = consts.intersection_custom_plan1_delay_tables[i]
@@ -47,7 +47,7 @@ def get_hardcoded_simulations() -> List[Simulation]:
     for i in range(len(consts.traffic_circle_custom_plan1_outcomes)):
         s: Simulation = Simulation(name='Simulation Traffic circle' + str(i),
                                    board=b1,
-                                   plans=consts.traffic_circle_manual_plan1,
+                                   plans=consts.traffic_circle_plan_pl_12_pic_78,
                                    agents=agents)
         s.outcome = consts.traffic_circle_custom_plan1_outcomes[i]
         s.delay_table = consts.traffic_circle_custom_plan1_delay_tables[i]
@@ -502,6 +502,9 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
         diag_comps = [used_components[x] for x in diag.diagnosis]
         diag.diagnosis = list(diag_comps)
         diagnoses.append(diag)
+
+    print(f'used_components: {used_components}')
+    print(f'diagnoses: {diagnoses}')
 
     # transform diagnoses to 2 lists like the default barinel
     t_diagnoses, t_probabilities = [], []
