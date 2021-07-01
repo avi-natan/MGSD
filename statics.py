@@ -8,6 +8,7 @@ import consts
 from board import Board
 from sfl.Diagnoser.Diagnosis import Diagnosis
 from sfl.Diagnoser.Barinel import Barinel
+from sfl.Diagnoser.FullMatrix import FullMatrix
 from sfl.Diagnoser.Staccato import Staccato
 from simulation import Simulation
 from agent import Agent
@@ -439,8 +440,7 @@ def calculate_diagnoses_and_probabilities_barinel_avi(spectra: List[List[int]],
     priors = methods[kwargs['method_for_calculating_priors']](spectra,
                                                               error_vector,
                                                               kwargs,
-                                                              simulations,
-                                                              diagnoses)
+                                                              simulations)
     probabilities = [0.0 for _ in diagnoses]
     e_dks = []
     for i, dk in enumerate(diagnoses):
@@ -468,92 +468,52 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
                                                        kwargs: Dict,
                                                        simulations: List[Simulation]) -> \
         Tuple[List[List[int]], List[float]]:
-    # Calculate diagnoses using the Staccato algorithm
-    staccato_diagnoses = Staccato().run(spectra, error_vector)
-    diagnoses_list = []
-    for i, td in enumerate(staccato_diagnoses):
-        diagnoses_list.append([c for c in td])
-
     # Calculate prior probabilities
     priors = methods[kwargs['method_for_calculating_priors']](spectra,
                                                               error_vector,
                                                               kwargs,
-                                                              simulations,
-                                                              diagnoses_list)
+                                                              simulations)
 
-    # tests_components = []
-    # for i, t in enumerate(spectra):
-    #     tc = []
-    #     for j, c in enumerate(spectra[i]):
-    #         if spectra[i][j] == 1:
-    #             tc.append(j)
-    #     tests_components.append(tc)
-    # full_matrix = FullMatrix()
-    # full_matrix.set_probabilities(priors)
-    # full_matrix.set_error(error_vector)
-    # full_matrix.set_matrix(
-    #     list(map(lambda test: list(map(lambda comp: 1 if comp in test else 0, range(len(priors)))), tests_components)))
-    # print(6)
-    # fullM, used_components, used_tests = full_matrix.optimize()
-    # opt_diagnoses = fullM.diagnose()
-
+    # calculate optimized probabilities
     failed_tests = list(
         map(lambda test: list(enumerate(test[0])), filter(lambda test: test[1] == 1, zip(spectra, error_vector))))
     used_components = dict(enumerate(sorted(reduce(set.__or__, map(
         lambda test: set(map(lambda comp: comp[0], filter(lambda comp: comp[1] == 1, test))), failed_tests), set()))))
-    bar = Barinel()
-    bar.set_matrix_error(spectra, error_vector)
-    bar.set_prior_probs([])
+    optimizedMatrix = FullMatrix()
+    optimizedMatrix.set_probabilities([x[1] for x in enumerate(priors) if x[0] in used_components])
+    newErr = []
+    newMatrix = []
+    used_tests = []
+    for i, (test, err) in enumerate(zip(spectra, error_vector)):
+        newTest = list(map(lambda i: test[i], sorted(used_components.values())))
+        if 1 in newTest:  ## optimization could remove all comps of a test
+            newMatrix.append(newTest)
+            newErr.append(err)
+            used_tests.append(i)
+    optimizedMatrix.set_matrix(newMatrix)
+    optimizedMatrix.set_error(newErr)
+    used_tests = sorted(used_tests)
 
-    new_diagnoses = []
-    for staccato_diagnosis in staccato_diagnoses:
-        new_diagnoses.append(Diagnosis(staccato_diagnosis))
-    bar.set_diagnoses(new_diagnoses)
-
-    new_diagnoses = []
-    probs_sum = 0.0
-    bar_diagnoses = bar.get_diagnoses()
-    for i, diag in enumerate(bar_diagnoses):
-        dk = 0.0
-        # if bar.prior_probs == []:
-        #     dk = math.pow(0.1, len(diag.get_diag()))
-        # else:
-        #     dk = bar.non_uniform_prior(diag)
-        dk = math.prod([priors[c] for c in diag.diagnosis])
-        tf = bar.tf_for_diag(diag.get_diag())
-        diag.set_probability(tf.maximize() * dk)
-        # diag.set_from_tf(tf)
-        probs_sum += diag.get_prob()
-    for diag in bar_diagnoses:
-        if probs_sum < 1e-5:
-            # set uniform to avoid nan
-            temp_prob = 1.0 / len(bar.diagnoses)
-        else:
-            temp_prob = diag.get_prob() / probs_sum
-        diag.set_probability(temp_prob)
-        new_diagnoses.append(diag)
-    bar.set_diagnoses(new_diagnoses)
-    opt_diagnoses = bar.get_diagnoses()
-
-    diags = []
-    for diag in opt_diagnoses:
+    # rename back the components of the diagnoses
+    Opt_diagnoses = optimizedMatrix.diagnose()
+    diagnoses = []
+    for diag in Opt_diagnoses:
         diag = diag.clone()
         diag_comps = [used_components[x] for x in diag.diagnosis]
         diag.diagnosis = list(diag_comps)
-        diags.append(diag)
-    # print(7)
+        diagnoses.append(diag)
 
     # transform diagnoses to 2 lists like the default barinel
-    diagnoses, probabilities = [], []
-    for d in diags:
-        diagnoses.append(d.diagnosis)
-        probabilities.append(d.probability)
+    t_diagnoses, t_probabilities = [], []
+    for d in diagnoses:
+        t_diagnoses.append(d.diagnosis)
+        t_probabilities.append(d.probability)
 
     # normalize probabilities and order them
-    probabilities_sum = sum(probabilities)
-    for i, probability in enumerate(probabilities):
-        probabilities[i] = probabilities[i] / probabilities_sum
-    z_probabilities, z_diagnoses = zip(*[(d, p) for d, p in sorted(zip(probabilities, diagnoses))])
+    probabilities_sum = sum(t_probabilities)
+    for i, probability in enumerate(t_probabilities):
+        t_probabilities[i] = t_probabilities[i] / probabilities_sum
+    z_probabilities, z_diagnoses = zip(*[(d, p) for d, p in sorted(zip(t_probabilities, t_diagnoses))])
     lz_diagnoses = list(z_diagnoses)
     lz_probabilities = list(z_probabilities)
     lz_diagnoses.reverse()
@@ -585,8 +545,7 @@ def populate_intersections_table(num_agents, simulations) -> np.ndarray:
 def calculate_priors_one(spectra: List[List[int]],
                          error_vector: List[int],
                          kwargs: Dict,
-                         simulations: List[Simulation],
-                         diagnoses: List[List[int]]) -> List[float]:
+                         simulations: List[Simulation]) -> List[float]:
     p = 1
     priors = [p for _ in range(len(spectra[0]))]  # priors
     return priors
@@ -595,8 +554,7 @@ def calculate_priors_one(spectra: List[List[int]],
 def calculate_priors_static(spectra: List[List[int]],
                             error_vector: List[int],
                             kwargs: Dict,
-                            simulations: List[Simulation],
-                            diagnoses: List[List[int]]) -> List[float]:
+                            simulations: List[Simulation]) -> List[float]:
     p = 0.1
     priors = [p for _ in range(len(spectra[0]))]  # priors
     return priors
@@ -605,8 +563,7 @@ def calculate_priors_static(spectra: List[List[int]],
 def calculate_priors_intersections1(spectra: List[List[int]],
                                     error_vector: List[int],
                                     kwargs: Dict,
-                                    simulations: List[Simulation],
-                                    diagnoses: List[List[int]]) -> List[float]:
+                                    simulations: List[Simulation]) -> List[float]:
     """
     Simple method for calculating priors using intersections. A single table that holds information about
     agents intersections throughout the entire spectra is created.
@@ -617,7 +574,6 @@ def calculate_priors_intersections1(spectra: List[List[int]],
     :param error_vector:
     :param kwargs:
     :param simulations:
-    :param diagnoses:
     :return:
     """
     # initialize and populate intersections table across the different simulations
@@ -641,8 +597,7 @@ def calculate_priors_intersections1(spectra: List[List[int]],
 def calculate_priors_intersections2(spectra: List[List[int]],
                                     error_vector: List[int],
                                     kwargs: Dict,
-                                    simulations: List[Simulation],
-                                    diagnoses: List[List[int]]) -> List[float]:
+                                    simulations: List[Simulation]) -> List[float]:
     """
     Simple method for calculating priors using intersections. A single table that holds information about
     agents intersections throughout the entire spectra is created.
@@ -656,7 +611,6 @@ def calculate_priors_intersections2(spectra: List[List[int]],
     :param error_vector:
     :param kwargs:
     :param simulations:
-    :param diagnoses:
     :return:
     """
     # initialize and populate intersections table across the different simulations

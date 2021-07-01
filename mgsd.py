@@ -79,11 +79,14 @@ class MGSD(object):
                 s.simulate(self.fault_and_conflict_method, self.facm_args)
 
         for i, s in enumerate(self.simulations_to_run):
-            print(f'Simulation name: {s.name}')
+            print(f'[mgsd::run_algorithm] Simulation name: {s.name}')
             statics.print_matrix('plan', s.plans)
             statics.print_matrix('delay_table', s.delay_table)
             statics.print_matrix('outcome', s.outcome)
             print('')
+
+        print(f'faulty agents: {list(map(lambda ag: [ag.name, ag.fail_prob], filter(lambda agent: agent.is_faulty, self.simulations_to_run[0].agents)))}')
+        print('')
 
         self.calculate_error_vector_spectra()
         self.print_error_vector_spectra()
