@@ -27,33 +27,44 @@ def get_hardcoded_simulations() -> List[Simulation]:
     agents: List[Agent] = [Agent(name='a' + str(i), is_faulty=(i == 0 or i == 1)) for i in list(range(6))]
 
     # Initializing boards
-    b0: Board = Board(name='Intersection', width=12, height=12, critical_areas=[((4, 4), (8, 8))])
-    b1: Board = Board(name='Traffic circle', width=12, height=12,
+    b0: Board = Board(name='Intersection0', width=12, height=12, critical_areas=[((4, 4), (8, 8))])
+    b1: Board = Board(name='Intersection1', width=12, height=12, critical_areas=[((3, 3), (9, 9))])
+    b2: Board = Board(name='Traffic circle0', width=12, height=12,
                       critical_areas=[((4, 4), (8, 5)), ((4, 7), (8, 8)),
                                       ((4, 5), (5, 7)), ((7, 5), (8, 7))])
 
     # Creating simulations
-    sims_intersection1 = []
-    for i in range(len(consts.intersection_custom_plan1_outcomes)):
-        s: Simulation = Simulation(name='Simulation Intersection' + str(i),
+    sims_intersection0 = []
+    for i in range(len(consts.intersection_plan_pl_12_pic_19_outcomes)):
+        s: Simulation = Simulation(name='Simulation intersection_plan_pl_12_pic_19 ' + str(i),
                                    board=b0,
                                    plans=consts.intersection_plan_pl_12_pic_19,
                                    agents=agents)
-        s.outcome = consts.intersection_custom_plan1_outcomes[i]
-        s.delay_table = consts.intersection_custom_plan1_delay_tables[i]
+        s.outcome = consts.intersection_plan_pl_12_pic_19_outcomes[i]
+        s.delay_table = consts.intersection_plan_pl_12_pic_19_delay_tables[i]
+        sims_intersection0.append(s)
+
+    sims_intersection1 = []
+    for i in range(len(consts.intersection_plan_pl_12_pic_18_outcomes)):
+        s: Simulation = Simulation(name='Simulation intersection_plan_pl_12_pic_18 ' + str(i),
+                                   board=b1,
+                                   plans=consts.intersection_plan_pl_12_pic_18,
+                                   agents=agents)
+        s.outcome = consts.intersection_plan_pl_12_pic_18_outcomes[i]
+        s.delay_table = consts.intersection_plan_pl_12_pic_18_delay_tables[i]
         sims_intersection1.append(s)
 
-    sims_traffic_circle1 = []
-    for i in range(len(consts.traffic_circle_custom_plan1_outcomes)):
-        s: Simulation = Simulation(name='Simulation Traffic circle' + str(i),
-                                   board=b1,
+    sims_traffic_circle0 = []
+    for i in range(len(consts.traffic_circle_plan_pl_12_pic_78_outcomes)):
+        s: Simulation = Simulation(name='Simulation traffic_circle_plan_pl_12_pic_78 ' + str(i),
+                                   board=b2,
                                    plans=consts.traffic_circle_plan_pl_12_pic_78,
                                    agents=agents)
-        s.outcome = consts.traffic_circle_custom_plan1_outcomes[i]
-        s.delay_table = consts.traffic_circle_custom_plan1_delay_tables[i]
-        sims_traffic_circle1.append(s)
+        s.outcome = consts.traffic_circle_plan_pl_12_pic_78_outcomes[i]
+        s.delay_table = consts.traffic_circle_plan_pl_12_pic_78_delay_tables[i]
+        sims_traffic_circle0.append(s)
 
-    return sims_intersection1 + sims_traffic_circle1
+    return sims_intersection0 + sims_intersection1 + sims_traffic_circle0
 
 
 def get_from_filename(config_filename: str) -> List[Simulation]:

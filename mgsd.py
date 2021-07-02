@@ -88,13 +88,13 @@ class MGSD(object):
         print(f'faulty agents: {list(map(lambda ag: [ag.name, ag.fail_prob], filter(lambda agent: agent.is_faulty, self.simulations_to_run[0].agents)))}')
         print('')
 
+        self.visualize_output()
         self.calculate_error_vector_spectra()
         self.print_error_vector_spectra()
         self.calculate_diagnoses_and_probabilities()
         self.print_diagnoses_and_probabilities()
         self.evaluate_algorithm()
         self.print_evaluation_results()
-        # self.visualize_output()
         print('fin')
 
     def calculate_error_vector_spectra(self):
@@ -129,6 +129,7 @@ class MGSD(object):
             for i in range(len(self.spectra[0])):
                 print(f'{self.spectra[j][i]} ', end='')
             print(f'| {self.error_vector[j]}')
+        print(f'Number of games: {len(self.error_vector)}')
         print('\n')
 
     def print_diagnoses_and_probabilities(self) -> None:

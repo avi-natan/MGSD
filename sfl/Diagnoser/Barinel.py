@@ -60,11 +60,12 @@ class Barinel(object):
             diag.set_from_tf(tf)
             probs_sum += diag.get_prob()
         for diag in self.get_diagnoses():
-            if probs_sum < 1e-5:
-                # set uniform to avoid nan
-                temp_prob = 1.0 / len(self.diagnoses)
-            else:
-                temp_prob = diag.get_prob() / probs_sum
+            # if probs_sum < 1e-5:
+            #     # set uniform to avoid nan
+            #     temp_prob = 1.0 / len(self.diagnoses)
+            # else:
+            #     temp_prob = diag.get_prob() / probs_sum
+            temp_prob = diag.get_prob() / probs_sum
             diag.set_probability(temp_prob)
             new_diagnoses.append(diag)
         self.set_diagnoses(new_diagnoses)
