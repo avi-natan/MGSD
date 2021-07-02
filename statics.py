@@ -38,7 +38,7 @@ def get_hardcoded_simulations() -> List[Simulation]:
     for i in range(len(consts.intersection_plan_pl_12_pic_19_outcomes)):
         s: Simulation = Simulation(name='Simulation intersection_plan_pl_12_pic_19 ' + str(i),
                                    board=b0,
-                                   plans=consts.intersection_plan_pl_12_pic_19,
+                                   plans=consts.intersection0_plan_pl_12_pic_19,
                                    agents=agents)
         s.outcome = consts.intersection_plan_pl_12_pic_19_outcomes[i]
         s.delay_table = consts.intersection_plan_pl_12_pic_19_delay_tables[i]
@@ -48,7 +48,7 @@ def get_hardcoded_simulations() -> List[Simulation]:
     for i in range(len(consts.intersection_plan_pl_12_pic_18_outcomes)):
         s: Simulation = Simulation(name='Simulation intersection_plan_pl_12_pic_18 ' + str(i),
                                    board=b1,
-                                   plans=consts.intersection_plan_pl_12_pic_18,
+                                   plans=consts.intersection1_plan_pl_12_pic_18,
                                    agents=agents)
         s.outcome = consts.intersection_plan_pl_12_pic_18_outcomes[i]
         s.delay_table = consts.intersection_plan_pl_12_pic_18_delay_tables[i]
@@ -58,7 +58,7 @@ def get_hardcoded_simulations() -> List[Simulation]:
     for i in range(len(consts.traffic_circle_plan_pl_12_pic_78_outcomes)):
         s: Simulation = Simulation(name='Simulation traffic_circle_plan_pl_12_pic_78 ' + str(i),
                                    board=b2,
-                                   plans=consts.traffic_circle_plan_pl_12_pic_78,
+                                   plans=consts.traffic_circle0_plan_pl_12_pic_78,
                                    agents=agents)
         s.outcome = consts.traffic_circle_plan_pl_12_pic_78_outcomes[i]
         s.delay_table = consts.traffic_circle_plan_pl_12_pic_78_delay_tables[i]

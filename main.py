@@ -91,9 +91,9 @@ def generate_benchmarks(agents_counts,
                                     # adding plan to the json (pl, pic, pt)
                                     plan_name = f'{b}_plan_pl_{pl}_pic_{pic}'
                                     if pt == 'manual':
-                                        plan = consts.plans['traffic_circle_plans'][plan_name]  # TODO: write manual plans for 10, 20, 30 intersections
+                                        plan = consts.plans[f'{b}_plans'][plan_name]  # TODO: write manual plans for 10, 20, 30 intersections
                                     else:
-                                        plan = consts.plans['traffic_circle_plans'][plan_name]  # TODO: implement generated plans
+                                        plan = consts.plans[f'{b}_plans'][plan_name]  # TODO: implement generated plans
                                     benchmark_data["plan"] = {
                                         "plan_name": plan_name,
                                         "plan": plan
@@ -114,7 +114,7 @@ def run_mgsd():
     # agents_counts = [6, 8, 10]
     # faulty_agents_counts = [2, 3, 4]
     # faulty_agents_fail_probs = [0.05, 0.1, 0.2, 0.3]
-    # boards = ['intersection', 'traffic_circle']  # board must be manually built
+    # boards = ['intersection0', 'intersection1', 'traffic_circle0']  # board must be manually built
     # plans_length = [10, 12, 14]
     # plans_intersections_count = [10, 20, 30]
     """
@@ -130,10 +130,10 @@ def run_mgsd():
     agents_counts = [6]
     faulty_agents_counts = [2]
     faulty_agents_fail_probs = [0.3]
-    boards = ['traffic_circle']  # board must be manually built
+    boards = ['traffic_circle0']  # board must be manually built
     plans_length = [12]
     plans_intersections_count = [78]
-    plans_type = ['manual', 'generated']
+    plans_type = ['manual']
     simulations_count = [10]
 
     generate_benchmarks(
