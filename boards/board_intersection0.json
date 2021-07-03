@@ -1,0 +1,8 @@
+{
+    "board_name": "intersection0",
+    "board_width": 12,
+    "board_height": 12,
+    "board_critical_areas": [
+        [[4, 4], [8, 8]]
+    ]
+}
