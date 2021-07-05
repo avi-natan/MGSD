@@ -33,8 +33,10 @@ class ScenarioBuilder(object):
 
         The resulting scenario will be encoded into a json object in the folder
         "worlds/<world_name>_scenarios" folder under the name
-        "<world_name>_<scenario_type>_scenario_an_<agents_number>_fan_<faulty_agents_number>
-        _fp_<fault_probability>_sn_<simulations_number>.json"
+        "scenario_an_<agents_number>_fan_<faulty_agents_number>_fp_<fault_probability>_sn_<simulations_number>.json"
+        and a folder named
+        "scenario_an_<agents_number>_fan_<faulty_agents_number>_fp_<fault_probability>_sn_<simulations_number>_outcomes"
+        will be created.
 
         :param world_name: the name of the world to use (worlds folder must have a json file
         with the name of this argument. this function throws exception if such folder is

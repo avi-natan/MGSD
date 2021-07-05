@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 
 
 class Simulator(object):
@@ -30,8 +31,9 @@ class Simulator(object):
         actual execution.
 
         The resulting outcome will be encoded into a json object in the folder "<scenario_path>" under the name
-        "<scenario_name>_<outcome_type>_outcome_facm_<fault_and_conflict_method>_facmargs
-        _<fault_and_conflict_method_args>.json"
+        "outcome_facm_<fault_and_conflict_method>_facmargs_<fault_and_conflict_method_args>.json"
+        and a folder named
+        "outcome_facm_<fault_and_conflict_method>_facmargs_<fault_and_conflict_method_args>_spectras" will be created.
 
         :param scenario_name: the name of the scenario, without the .json extension
         :param scenario_path: the relative path to the folder containing the scenario
@@ -77,6 +79,12 @@ class Simulator(object):
             outfile_path = f'{sc_path}/{sc_name}_outcomes/outcome_facm_{facm}_facmargs_{facm_args_string}.json'
             with open(outfile_path, 'w') as outfile:
                 json.dump(outcome_json, outfile)
+            outdir_path = f'{sc_path}/{sc_name}_outcomes/outcome_facm_{facm}_facmargs_{facm_args_string}_spectras'
+            if not os.path.exists(outdir_path):
+                os.mkdir(outdir_path)
+            else:
+                shutil.rmtree(outdir_path)
+                os.mkdir(outdir_path)
             return True
         else:
             facm_args_string = '#'

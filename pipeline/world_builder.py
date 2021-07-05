@@ -30,10 +30,10 @@ class WorldBuilder(object):
         areas, and a plan (in terms of size (number of individual plans) and length (lengths
         of those plans)). "A world and a job to do in it."
 
-        The resulting world will be encoded into a json object in the folder 'worlds' by the
-        name "<world_type>_world_board_<board_name>_plan_s_<plan_size>_l_<plan_length>_i_<intersections_number>.json"
+        The resulting world will be encoded into a json object in the folder 'worlds' by the name
+        "world_board_<board_name>_plan_s_<plan_size>_l_<plan_length>_i_<intersections_number>.json"
         and a folder named
-        "<world_type>_world_board_<board_name>_plan_s_<plan_size>_l_<plan_length>_i_<intersections_number>_scenarios"
+        "world_board_<board_name>_plan_s_<plan_size>_l_<plan_length>_i_<intersections_number>_scenarios"
         will be created.
 
         :param board_name: the name of the board to use (boards folder must have a json file

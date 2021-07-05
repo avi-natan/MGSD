@@ -3,6 +3,7 @@ import shutil
 
 from pipeline.scenario_builder import ScenarioBuilder
 from pipeline.simulator import Simulator
+from pipeline.spectra_generator import SpectraGenerator
 from pipeline.world_builder import WorldBuilder
 
 if __name__ == '__main__':
@@ -54,17 +55,45 @@ if __name__ == '__main__':
     worlds_contents = next(os.walk('../worlds'))
     worlds_scenarios_folders = worlds_contents[1]
     simulator = Simulator('../boards', '../static/worlds', '../worlds')
-
+    created_outcomes_count = 0
     for scenario_folder in worlds_scenarios_folders:
         scenario_folder_contents = next(os.walk(f'../worlds/{scenario_folder}'))
         scenario_names = list(map(lambda fn: fn[:-5], scenario_folder_contents[2]))
         for scenario_name in scenario_names:
             print(f'\ngenerating outcomes for {scenario_name} from {scenario_folder}...')
-            simulator.generate_outcome(scenario_name,
-                                       f'../worlds/{scenario_folder}',
-                                       'dawfi',
-                                       {},
-                                       'static')
-    print(9)
+            success = simulator.generate_outcome(scenario_name,
+                                                 f'../worlds/{scenario_folder}',
+                                                 'dawfi',
+                                                 {},
+                                                 'static')
+            if success:
+                created_outcomes_count += 1
+    print(f'created_outcomes_count: {created_outcomes_count}')
+
+    # generate spectra
+    worlds_contents = next(os.walk('../worlds'))
+    worlds_scenarios_folders = worlds_contents[1]
+    spectra_generator = SpectraGenerator('../boards', '../static/worlds', '../worlds')
+    created_spectra_count = 0
+    for scenario_folder in worlds_scenarios_folders:
+        scenario_folder_contents = next(os.walk(f'../worlds/{scenario_folder}'))
+        scenarios_outcomes_folders = scenario_folder_contents[1]
+        for outcome_folder in scenarios_outcomes_folders:
+            outcome_folder_contents = next(os.walk(f'../worlds/{scenario_folder}/{outcome_folder}'))
+            outcome_names = list(map(lambda fn: fn[:-5], outcome_folder_contents[2]))
+            for outcome_name in outcome_names:
+                print(f'\ngenerating spectra for {outcome_name} from {scenario_folder}/{outcome_folder}...')
+                success = spectra_generator.generate_spectra(outcome_name,
+                                                             f'../worlds/{scenario_folder}/{outcome_folder}',
+                                                             'pfc',             # percentage_free_ca
+                                                             {'t': 0.85},       # threshold
+                                                             'rfr',             # reach_final_res
+                                                             {},
+                                                             'apfc',            # agent_pass_fail_contribution
+                                                             {'ifs': True})     # invert_for_success
+                if success:
+                    created_spectra_count += 1
+    print(f'created_spectra_count: {created_spectra_count}')
+
 
     # run MGSD to generate diagnoses
