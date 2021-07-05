@@ -1,8 +1,10 @@
 {
+	"world_name": "world_board_intersection0_plan_s_6_l_12_i_19",
+	"world_type": "static",
 	"board": {
-		"board_name": "intersection0", 
-		"board_width": 12, 
-		"board_height": 12, 
+		"board_name": "intersection0",
+		"board_width": 12,
+		"board_height": 12,
 		"board_critical_areas": [
 			[[4, 4], [8, 8]]
 		]

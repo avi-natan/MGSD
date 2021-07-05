@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 
 
 class ScenarioBuilder(object):
@@ -30,7 +31,7 @@ class ScenarioBuilder(object):
         of agents, where some of them are faulty and have a positive fault probability, as well as a number
         that states how many simulations are to be run. "The workers that do the job, and how many times"
 
-        The resulting scenario will be encoded int a json object in the folder
+        The resulting scenario will be encoded into a json object in the folder
         "worlds/<world_name>_scenarios" folder under the name
         "<world_name>_<scenario_type>_scenario_an_<agents_number>_fan_<faulty_agents_number>
         _fp_<fault_probability>_sn_<simulations_number>.json"
@@ -55,22 +56,15 @@ class ScenarioBuilder(object):
         to the third party module and get from there the desired scenario.
         :return: boolean indicator whether the generation succeeded
         """
-        list_of_worlds_filenames = self.worlds_relative_path_contents[2]
-
-        # get the world of the simulation ready
-        if (world_name + '.json') not in list_of_worlds_filenames:
-            print(f'world name "{world_name}" is not defined in the worlds folder')
-            return False
-        world_json = json.load(open(f'{self.worlds_relative_path}/{world_name}.json'))
-
         # get the agents of the simulation ready
+        wn = str(world_name)
         an = str(agents_number)
         fan = str(faulty_agents_number)
         fp = str(fault_probability)
         sn = str(simulations_number)
         scenario_json = None
         if scenario_type == 'static':
-            scenario_json = self.static_scenario(world_name, an, fan, fp, sn)
+            scenario_json = self.static_scenario(wn, an, fan, fp, sn)
         elif scenario_type == 'generated':
             # TODO: implement
             pass
@@ -78,33 +72,40 @@ class ScenarioBuilder(object):
             # TODO: implement
             pass
         else:
-            raise Exception(f'unexpected simulation type: "{scenario_type}"')
+            raise Exception(f'unexpected scenario type: "{scenario_type}"')
 
         # write the scenario to disk
         if scenario_json is not None:
-            print(f'world_name: {world_name}')
+            print(f'world_name: {wn}')
             print(f'agents_number: {agents_number}')
             print(f'faulty_agents_number: {faulty_agents_number}')
             print(f'fault_probability: {fault_probability}')
             print(f'simulations_number: {simulations_number}')
             print(f'scenario_type: {scenario_type}')
-            with open(f'../worlds/{world_name}_scenarios/{world_name}_{scenario_type}_scenario_an_{an}_fan_'
-                      f'{fan}_fp_{fp}_sn_{sn}.json', 'w') as outfile:
+            outfile_path = f'../worlds/{wn}_scenarios/scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}.json'
+            with open(outfile_path, 'w') as outfile:
                 json.dump(scenario_json, outfile)
+
+            outdir_path = f'../worlds/{wn}_scenarios/scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}_outcomes'
+            if not os.path.exists(outdir_path):
+                os.mkdir(outdir_path)
+            else:
+                shutil.rmtree(outdir_path)
+                os.mkdir(outdir_path)
             return True
         else:
             print(f'No valid scenario generated for '
-                  f'{world_name}_static_scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}.json, skipping...')
+                  f'scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}.json, skipping...')
             return False
 
-    def static_scenario(self, world_name, an, fan, fp, sn):
-        world_static_scenarios_contents = \
-            next(os.walk(f'{self.static_worlds_relative_path}/{world_name}_static_scenarios'))
-        world_static_scenarios_filenames = world_static_scenarios_contents[2]
-        world_static_scenario_filename = f'{world_name}_static_scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}.json'
+    def static_scenario(self, wn, an, fan, fp, sn):
+        static_scenarios_contents = \
+            next(os.walk(f'{self.static_worlds_relative_path}/{wn}_scenarios'))
+        world_static_scenarios_filenames = static_scenarios_contents[2]
+        world_static_scenario_filename = f'scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}.json'
         if world_static_scenario_filename not in world_static_scenarios_filenames:
             scenario_json = None
         else:
             scenario_json = json.load(open(
-                f'{self.static_worlds_relative_path}/{world_name}_static_scenarios/{world_static_scenario_filename}'))
+                f'{self.static_worlds_relative_path}/{wn}_scenarios/{world_static_scenario_filename}'))
         return scenario_json

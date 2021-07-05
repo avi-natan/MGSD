@@ -5,21 +5,19 @@ import shutil
 
 class WorldBuilder(object):
 
-    def __init__(self, boards_relative_path, static_worlds_relative_path):
-        """
-        initiates world builder object with the relative path of the various boards.
-        raises exception if it could not find the path.
-
-        :param boards_relative_path: relative path of the various boards
-        """
+    def __init__(self, boards_relative_path, static_worlds_relative_path, worlds_relative_path):
         if not os.path.isdir(boards_relative_path):
             raise Exception('boards relative path not found')
         if not os.path.isdir(static_worlds_relative_path):
             raise Exception('static worlds relative path not found')
+        if not os.path.isdir(worlds_relative_path):
+            raise Exception('worlds relative path not found')
         self.boards_relative_path = boards_relative_path
         self.boards_relative_path_contents = next(os.walk(self.boards_relative_path))
         self.static_worlds_relative_path = static_worlds_relative_path
         self.static_worlds_relative_path_contents = next(os.walk(self.static_worlds_relative_path))
+        self.worlds_relative_path = worlds_relative_path
+        self.worlds_relative_path_contents = next(os.walk(self.worlds_relative_path))
 
     def build_world(self,
                     board_name,
@@ -58,24 +56,16 @@ class WorldBuilder(object):
         specifications.
         in case of third party plan, the function will send the plan specifications to the third party
         module and get from there the desired world.
-        :return:
+        :return: boolean indicator whether the building succeeded
         """
-
-        list_of_boards_filenames = self.boards_relative_path_contents[2]
-
-        # Get the board of the world ready
-        if (board_name + '.json') not in list_of_boards_filenames:
-            print(f'board name "{board_name}" is not defined in the boards folder')
-            return False
-        board_json = json.load(open(f'{self.boards_relative_path}/{board_name}.json'))
-
         # get the plan of the world ready
+        bn = str(board_name)
         s = str(plan_size)
         l = str(plan_length)
         i = str(intersections_number)
         world_json = None
         if world_type == 'static':
-            world_json = self.static_world_plan(board_name, s, l, i)
+            world_json = self.static_world(bn, s, l, i)
         elif world_type == 'generated':
             # TODO: implement
             pass
@@ -86,22 +76,24 @@ class WorldBuilder(object):
             raise Exception(f'unexpected world type: "{world_type}"')
 
         if world_json is not None:
-            with open(f'../worlds/{world_type}_world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}.json', 'w') as outfile:
+            outfile_path = f'../worlds/world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}.json'
+            with open(outfile_path, 'w') as outfile:
                 json.dump(world_json, outfile)
-            if not os.path.exists(f'../worlds/{world_type}_world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}_scenarios'):
-                os.mkdir(f'../worlds/{world_type}_world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}_scenarios')
+            outdir_path = f'../worlds/world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}_scenarios'
+            if not os.path.exists(outdir_path):
+                os.mkdir(outdir_path)
             else:
-                shutil.rmtree(f'../worlds/{world_type}_world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}_scenarios')
-                os.mkdir(f'../worlds/{world_type}_world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}_scenarios')
+                shutil.rmtree(outdir_path)
+                os.mkdir(outdir_path)
             return True
         else:
             print(f'No valid world generated for '
-                  f'{world_type}_world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}.json, skipping...')
+                  f'world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}.json, skipping...')
             return False
 
-    def static_world_plan(self, board_name, s, l, i):
-        static_worlds_filenames = self.static_worlds_relative_path_contents[2]
-        static_world_filename = f'static_world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}.json'
+    def static_world(self, bn, s, l, i):
+        static_worlds_filenames = next(os.walk(f'{self.static_worlds_relative_path}'))[2]
+        static_world_filename = f'world_board_{bn}_plan_s_{s}_l_{l}_i_{i}.json'
         if static_world_filename not in static_worlds_filenames:
             world_json = None
         else:

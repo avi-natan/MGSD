@@ -1,4 +1,6 @@
 {
+	"world_name": "world_board_tcircle0_plan_s_6_l_12_i_78",
+	"world_type": "static",
 	"board": {
 		"board_name": "tcircle0",
 		"board_width": 12,

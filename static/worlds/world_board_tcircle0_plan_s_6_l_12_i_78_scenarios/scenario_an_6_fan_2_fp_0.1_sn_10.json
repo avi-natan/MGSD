@@ -1,5 +1,9 @@
 {
+	"scenario_name": "world_board_tcircle0_plan_s_6_l_12_i_78_scenario_an_6_fan_2_fp_0.1_sn_10",
+	"scenario_type": "static",
 	"world": {
+		"world_name": "world_board_tcircle0_plan_s_6_l_12_i_78",
+		"world_type": "static",
 		"board": {
 			"board_name": "tcircle0",
 			"board_width": 12,
@@ -63,5 +67,5 @@
 			"agent_fail_prob": 0.0
 		}
 	],
-	"simulations": 10
+	"simulations_number": 10
 }
