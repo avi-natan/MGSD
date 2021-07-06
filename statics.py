@@ -24,7 +24,7 @@ def get_pick_color(color_id):
 
 def get_hardcoded_simulations() -> List[Simulation]:
     # Initializing agents
-    agents: List[Agent] = [Agent(name='a' + str(i), is_faulty=(i == 0 or i == 1)) for i in list(range(6))]
+    agents: List[Agent] = [Agent(num=i, name='a' + str(i), is_faulty=(i == 0 or i == 1)) for i in list(range(6))]
 
     # Initializing boards
     b0: Board = Board(name='Intersection0', width=12, height=12, critical_areas=[((4, 4), (8, 8))])
@@ -79,8 +79,8 @@ def get_from_filename(config_filename: str) -> List[Simulation]:
 
     # Initializing agents
     agents: List[Agent] = \
-        [Agent(name=a['agent_name'], is_faulty=a['agent_is_faulty'], fail_prob=a['agent_fail_prob'])
-         for a in data['agents']]
+        [Agent(num=i, name=a['agent_name'], is_faulty=a['agent_is_faulty'], fail_prob=a['agent_fail_prob'])
+         for i, a in enumerate(data['agents'])]
 
     # Initializing boards
     b = data['board']
@@ -247,18 +247,18 @@ def simulate_delay_and_wait_for_it(agents: List[Agent],
 #############################################################
 def simulation_success_method_percentage_free_ca(simulation: Simulation, ssm_args: Dict) -> bool:
     # Getting the threshold
-    threshold = ssm_args['threshold']
+    threshold = ssm_args['t']
 
     # Get all the occupied positions
-    occupied_positions: List[Tuple[int, int]] = []
+    occupied_positions: List[List[int, int]] = []
     for a in simulation.outcome:
         occupied_positions.append(a[-1])
 
     # For each critical area, check how much of its positions
     # is not in the occupied positions
-    critical_positions: List[List[Tuple[int, int]]] = []
+    critical_positions: List[List[List[int, int]]] = []
     for ca in simulation.board.critical_areas:
-        ca_positions = [(i, j) for i in range(ca[0][0], ca[1][0]) for j in range(ca[0][1], ca[1][1])]
+        ca_positions = [[i, j] for i in range(ca[0][0], ca[1][0]) for j in range(ca[0][1], ca[1][1])]
         critical_positions.append(ca_positions)
     critical_positions_flat = [position for ca in critical_positions for position in ca]
 
@@ -301,12 +301,12 @@ def error_vector_and_spectra_fill_method_agent_pass_fail_contribution(simulation
             for j, _ in enumerate(s.outcome):
                 agent_success = methods[agent_success_method](s, j, asm_args)
                 if agent_success:
-                    if evsfm_args['invert_for_success']:
+                    if evsfm_args['ifs']:
                         spectra[i].append(1)  # Original
                     else:
                         spectra[i].append(0)  # Alternative
                 else:
-                    if evsfm_args['invert_for_success']:
+                    if evsfm_args['ifs']:
                         spectra[i].append(0)  # Original
                     else:
                         spectra[i].append(1)  # Alternative
@@ -665,13 +665,13 @@ methods = {
     'delay_and_wait_for_it': simulate_delay_and_wait_for_it,
 
     # Methods that determine a simulation success/fail
-    'percentage_free_ca': simulation_success_method_percentage_free_ca,
+    'pfc': simulation_success_method_percentage_free_ca,
 
     # Methods that determine the agents success/fail
-    'reach_final_res': agent_success_method_reach_final_res,
+    'rfr': agent_success_method_reach_final_res,
 
     # Methods that determine how to populate the spectra
-    'agent_pass_fail_contribution': error_vector_and_spectra_fill_method_agent_pass_fail_contribution,
+    'apfc': error_vector_and_spectra_fill_method_agent_pass_fail_contribution,
 
     # Methods for calculating diagnoses and their probabilities
     'ochiai': calculate_diagnoses_and_probabilities_ochiai,

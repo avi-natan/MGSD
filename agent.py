@@ -6,6 +6,7 @@ class Agent(object):
     object_id = 0
 
     def __init__(self,
+                 num: int,
                  name: str = None,
                  color: Tuple[float, float, float] = None,
                  is_faulty: bool = False,
@@ -16,6 +17,7 @@ class Agent(object):
             color = statics.get_pick_color(Agent.object_id)
 
         self.id = Agent.object_id
+        self.num = num
         self.name = name
         self.color = color
         self.is_faulty = is_faulty

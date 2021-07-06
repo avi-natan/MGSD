@@ -734,16 +734,16 @@ intersection_plan_pl_12_pic_19_outcomes = [
 
 intersection_plan_pl_12_pic_18_outcomes = [
     # intersection_plan_pl_12_pic_18_make_or_break_outcome0,
-    # intersection_plan_pl_12_pic_18_wait_for_it_outcome0,
-    # intersection_plan_pl_12_pic_18_wait_for_it_outcome1,
-    # intersection_plan_pl_12_pic_18_wait_for_it_outcome2,
-    # intersection_plan_pl_12_pic_18_wait_for_it_outcome3,
-    # intersection_plan_pl_12_pic_18_wait_for_it_outcome4,
-    # intersection_plan_pl_12_pic_18_wait_for_it_outcome5,
-    # intersection_plan_pl_12_pic_18_wait_for_it_outcome6,
-    # intersection_plan_pl_12_pic_18_wait_for_it_outcome7,
-    # intersection_plan_pl_12_pic_18_wait_for_it_outcome8,
-    # intersection_plan_pl_12_pic_18_wait_for_it_outcome9
+    intersection_plan_pl_12_pic_18_wait_for_it_outcome0,
+    intersection_plan_pl_12_pic_18_wait_for_it_outcome1,
+    intersection_plan_pl_12_pic_18_wait_for_it_outcome2,
+    intersection_plan_pl_12_pic_18_wait_for_it_outcome3,
+    intersection_plan_pl_12_pic_18_wait_for_it_outcome4,
+    intersection_plan_pl_12_pic_18_wait_for_it_outcome5,
+    intersection_plan_pl_12_pic_18_wait_for_it_outcome6,
+    intersection_plan_pl_12_pic_18_wait_for_it_outcome7,
+    intersection_plan_pl_12_pic_18_wait_for_it_outcome8,
+    intersection_plan_pl_12_pic_18_wait_for_it_outcome9
 ]
 
 traffic_circle_plan_pl_12_pic_78_outcomes = [
@@ -760,16 +760,16 @@ traffic_circle_plan_pl_12_pic_78_outcomes = [
     # traffic_circle_plan_pl_12_pic_78_make_or_break_outcome10,
     # traffic_circle_plan_pl_12_pic_78_make_or_break_outcome11,
     # traffic_circle_plan_pl_12_pic_78_make_or_break_outcome12,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome0,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome1,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome2,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome3,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome4,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome5,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome6,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome7,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome8,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome9
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome0,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome1,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome2,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome3,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome4,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome5,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome6,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome7,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome8,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_outcome9
 ]
 
 
@@ -783,16 +783,16 @@ intersection_plan_pl_12_pic_19_delay_tables = [
 
 intersection_plan_pl_12_pic_18_delay_tables = [
     # intersection_plan_pl_12_pic_18_make_or_break_delay_table0,
-    # intersection_plan_pl_12_pic_18_wait_for_it_delay_table0,
-    # intersection_plan_pl_12_pic_18_wait_for_it_delay_table1,
-    # intersection_plan_pl_12_pic_18_wait_for_it_delay_table2,
-    # intersection_plan_pl_12_pic_18_wait_for_it_delay_table3,
-    # intersection_plan_pl_12_pic_18_wait_for_it_delay_table4,
-    # intersection_plan_pl_12_pic_18_wait_for_it_delay_table5,
-    # intersection_plan_pl_12_pic_18_wait_for_it_delay_table6,
-    # intersection_plan_pl_12_pic_18_wait_for_it_delay_table7,
-    # intersection_plan_pl_12_pic_18_wait_for_it_delay_table8,
-    # intersection_plan_pl_12_pic_18_wait_for_it_delay_table9
+    intersection_plan_pl_12_pic_18_wait_for_it_delay_table0,
+    intersection_plan_pl_12_pic_18_wait_for_it_delay_table1,
+    intersection_plan_pl_12_pic_18_wait_for_it_delay_table2,
+    intersection_plan_pl_12_pic_18_wait_for_it_delay_table3,
+    intersection_plan_pl_12_pic_18_wait_for_it_delay_table4,
+    intersection_plan_pl_12_pic_18_wait_for_it_delay_table5,
+    intersection_plan_pl_12_pic_18_wait_for_it_delay_table6,
+    intersection_plan_pl_12_pic_18_wait_for_it_delay_table7,
+    intersection_plan_pl_12_pic_18_wait_for_it_delay_table8,
+    intersection_plan_pl_12_pic_18_wait_for_it_delay_table9
 ]
 
 traffic_circle_plan_pl_12_pic_78_delay_tables = [
@@ -809,14 +809,14 @@ traffic_circle_plan_pl_12_pic_78_delay_tables = [
     # traffic_circle_plan_pl_12_pic_78_make_or_break_delay_table10,
     # traffic_circle_plan_pl_12_pic_78_make_or_break_delay_table11,
     # traffic_circle_plan_pl_12_pic_78_make_or_break_delay_table12,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table0,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table1,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table2,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table3,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table4,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table5,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table6,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table7,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table8,
-    traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table9
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table0,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table1,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table2,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table3,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table4,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table5,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table6,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table7,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table8,
+    # traffic_circle_plan_pl_12_pic_78_wait_for_it_delay_table9
 ]

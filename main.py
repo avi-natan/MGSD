@@ -130,9 +130,9 @@ def run_mgsd():
     agents_counts = [6]
     faulty_agents_counts = [2]
     faulty_agents_fail_probs = [0.3]
-    boards = ['traffic_circle0']  # board must be manually built
+    boards = ['intersection1']  # board must be manually built
     plans_length = [12]
-    plans_intersections_count = [78]
+    plans_intersections_count = [18]
     plans_type = ['manual']
     simulations_count = [10]
 
@@ -156,16 +156,16 @@ def run_mgsd():
       - args: {}
 
     Methods that determine a simulation success/fail:
-    * percentage_free_ca
-      - args: {'threshold': float}
+    * pfc (percentage_free_ca)
+      - args: {'t' (threshold): float}
 
     Methods that determine the agents success/fail:
-    * reach_final_res
+    * rfr (reach_final_res)
       - args: {}
 
     Methods that determine how to populate the spectra:
-    * agent_pass_fail_contribution
-      - args: {'invert_for_success': bool}
+    * apfc (agent_pass_fail_contribution)
+      - args: {'ifs' (invert_for_success): bool}
 
     Methods for calculating diagnoses and their probabilities:
     * ochiai
@@ -191,12 +191,12 @@ def run_mgsd():
     """
     mgsd: MGSD = MGSD('delay_and_wait_for_it',
                       {},
-                      'percentage_free_ca',
-                      {'threshold': 0.85},
-                      'reach_final_res',
+                      'pfc',
+                      {'t': 0.95},
+                      'rfr',
                       {},
-                      'agent_pass_fail_contribution',
-                      {'invert_for_success': True},
+                      'apfc',
+                      {'ifs': True},
                       'barinel_amir',
                       {'method_for_calculating_priors': 'priors_one'},
                       'wasted_effort',
@@ -204,10 +204,10 @@ def run_mgsd():
 
     # Make sure that the file with the same name is located inside the
     # 'benchmarks' directory
-    # mgsd.run_algorithm()
-    for filename in os.listdir('benchmarks'):
-        print(f'Running MGSD for benchmark: {filename}')
-        mgsd.run_algorithm(config_filename=filename)
+    mgsd.run_algorithm()
+    # for filename in os.listdir('benchmarks'):
+    #     print(f'Running MGSD for benchmark: {filename}')
+    #     mgsd.run_algorithm(config_filename=filename)
 
 
 if __name__ == '__main__':

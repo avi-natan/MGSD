@@ -86,7 +86,7 @@ if __name__ == '__main__':
                 success = spectra_generator.generate_spectra(outcome_name,
                                                              f'../worlds/{scenario_folder}/{outcome_folder}',
                                                              'pfc',             # percentage_free_ca
-                                                             {'t': 0.85},       # threshold
+                                                             {'t': 0.95},       # threshold
                                                              'rfr',             # reach_final_res
                                                              {},
                                                              'apfc',            # agent_pass_fail_contribution

@@ -3,6 +3,10 @@ import os
 import shutil
 
 import statics
+from agent import Agent
+from board import Board
+from plan import Plan
+from simulation import Simulation
 
 
 class SpectraGenerator(object):
@@ -62,16 +66,53 @@ class SpectraGenerator(object):
         evasfm = error_vector_and_spectra_fill_method
         evasfm_args = evasfm_args
 
-        # TODO:
-        # simulations_to_run = []
-        # error_vector, spectra = statics.methods[error_vector_and_spectra_fill_method](
-        #     simulations_to_run,
-        #     simulation_success_method,
-        #     ssm_args,
-        #     agent_success_method,
-        #     asm_args,
-        #     evasfm_args
-        # )
+        # Create the simulations objects
+        simulations_to_run = []
+        outcome_json = json.load(open(f'{op}/{on}.json'))
+        # board
+        b_name = outcome_json['scenario']['world']['board']['board_name']
+        b_width = outcome_json['scenario']['world']['board']['board_width']
+        b_height = outcome_json['scenario']['world']['board']['board_height']
+        b_critical_areas = outcome_json['scenario']['world']['board']['board_critical_areas']
+        board = Board(b_name, b_width, b_height, b_critical_areas)
+        # plan
+        p_size = outcome_json['scenario']['world']['plan']['size']
+        p_length = outcome_json['scenario']['world']['plan']['length']
+        p_intersections = outcome_json['scenario']['world']['plan']['intersections']
+        p_individual_plans = outcome_json['scenario']['world']['plan']['individual_plans']
+        plan = Plan(p_size, p_length, p_intersections, p_individual_plans)
+        # agents
+        agents = []
+        for i, a in enumerate(outcome_json['scenario']['agents']):
+            a_num = a['agent_num']
+            a_name = a['agent_name']
+            a_is_faulty = a['agent_is_faulty']
+            a_fail_prob = a['agent_fail_prob']
+            agent = Agent(num=a_num, name=a_name, is_faulty=a_is_faulty, fail_prob=a_fail_prob)
+            agents.append(agent)
+
+        for i, sim in enumerate(outcome_json['simulations']):
+            s_name = sim['name']
+            s_board = board
+            s_plan = plan.individual_plans # TODO: refactor simulation later to use Plan object
+            s_agents = agents
+            s_fault_table = sim['fault_table']
+            s_actual_execution = sim['actual_execution']
+            simulation = Simulation(name=s_name, board=s_board, plans=s_plan, agents=s_agents)
+            simulation.delay_table = s_fault_table
+            simulation.outcome = s_actual_execution
+            simulations_to_run.append(simulation)
+        print(9)
+
+        # generate the error vector and the spectra
+        error_vector, spectra = statics.methods[error_vector_and_spectra_fill_method](
+            simulations_to_run,
+            simulation_success_method,
+            ssm_args,
+            agent_success_method,
+            asm_args,
+            evasfm_args
+        )
         spectra_json = {}
 
         # write spectra to disk
