@@ -1,6 +1,6 @@
 import statics
 
-from typing import Tuple
+from typing import List
 
 class Agent(object):
     object_id = 0
@@ -8,7 +8,7 @@ class Agent(object):
     def __init__(self,
                  num: int,
                  name: str = None,
-                 color: Tuple[float, float, float] = None,
+                 color: List[float] = None,
                  is_faulty: bool = False,
                  fail_prob: float = 0.0) -> None:
         if name is None:

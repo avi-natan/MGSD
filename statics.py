@@ -13,7 +13,8 @@ from sfl.Diagnoser.Staccato import Staccato
 from simulation import Simulation
 from agent import Agent
 
-from typing import List, Tuple, Dict, Callable
+from typing import List, Dict, Callable
+from typing import Tuple
 from scipy.optimize import minimize
 import numpy as np
 
@@ -27,11 +28,11 @@ def get_hardcoded_simulations() -> List[Simulation]:
     agents: List[Agent] = [Agent(num=i, name='a' + str(i), is_faulty=(i == 0 or i == 1)) for i in list(range(6))]
 
     # Initializing boards
-    b0: Board = Board(name='Intersection0', width=12, height=12, critical_areas=[((4, 4), (8, 8))])
-    b1: Board = Board(name='Intersection1', width=12, height=12, critical_areas=[((3, 3), (9, 9))])
+    b0: Board = Board(name='Intersection0', width=12, height=12, critical_areas=[[[4, 4], [8, 8]]])
+    b1: Board = Board(name='Intersection1', width=12, height=12, critical_areas=[[[3, 3], [9, 9]]])
     b2: Board = Board(name='Traffic circle0', width=12, height=12,
-                      critical_areas=[((4, 4), (8, 5)), ((4, 7), (8, 8)),
-                                      ((4, 5), (5, 7)), ((7, 5), (8, 7))])
+                      critical_areas=[[[4, 4], [8, 5]], [[4, 7], [8, 8]],
+                                      [[4, 5], [5, 7]], [[7, 5], [8, 7]]])
 
     # Creating simulations
     sims_intersection0 = []
@@ -85,12 +86,12 @@ def get_from_filename(config_filename: str) -> List[Simulation]:
     # Initializing boards
     b = data['board']
     board: Board = Board(name=b['board_name'], width=b['board_width'], height=b['board_height'],
-                         critical_areas=[((ca[0][0], ca[0][1]), (ca[1][0], ca[1][1])) for ca in
+                         critical_areas=[[[ca[0][0], ca[0][1]], [ca[1][0], ca[1][1]]] for ca in
                                          b['board_critical_areas']])
 
     # Creating plans
     p = data['plan']
-    plans: List[List[Tuple[int, int]]] = [[(pat[0], pat[1]) for pat in pa] for pa in p['plan']]
+    plans: List[List[List[int, int]]] = [[[pat[0], pat[1]] for pat in pa] for pa in p['plan']]
 
     # Creating simulations
     simulations: List[Simulation] = \
@@ -148,7 +149,7 @@ def print_matrix(matrix_type: str, matrix: List[List]):
 #############################################################
 # Methods that determine the fault and conflict for the simulation
 #############################################################
-def available(wanted_resource: Tuple[int, int], occupied_resources: List[Tuple[int, int]]) -> bool:
+def available(wanted_resource: List[int], occupied_resources: List[List[int]]) -> bool:
     for ocr in occupied_resources:
         if wanted_resource == ocr:
             return False
@@ -156,8 +157,8 @@ def available(wanted_resource: Tuple[int, int], occupied_resources: List[Tuple[i
 
 
 def simulate_delay_and_wait_for_it(agents: List[Agent],
-                                   plans: List[List[Tuple[int, int]]],
-                                   facm_args: Dict) -> Tuple[List[List[bool]], List[List[Tuple[int, int]]]]:
+                                   plans: List[List[List[int]]],
+                                   facm_args: Dict) -> Tuple[List[List[bool]], List[List[List[int]]]]:
     # some consts
     agent_count = len(agents)
     timesteps_count = len(plans[0])
@@ -192,7 +193,7 @@ def simulate_delay_and_wait_for_it(agents: List[Agent],
     # advance the agents step by step according to the delay table
     for timestep in range(timesteps_count - 1):
         # initialize next step
-        next_step = [[(-1, -1)] * agent_count, [(-1, -1)] * agent_count]
+        next_step = [[[-1, -1]] * agent_count, [[-1, -1]] * agent_count]
 
         # set next step for agents that have fault in this timestep
         for ai in range(agent_count):
@@ -205,7 +206,7 @@ def simulate_delay_and_wait_for_it(agents: List[Agent],
         while next_step[0] != next_step[1]:
             next_step[0] = list(next_step[1])
             for ai in range(agent_count):
-                if next_step[0][ai] == (-1, -1):
+                if next_step[0][ai] == [-1, -1]:
                     if not available(plans[ai][p[ai] + 1], next_step[1]) \
                             or not available(plans[ai][p[ai] + 1], next_step[0]):
                         next_step[0][ai] = plans[ai][p[ai]]
@@ -214,7 +215,7 @@ def simulate_delay_and_wait_for_it(agents: List[Agent],
         # set next step for the remaining agents - agents could still get stuck due to mutual exclusions
         # an iterative pass until there is a convergence
         for ai in range(agent_count):
-            if next_step[0][ai] == (-1, -1):
+            if next_step[0][ai] == [-1, -1]:
                 p[ai] = p[ai] + 1
                 next_step[0][ai] = plans[ai][p[ai]]
                 next_step.reverse()
@@ -222,7 +223,7 @@ def simulate_delay_and_wait_for_it(agents: List[Agent],
                 while next_step[0] != next_step[1]:
                     next_step[0] = list(next_step[1])
                     for ai2 in range(agent_count):
-                        if next_step[0][ai2] == (-1, -1):
+                        if next_step[0][ai2] == [-1, -1]:
                             if not available(plans[ai2][p[ai2] + 1], next_step[1]) \
                                     or not available(plans[ai2][p[ai2] + 1], next_step[0]):
                                 next_step[0][ai2] = plans[ai2][p[ai2]]

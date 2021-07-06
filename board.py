@@ -1,5 +1,4 @@
 from typing import List
-from typing import Tuple
 
 import matplotlib.pyplot as plt
 from matplotlib import colors
@@ -12,7 +11,7 @@ class Board(object):
                  name: str = None,
                  width: int = 3,
                  height: int = 3,
-                 critical_areas: List[Tuple[Tuple[int, int], Tuple[int, int]]] = None) -> None:
+                 critical_areas: List[List[List[int]]] = None) -> None:
         if width < 3 or height < 3:
             raise Exception(f'manually input board dimensions must be at least 3X3, received {width}X{height}')
         if name is None:

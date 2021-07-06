@@ -4,7 +4,7 @@ from board import Board
 from agent import Agent
 
 from typing import List, Dict
-from typing import Tuple
+# from typing import Tuple
 
 import matplotlib.pyplot as plt
 from matplotlib import colors
@@ -17,7 +17,7 @@ class Simulation(object):
     def __init__(self,
                  name: str = None,
                  board: Board = None,
-                 plans: List[List[Tuple[int, int]]] = None,
+                 plans: List[List[List[int]]] = None,
                  agents: List[Agent] = None) -> None:
         if name is None:
             name = 'Anonymous_Simulation_' + str(Simulation.object_id)
@@ -26,7 +26,7 @@ class Simulation(object):
         if plans is None:
             plans = [[(j, i) for i in range(board.width)] for j in range(board.height)]
         if agents is None:
-            agents = [Agent() for _ in range(len(plans))]
+            agents = [Agent(num=i) for i in range(len(plans))]
 
         self.id = Simulation.object_id
         self.name = name
@@ -151,6 +151,6 @@ class Simulation(object):
 #######################################################
         """)
 
-    def generate_outcome(self) -> List[List[Tuple[int, int]]]:
+    def generate_outcome(self) -> List[List[List[int]]]:
         # # TODO: implement
         pass
