@@ -3,6 +3,7 @@ import os
 import shutil
 
 import statics
+import utils
 from agent import Agent
 from board import Board
 from plan import Plan
@@ -33,7 +34,8 @@ class SpectraGenerator(object):
                          agent_success_method,
                          asm_args,
                          error_vector_and_spectra_fill_method,
-                         evasfm_args):
+                         evasfm_args,
+                         spectra_type):
         """
         Takes an outcome and generates a spectra according to the specified methods. a spectra is an object defined
         by a matrix of ones and zeros (individual agents success indicators) and vector of ones and zeros (an error
@@ -55,8 +57,13 @@ class SpectraGenerator(object):
         :param asm_args: supporting arguments for the above method
         :param error_vector_and_spectra_fill_method: name of the method that will determine how to populate the spectra
         :param evasfm_args: supporting arguments for the above method
+        :param spectra_type: whether the spectra should be static or generated. specified by the datum [static,
+        generated].
+        in case of static, this function will load a statically defined spectra.
+        in case of generated, this function will use the provided methods to generate a spectra.
         :return: boolean indicator whether the generation succeeded
         """
+        # shorter arguments
         on = outcome_name
         op = outcome_path
         ssm = simulation_success_method
@@ -65,7 +72,87 @@ class SpectraGenerator(object):
         asm_args = asm_args
         evasfm = error_vector_and_spectra_fill_method
         evasfm_args = evasfm_args
+        sp_type = spectra_type
 
+        # 2nd order methods' arguments dicts as strings
+        ssm_args_string = '#'
+        if ssm_args == {}:
+            ssm_args_string += '#'
+        else:
+            for k, v in ssm_args.items():
+                ssm_args_string += f'{str(k)}#{str(v)}#'
+        asm_args_string = '#'
+        if asm_args == {}:
+            asm_args_string += '#'
+        else:
+            for k, v in asm_args.items():
+                asm_args_string += f'{str(k)}#{str(v)}#'
+        evasfm_args_string = '#'
+        if evasfm_args == {}:
+            evasfm_args_string += '#'
+        else:
+            for k, v in evasfm_args.items():
+                evasfm_args_string += f'{str(k)}#{str(v)}#'
+
+        # static or generated generation
+        spectra_json = None
+        if sp_type == 'static':
+            spectra_json = self.static_spectra(on, op, ssm, ssm_args, ssm_args_string, asm, asm_args,
+                                               asm_args_string, evasfm, evasfm_args, evasfm_args_string)
+            pass
+        elif sp_type == 'generated':
+            spectra_json = self.generated_spectra(on, op, ssm, ssm_args, ssm_args_string, asm, asm_args,
+                                                  asm_args_string, evasfm, evasfm_args, evasfm_args_string)
+        else:
+            raise Exception(f'unexpected outcome type: "{sp_type}"')
+
+        # write spectra to disk
+        if spectra_json is not None:
+            print(f'on: {on}')
+            print(f'op: {op}')
+            print(f'ssm: {ssm}')
+            print(f'ssm_args: {ssm_args}')
+            print(f'asm: {asm}')
+            print(f'asm_args: {asm_args}')
+            print(f'evasfm: {evasfm}')
+            print(f'evasfm_args: {evasfm_args}')
+
+            spectra_short_name = utils.spectra_names_dict[f'spectra_ssm_{ssm}_ssmargs_{ssm_args_string}_asm_{asm}'
+                                                          f'_asmargs_{asm_args_string}_evasfm_{evasfm}_evasfmargs'
+                                                          f'_{evasfm_args_string}']
+            outfile_path = f'{op}/{on}_spectras/{spectra_short_name}.json'
+            with open(outfile_path, 'w') as outfile:
+                json.dump(spectra_json, outfile)
+            outdir_path = f'{op}/{on}_spectras/{spectra_short_name}_diagnoses'
+            if not os.path.exists(outdir_path):
+                os.mkdir(outdir_path)
+            else:
+                shutil.rmtree(outdir_path)
+                os.mkdir(outdir_path)
+            return True
+        else:
+            print(f'No valid outcome generated for spectra_ssm_{ssm}_ssmargs_{ssm_args_string}_asm_{asm}'
+                  f'_asmargs_{asm_args_string}_evasfm_{evasfm}_evasfmargs_{evasfm_args_string}.json, skipping...')
+            return False
+
+    def static_spectra(self, on, op, ssm, ssm_args, ssm_args_string, asm, asm_args,
+                       asm_args_string, evasfm, evasfm_args, evasfm_args_string):
+        static_o_path = f'{self.static_worlds_relative_path[:9]}/{op[3:]}'
+        outcome_static_spectras_contents = next(os.walk(f'{static_o_path}/{on}_spectras'))
+        outcome_static_spectras_filenames = outcome_static_spectras_contents[2]
+        spectra_short_name = utils.spectra_names_dict[f'spectra_ssm_{ssm}_ssmargs_{ssm_args_string}_asm_{asm}'
+                                                      f'_asmargs_{asm_args_string}_evasfm_{evasfm}_evasfmargs'
+                                                      f'_{evasfm_args_string}']
+        outcome_static_spectra_filename = f'{spectra_short_name}.json'
+        if outcome_static_spectra_filename not in outcome_static_spectras_filenames:
+            scenario_json = None
+        else:
+            scenario_json = json.load(open(
+                f'{static_o_path}/{on}_spectras/{outcome_static_spectra_filename}'))
+        return scenario_json
+
+    def generated_spectra(self, on, op, ssm, ssm_args, ssm_args_string, asm, asm_args,
+                          asm_args_string, evasfm, evasfm_args, evasfm_args_string):
         # Create the simulations objects
         simulations_to_run = []
         outcome_json = json.load(open(f'{op}/{on}.json'))
@@ -94,7 +181,7 @@ class SpectraGenerator(object):
         for i, sim in enumerate(outcome_json['simulations']):
             s_name = sim['name']
             s_board = board
-            s_plan = plan.individual_plans # TODO: refactor simulation later to use Plan object
+            s_plan = plan.individual_plans  # TODO: refactor simulation later to use Plan object
             s_agents = agents
             s_fault_table = sim['fault_table']
             s_actual_execution = sim['actual_execution']
@@ -102,78 +189,22 @@ class SpectraGenerator(object):
             simulation.delay_table = s_fault_table
             simulation.outcome = s_actual_execution
             simulations_to_run.append(simulation)
-        print(9)
 
         # generate the error vector and the spectra
-        error_vector, spectra = statics.methods[error_vector_and_spectra_fill_method](
+        error_vector, spectra_matrix = statics.methods[evasfm](
             simulations_to_run,
-            simulation_success_method,
+            ssm,
             ssm_args,
-            agent_success_method,
+            asm,
             asm_args,
             evasfm_args
         )
-        spectra_json = {}
-
-        # write spectra to disk
-        if spectra_json is not None:
-            print(f'on: {on}')
-            print(f'op: {op}')
-            print(f'ssm: {ssm}')
-            print(f'ssm_args: {ssm_args}')
-            print(f'asm: {asm}')
-            print(f'asm_args: {asm_args}')
-            print(f'evasfm: {evasfm}')
-            print(f'evasfm_args: {evasfm_args}')
-            ssm_args_string = '#'
-            if ssm_args == {}:
-                ssm_args_string += '#'
-            else:
-                for k, v in ssm_args.items():
-                    ssm_args_string += f'{str(k)}#{str(v)}#'
-            asm_args_string = '#'
-            if asm_args == {}:
-                asm_args_string += '#'
-            else:
-                for k, v in asm_args.items():
-                    asm_args_string += f'{str(k)}#{str(v)}#'
-            evasfm_args_string = '#'
-            if evasfm_args == {}:
-                evasfm_args_string += '#'
-            else:
-                for k, v in evasfm_args.items():
-                    evasfm_args_string += f'{str(k)}#{str(v)}#'
-            outfile_path = f'{op}/{on}_spectras/spectra_ssm_{ssm}_ssmargs_{ssm_args_string}_asm_{asm}' \
-                           f'_asmargs_{asm_args_string}_evasfm_{evasfm}_evasfmargs_{evasfm_args_string}.json'
-            with open(outfile_path, 'w') as outfile:
-                json.dump(spectra_json, outfile)
-            outdir_path = f'{op}/{on}_spectras/spectra_ssm_{ssm}_ssmargs_{ssm_args_string}_asm_{asm}' \
-                          f'_asmargs_{asm_args_string}_evasfm_{evasfm}_evasfmargs_{evasfm_args_string}_diagnoses'
-            if not os.path.exists(outdir_path):
-                os.mkdir(outdir_path)
-            else:
-                shutil.rmtree(outdir_path)
-                os.mkdir(outdir_path)
-            return True
-        else:
-            ssm_args_string = '#'
-            if ssm_args == {}:
-                ssm_args_string += '#'
-            else:
-                for k, v in ssm_args.items():
-                    ssm_args_string += f'{str(k)}#{str(v)}#'
-            asm_args_string = '#'
-            if asm_args == {}:
-                asm_args_string += '#'
-            else:
-                for k, v in asm_args.items():
-                    asm_args_string += f'{str(k)}#{str(v)}#'
-            evasfm_args_string = '#'
-            if evasfm_args == {}:
-                evasfm_args_string += '#'
-            else:
-                for k, v in evasfm_args.items():
-                    evasfm_args_string += f'{str(k)}#{str(v)}#'
-            print(f'No valid outcome generated for spectra_ssm_{ssm}_ssmargs_{ssm_args_string}_asm_{asm}'
-                  f'_asmargs_{asm_args_string}_evasfm_{evasfm}_evasfmargs_{evasfm_args_string}.json, skipping...')
-            return False
+        spectra_json = {
+            "spectra_name": f"{outcome_json['outcome_name']}_spectra_ssm_{ssm}_ssmargs_{ssm_args_string}_asm_{asm}"
+                            f"_asmargs_{asm_args_string}_evasfm_{evasfm}_evasfmargs_{evasfm_args_string}",
+            "spectra_type": "generated",
+            "outcome": outcome_json,
+            "spectra_matrix": spectra_matrix,
+            "error_vector": error_vector
+        }
+        return spectra_json

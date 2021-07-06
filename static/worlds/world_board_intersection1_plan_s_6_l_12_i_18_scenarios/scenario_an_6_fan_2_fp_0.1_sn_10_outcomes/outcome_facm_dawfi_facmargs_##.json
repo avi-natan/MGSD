@@ -1,6 +1,6 @@
 {
 	"outcome_name": "world_board_intersection1_plan_s_6_l_12_i_18_scenario_an_6_fan_2_fp_0.1_sn_10_outcome_facm_dawfi_facmargs_##",
-	"outcome_type": "sstatic",
+	"outcome_type": "static",
 	"scenario": {
 		"scenario_name": "world_board_intersection1_plan_s_6_l_12_i_18_scenario_an_6_fan_2_fp_0.1_sn_10",
 		"scenario_type": "static",

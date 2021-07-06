@@ -90,7 +90,8 @@ if __name__ == '__main__':
                                                              'rfr',             # reach_final_res
                                                              {},
                                                              'apfc',            # agent_pass_fail_contribution
-                                                             {'ifs': True})     # invert_for_success
+                                                             {'ifs': True},     # invert_for_success
+                                                             'static')
                 if success:
                     created_spectra_count += 1
     print(f'created_spectra_count: {created_spectra_count}')
