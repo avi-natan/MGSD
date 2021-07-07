@@ -48,7 +48,7 @@ if __name__ == '__main__':
                 for fp in [0.05, 0.1, 0.2, 0.3]:
                     # iterate over the number of simulations
                     for sn in range(10, 11):
-                        success = scenario_builder.build_scenario(wn, an, fan, fp, sn, 'static')
+                        success = scenario_builder.build_scenario(wn, an, fan, fp, sn, 'generated')
                         if success:
                             created_scenarios_count += 1
     print(f'created_scenarios_count: {created_scenarios_count}')

@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import shutil
 
 
@@ -66,7 +67,7 @@ class ScenarioBuilder(object):
         if scenario_type == 'static':
             scenario_json = self.static_scenario(wn, an, fan, fp, sn)
         elif scenario_type == 'generated':
-            # TODO: implement
+            scenario_json = self.generated_scenario(wn, an, fan, fp, sn)
             pass
         else:
             raise Exception(f'unexpected scenario type: "{scenario_type}"')
@@ -105,4 +106,43 @@ class ScenarioBuilder(object):
         else:
             scenario_json = json.load(open(
                 f'{self.static_worlds_relative_path}/{wn}_scenarios/{world_static_scenario_filename}'))
+        return scenario_json
+
+    def generated_scenario(self, wn, an, fan, fp, sn):
+        world_json = json.load(open(f'{self.worlds_relative_path}/{wn}.json'))
+
+        # Generate agents
+        agents_json = []
+        for i in range(int(an)):
+            agent = {
+                "agent_num": i,
+                "agent_name": f"a{i}",
+                "agent_is_faulty": False,
+                "agent_fail_prob": 0.0
+            }
+            agents_json.append(agent)
+        # randomly shuffle the list and add faults to the first <fan> agents
+        random.shuffle(agents_json)
+        for i in range(int(fan)):
+            agents_json[i]['agent_is_faulty'] = True
+            agents_json[i]['agent_fail_prob'] = float(fp)
+        # return list to its original order
+        agents_json.sort(key=lambda a: a['agent_num'])
+        print(9)
+
+        # build the scenario json
+        scenario_json = {
+            "scenario_name": f"{world_json['world_name']}_scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}",
+            "parameters": {
+                "world_name": f"{world_json['world_name']}",
+                "agents_number": int(an),
+                "faulty_agents_number": int(fan),
+                "fault_probability": float(fp),
+                "simulations_number": int(sn),
+                "scenario_type": "generated"
+            },
+            "world": world_json,
+            "agents": agents_json,
+            "simulations_number": int(sn)
+        }
         return scenario_json
