@@ -113,3 +113,6 @@ class Simulator(object):
             scenario_json = json.load(open(
                 f'{static_sc_path}/{sc_name}_outcomes/{scenario_static_outcome_filename}'))
         return scenario_json
+
+    def generated_outcome(self):
+        pass
