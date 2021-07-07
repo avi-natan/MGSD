@@ -152,7 +152,7 @@ def run_mgsd():
     Available parameters
     ====================
     Methods that determine the fault and conflict for the simulation
-    * delay_and_wait_for_it
+    * dawfi (delay_and_wait_for_it)
       - args: {}
 
     Methods that determine a simulation success/fail:
@@ -170,17 +170,18 @@ def run_mgsd():
     Methods for calculating diagnoses and their probabilities:
     * ochiai
       - args: {}
-    * barinel_avi
-      - args: {'method_for_calculating_priors': str
-                                                <priors_one,
-                                                priors_static,
-                                                priors_intersections1,
-                                                priors_intersections2>}
-    * barinel_amir
-      - args: {'method_for_calculating_priors': str <priors_one,
-                                                priors_static,
-                                                priors_intersections1,
-                                                priors_intersections2>}
+    * barinelavi (barinel_avi)
+      - args: {'mfcp' (method_for_calculating_priors): str
+                                                       <pone,
+                                                       pstatic,
+                                                       pintersections1,
+                                                       pintersections2>}
+    * barinelamir (barinel_amir)
+      - args: {'mfcp' (method_for_calculating_priors): str 
+                                                       <one,
+                                                       pstatic,
+                                                       pintersections1,
+                                                       pintersections2>}
 
     Methods for evaluating the algorithm:
     * wasted_effort
@@ -197,8 +198,8 @@ def run_mgsd():
                       {},
                       'apfc',
                       {'ifs': True},
-                      'barinel_amir',
-                      {'method_for_calculating_priors': 'priors_one'},
+                      'barinelamir',
+                      {'mfcp': 'pone'},
                       'wasted_effort',
                       {})
 

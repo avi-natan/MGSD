@@ -481,7 +481,7 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
                                                        simulations: List[Simulation]) -> \
         Tuple[List[List[int]], List[float]]:
     # Calculate prior probabilities
-    priors = methods[kwargs['method_for_calculating_priors']](spectra,
+    priors = methods[kwargs['mfcp']](spectra,
                                                               error_vector,
                                                               kwargs,
                                                               simulations)
@@ -676,14 +676,14 @@ methods = {
 
     # Methods for calculating diagnoses and their probabilities
     'ochiai': calculate_diagnoses_and_probabilities_ochiai,
-    'barinel_avi': calculate_diagnoses_and_probabilities_barinel_avi,
-    'barinel_amir': calculate_diagnoses_and_probabilities_barinel_amir,
+    'barinelavi': calculate_diagnoses_and_probabilities_barinel_avi,
+    'barinelamir': calculate_diagnoses_and_probabilities_barinel_amir,
 
     # Methods for calculating priors
-    'priors_one': calculate_priors_one,
-    'priors_static': calculate_priors_static,
-    'priors_intersections1': calculate_priors_intersections1,
-    'priors_intersections2': calculate_priors_intersections2,
+    'pone': calculate_priors_one,
+    'pstatic': calculate_priors_static,
+    'pintersections1': calculate_priors_intersections1,
+    'pintersections2': calculate_priors_intersections2,
 
     # Methods for evaluating the algorithm
     'wasted_effort': evaluate_algorithm_wasted_effort,

@@ -41,7 +41,7 @@ class SpectraGenerator(object):
         by a matrix of ones and zeros (individual agents success indicators) and vector of ones and zeros (an error
         vector, indicating the outcomes success).
 
-        The resulting spectra will be encoded into a json object in the folder "<outcome_path>" under the name
+        The resulting spectra will be encoded into a json object in the folder "<outcome_path>_spectras" under the name
         "spectra_ssm_<simulation_success_method>_ssmargs_<ssm_args>_asm_<agent_success_method>
         _asmargs_<asm_args>_evasfm_<error_vector_and_spectra_fill_method>_evasfmargs_<evasfm_args>.json"
         and a folder named
@@ -123,7 +123,7 @@ class SpectraGenerator(object):
             outfile_path = f'{op}/{on}_spectras/{spectra_short_name}.json'
             with open(outfile_path, 'w') as outfile:
                 json.dump(spectra_json, outfile)
-            outdir_path = f'{op}/{on}_spectras/{spectra_short_name}_diagnoses'
+            outdir_path = f'{op}/{on}_spectras/{spectra_short_name}_results'
             if not os.path.exists(outdir_path):
                 os.mkdir(outdir_path)
             else:
@@ -131,7 +131,7 @@ class SpectraGenerator(object):
                 os.mkdir(outdir_path)
             return True
         else:
-            print(f'No valid outcome generated for spectra_ssm_{ssm}_ssmargs_{ssm_args_string}_asm_{asm}'
+            print(f'No valid spectra generated for spectra_ssm_{ssm}_ssmargs_{ssm_args_string}_asm_{asm}'
                   f'_asmargs_{asm_args_string}_evasfm_{evasfm}_evasfmargs_{evasfm_args_string}.json, skipping...')
             return False
 
