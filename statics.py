@@ -663,7 +663,7 @@ def evaluate_algorithm_precision_recall(kwargs: Dict) -> Dict:
 
 methods = {
     # Methods that determine the fault and conflict for the simulation
-    'delay_and_wait_for_it': simulate_delay_and_wait_for_it,
+    'dawfi': simulate_delay_and_wait_for_it,
 
     # Methods that determine a simulation success/fail
     'pfc': simulation_success_method_percentage_free_ca,

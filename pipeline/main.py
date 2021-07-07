@@ -67,7 +67,7 @@ if __name__ == '__main__':
                                                  f'../worlds/{scenario_folder}',
                                                  'dawfi',
                                                  {},
-                                                 'static')
+                                                 'generated')
             if success:
                 created_outcomes_count += 1
     print(f'created_outcomes_count: {created_outcomes_count}')
@@ -93,7 +93,7 @@ if __name__ == '__main__':
                                                              {},
                                                              'apfc',            # agent_pass_fail_contribution
                                                              {'ifs': True},     # invert_for_success
-                                                             'static')
+                                                             'generated')
                 if success:
                     created_spectra_count += 1
     print(f'created_spectra_count: {created_spectra_count}')
@@ -118,4 +118,7 @@ if __name__ == '__main__':
                                                  f'../worlds/{scenario_folder}/{outcome_folder}/{spectra_folder}',
                                                  'barinelamir',             # barinel_amir
                                                  {'mfcp': 'pone'},          # method_for_calculating_priors - priors_one
-                                                 'static')
+                                                 'generated')
+                    if success:
+                        created_diagnoses_count += 1
+    print(f'created_diagnoses_count: {created_diagnoses_count}')

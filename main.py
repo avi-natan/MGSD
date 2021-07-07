@@ -190,7 +190,7 @@ def run_mgsd():
       - args: {}
 
     """
-    mgsd: MGSD = MGSD('delay_and_wait_for_it',
+    mgsd: MGSD = MGSD('dawfi',
                       {},
                       'pfc',
                       {'t': 0.95},

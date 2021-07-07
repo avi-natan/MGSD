@@ -2,6 +2,9 @@ import json
 import os
 import shutil
 
+import statics
+from agent import Agent
+
 
 class Simulator(object):
 
@@ -52,13 +55,21 @@ class Simulator(object):
         facm_args = fault_and_conflict_method_args
         oc_type = outcome_type
 
+        # 2nd order methods' arguments dicts as strings
+        facm_args_string = '#'
+        if facm_args == {}:
+            facm_args_string += '#'
+        else:
+            for k, v in facm_args.items():
+                facm_args_string += f'{str(k)}#{str(v)}#'
+
         # run the simulations and generate outcomes
         outcome_json = None
         if oc_type == 'static':
             outcome_json = self.static_outcome(sc_name, sc_path, facm, facm_args)
             pass
         elif oc_type == 'generated':
-            # TODO: implement
+            outcome_json = self.generated_outcome(sc_name, sc_path, facm, facm_args, facm_args_string)
             pass
         else:
             raise Exception(f'unexpected outcome type: "{oc_type}"')
@@ -108,11 +119,47 @@ class Simulator(object):
                 facm_args_string += f'{str(k)}#{str(v)}#'
         scenario_static_outcome_filename = f'outcome_facm_{facm}_facmargs_{facm_args_string}.json'
         if scenario_static_outcome_filename not in scenario_static_outcomes_filenames:
-            scenario_json = None
+            outcome_json = None
         else:
-            scenario_json = json.load(open(
+            outcome_json = json.load(open(
                 f'{static_sc_path}/{sc_name}_outcomes/{scenario_static_outcome_filename}'))
-        return scenario_json
+        return outcome_json
 
-    def generated_outcome(self):
-        pass
+    def generated_outcome(self, sc_name, sc_path, facm, facm_args, facm_args_string):
+        scenario_json = json.load(open(f'{sc_path}/{sc_name}.json'))
+        # Extract agents
+        agents = []
+        for i, a in enumerate(scenario_json['agents']):
+            a_num = a['agent_num']
+            a_name = a['agent_name']
+            a_is_faulty = a['agent_is_faulty']
+            a_fail_prob = a['agent_fail_prob']
+            agent = Agent(num=a_num, name=a_name, is_faulty=a_is_faulty, fail_prob=a_fail_prob)
+            agents.append(agent)
+
+        # Extract plan
+        plan = scenario_json['world']['plan']['individual_plans']
+
+        # Use function from statics to generate simulations
+        simulations_json = []
+        for i in range(scenario_json['simulations_number']):
+            fault_table, actual_execution = statics.methods[facm](agents, plan, facm_args)
+            simulation = {
+                "name": f"s{i}",
+                "fault_table": fault_table,
+                "actual_execution": actual_execution
+            }
+            simulations_json.append(simulation)
+
+        outcome_json = {
+            "outcome_name": f"{scenario_json['scenario_name']}_outcome_facm_{facm}_facmargs_{facm_args_string}",
+            "parameters": {
+                "scenario_name": f"{scenario_json['scenario_name']}",
+                "facm": f"{facm}",
+                "facmargs": f"{facm_args_string}",
+                "outcome_type": "generated"
+            },
+            "scenario": scenario_json,
+            "simulations": simulations_json
+        }
+        return outcome_json
