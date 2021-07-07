@@ -202,7 +202,16 @@ class SpectraGenerator(object):
         spectra_json = {
             "spectra_name": f"{outcome_json['outcome_name']}_spectra_ssm_{ssm}_ssmargs_{ssm_args_string}_asm_{asm}"
                             f"_asmargs_{asm_args_string}_evasfm_{evasfm}_evasfmargs_{evasfm_args_string}",
-            "spectra_type": "generated",
+            "parameters": {
+                "outcome_name": f"{outcome_json['outcome_name']}",
+                "ssm": f"{ssm}",
+                "ssmargs": f"{ssm_args_string}",
+                "asm": f"{asm}",
+                "asmargs": f"{asm_args_string}",
+                "evasfm": f"{evasfm}",
+                "evasfmargs": f"{evasfm_args_string}",
+                "spectra_type": "generated"
+            },
             "outcome": outcome_json,
             "spectra_matrix": spectra_matrix,
             "error_vector": error_vector

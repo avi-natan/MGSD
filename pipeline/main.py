@@ -14,7 +14,8 @@ if __name__ == '__main__':
     shutil.rmtree(f'../worlds')
     os.mkdir(f'../worlds')
 
-    # important - to run static pipeline, insert 'static' in every argument that allows it
+    # IMPORTANT - to run static pipeline, insert 'static' in every argument that allows it
+    # IMPORTANT - MUST NOT USE STATIC AFTER USING GENERATED OR THIRD_PARTY
 
     # create various worlds
     world_builder = WorldBuilder('../boards', '../static/worlds', '../worlds')
@@ -117,7 +118,4 @@ if __name__ == '__main__':
                                                  f'../worlds/{scenario_folder}/{outcome_folder}/{spectra_folder}',
                                                  'barinelamir',             # barinel_amir
                                                  {'mfcp': 'pone'},          # method_for_calculating_priors - priors_one
-                                                 'generated')
-
-
-    # run MGSD to generate diagnoses
+                                                 'static')

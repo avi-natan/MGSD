@@ -1,6 +1,12 @@
 {
 	"world_name": "world_board_tcircle0_plan_s_6_l_12_i_78",
-	"world_type": "static",
+	"parameters": {
+		"board_name": "tcircle0",
+		"plan_size": 6,
+		"plan_length": 12,
+		"intersections_number": 78,
+		"world_type": "static"
+	},
 	"board": {
 		"board_name": "tcircle0",
 		"board_width": 12,

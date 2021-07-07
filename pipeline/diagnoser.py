@@ -94,11 +94,11 @@ class Diagnoser(object):
         spectra_static_results_filenames = spectra_static_results_contents[2]
         spectra_static_result_filename = f'result_dpcm_{dpcm}_dpcmargs_{dpcm_args_string}.json'
         if spectra_static_result_filename not in spectra_static_results_filenames:
-            scenario_json = None
+            result_json = None
         else:
-            scenario_json = json.load(open(
+            result_json = json.load(open(
                 f'{static_s_path}/{sn}_results/{spectra_static_result_filename}'))
-        return scenario_json
+        return result_json
 
     def generated_result(self, sn, sp, dpcm, dpcm_args, dpcm_args_string):
         # Create the simulations objects
@@ -158,7 +158,12 @@ class Diagnoser(object):
 
         result_json = {
             "result_name": f"{spectra_json['spectra_name']}_result_dpcm_{dpcm}_dpcmargs_{dpcm_args_string}",
-            "result_type": "generated",
+            "parameters": {
+                "spectra_name": f"{spectra_json['spectra_name']}",
+                "dpcm": f"{dpcm}",
+                "dpcmargs": f"{dpcm_args_string}",
+                "result_type": "generated"
+            },
             "spectra": spectra_json,
             "diagnoses": diagnoses_json,
             "metrics": {                    # TODO: implement

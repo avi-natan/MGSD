@@ -1,6 +1,12 @@
 {
 	"world_name": "world_board_intersection0_plan_s_6_l_12_i_19",
-	"world_type": "static",
+	"parameters": {
+		"board_name": "intersection0",
+		"plan_size": 6,
+		"plan_length": 12,
+		"intersections_number": 19,
+		"world_type": "static"
+	},
 	"board": {
 		"board_name": "intersection0",
 		"board_width": 12,

@@ -1,9 +1,22 @@
 {
 	"scenario_name": "world_board_intersection1_plan_s_6_l_12_i_18_scenario_an_6_fan_2_fp_0.1_sn_10",
-	"scenario_type": "static",
+	"parameters": {
+		"world_name": "world_board_intersection1_plan_s_6_l_12_i_18",
+		"agents_number": 6,
+		"faulty_agents_number": 2,
+		"fault_probability": 0.1,
+		"simulations_number": 10,
+		"scenario_type": "static"
+	},
 	"world": {
 		"world_name": "world_board_intersection1_plan_s_6_l_12_i_18",
-		"world_type": "static",
+		"parameters": {
+			"board_name": "intersection1",
+			"plan_size": 6,
+			"plan_length": 12,
+			"intersections_number": 18,
+			"world_type": "static"
+		},
 		"board": {
 			"board_name": "intersection1",
 			"board_width": 12,

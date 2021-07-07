@@ -47,15 +47,13 @@ class ScenarioBuilder(object):
         :param fault_probability: the probability of faulty agents to experience fault in every single timestep
         :param simulations_number: the number of simulations in this scenario
         :param scenario_type: whether the scenario should be static, generated, or from a third party
-        module. specified by the datum [static, generated, third_party].
+        module. specified by the datum [static, generated].
         in case of static, this function will load the static information about the agents defined for the
         specified world name inside the board's folder, that matches the size, length, and number of
         intersections for the board, as well as the number of agents, faulty agents,
         and fault probabilities.
         in case of generated, the function will generate a random information about the agents according to the
         specifications.
-        in case of third party simulation, the function will send the scenario specifications
-        to the third party module and get from there the desired scenario.
         :return: boolean indicator whether the generation succeeded
         """
         # get the agents of the simulation ready
@@ -68,9 +66,6 @@ class ScenarioBuilder(object):
         if scenario_type == 'static':
             scenario_json = self.static_scenario(wn, an, fan, fp, sn)
         elif scenario_type == 'generated':
-            # TODO: implement
-            pass
-        elif scenario_type == 'third_party':
             # TODO: implement
             pass
         else:
