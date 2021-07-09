@@ -48,7 +48,7 @@ if __name__ == '__main__':
                 for fp in [0.05, 0.1, 0.2, 0.3]:
                     # iterate over the number of simulations
                     for sn in range(10, 11):
-                        success = scenario_builder.build_scenario(wn, an, fan, fp, sn, 'generated')
+                        success = scenario_builder.build_scenario(wn, an, fan, fp, sn, 'static')
                         if success:
                             created_scenarios_count += 1
     print(f'created_scenarios_count: {created_scenarios_count}')
@@ -67,7 +67,7 @@ if __name__ == '__main__':
                                                  f'../worlds/{scenario_folder}',
                                                  'dawfi',
                                                  {},
-                                                 'generated')
+                                                 'static')
             if success:
                 created_outcomes_count += 1
     print(f'created_outcomes_count: {created_outcomes_count}')
@@ -93,16 +93,16 @@ if __name__ == '__main__':
                                                              {},
                                                              'apfc',            # agent_pass_fail_contribution
                                                              {'ifs': True},     # invert_for_success
-                                                             'generated')
+                                                             'static')
                 if success:
                     created_spectra_count += 1
     print(f'created_spectra_count: {created_spectra_count}')
 
-    # go over spectras and generate diagnoses
+    # go over spectras and generate results
     worlds_contents = next(os.walk('../worlds'))
     worlds_scenarios_folders = worlds_contents[1]
     diagnoser = Diagnoser('../boards', '../static/worlds', '../worlds')
-    created_diagnoses_count = 0
+    created_results_count = 0
     for scenario_folder in worlds_scenarios_folders:
         scenario_folder_contents = next(os.walk(f'../worlds/{scenario_folder}'))
         scenario_outcomes_folders = scenario_folder_contents[1]
@@ -120,5 +120,5 @@ if __name__ == '__main__':
                                                  {'mfcp': 'pone'},          # method_for_calculating_priors - priors_one
                                                  'generated')
                     if success:
-                        created_diagnoses_count += 1
-    print(f'created_diagnoses_count: {created_diagnoses_count}')
+                        created_results_count += 1
+    print(f'created_diagnoses_count: {created_results_count}')

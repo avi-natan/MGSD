@@ -356,8 +356,8 @@
 		}
 	],
 	"metrics": {
-		"wasted_effort": 420,
-		"weighted_precision": 420,
-		"weighted_recall": 420
+		"wasted_effort": 0.5,
+		"weighted_precision": 0.9117597130609801,
+		"weighted_recall": 0.9117597130609801
 	}
 }

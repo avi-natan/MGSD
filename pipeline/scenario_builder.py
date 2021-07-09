@@ -128,7 +128,6 @@ class ScenarioBuilder(object):
             agents_json[i]['agent_fail_prob'] = float(fp)
         # return list to its original order
         agents_json.sort(key=lambda a: a['agent_num'])
-        print(9)
 
         # build the scenario json
         scenario_json = {

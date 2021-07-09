@@ -1,5 +1,6 @@
 import json
 import os
+from functools import reduce
 
 import statics
 from agent import Agent
@@ -156,6 +157,11 @@ class Diagnoser(object):
             }
             diagnoses_json.append(diagnosis)
 
+        # calculate metrics
+        bugs = [a.num for a in agents if a.is_faulty]
+        weighted_precision, weighted_recall = self.calc_precision_recall(agents, bugs, diagnoses_json)
+        wasted_effort = self.calc_wasted_effort(bugs, diagnoses_json)
+
         result_json = {
             "result_name": f"{spectra_json['spectra_name']}_result_dpcm_{dpcm}_dpcmargs_{dpcm_args_string}",
             "parameters": {
@@ -166,10 +172,66 @@ class Diagnoser(object):
             },
             "spectra": spectra_json,
             "diagnoses": diagnoses_json,
-            "metrics": {                    # TODO: implement
-                "wasted_effort": 420,
-                "weighted_precision": 420,
-                "weighted_recall": 420
+            "metrics": {
+                "wasted_effort": wasted_effort,
+                "weighted_precision": weighted_precision,
+                "weighted_recall": weighted_recall
             }
         }
         return result_json
+
+    def calc_precision_recall(self, agents, bugs, diagnoses):
+        recall_accum = 0
+        precision_accum = 0
+        validAgents = [a.num for a in agents if not a.is_faulty]
+        for d in diagnoses:
+            dg = d['diagnosis']
+            pr = d['probability']
+            precision, recall = self.precision_recall_for_diagnosis(bugs, dg, pr, validAgents)
+            if (recall != "undef"):
+                recall_accum = recall_accum + recall
+            if (precision != "undef"):
+                precision_accum = precision_accum + precision
+        return precision_accum, recall_accum
+
+    @staticmethod
+    def precision_recall_for_diagnosis(buggedComps, dg, pr, validComps):
+        fp = len([i1 for i1 in dg if i1 in validComps])
+        fn = len([i1 for i1 in buggedComps if i1 not in dg])
+        tp = len([i1 for i1 in dg if i1 in buggedComps])
+        tn = len([i1 for i1 in validComps if i1 not in dg])
+        if ((tp + fp) == 0):
+            precision = "undef"
+        else:
+            precision = (tp + 0.0) / float(tp + fp)
+            a = precision
+            precision = precision * float(pr)
+        if ((tp + fn) == 0):
+            recall = "undef"
+        else:
+            recall = (tp + 0.0) / float(tp + fn)
+            recall = recall * float(pr)
+        return precision, recall
+
+    def calc_wasted_effort(self, bugs, diagnoses):
+        components = list(map(lambda x: x[0], self.get_components_probabilities(diagnoses)))
+        if len(bugs) == 0:
+            return len(components)
+        wasted = 0.0
+        for b in bugs:
+            if b not in components:
+                return len(components)
+            wasted += components.index(b)
+        return wasted / len(bugs)
+
+    def get_components_probabilities(self, diagnoses):
+        """
+        calculate for each component c the sum of probabilities of the diagnoses that include c
+        return dict of (component, probability)
+        """
+        compsProbs={}
+        for d in diagnoses:
+            p = d['probability']
+            for comp in d['diagnosis']:
+                compsProbs[comp] = compsProbs.get(comp,0) + p
+        return sorted(compsProbs.items(), key=lambda x: x[1], reverse=True)
