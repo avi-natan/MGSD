@@ -67,11 +67,9 @@ class WorldBuilder(object):
         if world_type == 'static':
             world_json = self.static_world(bn, s, l, i)
         elif world_type == 'generated':
-            # TODO: implement
-            pass
+            world_json = self.generated_world(bn, s, l, i)
         elif world_type == 'third_party':
-            # TODO: implement
-            pass
+            world_json = self.third_party_world(bn, s, l, i)
         else:
             raise Exception(f'unexpected world type: "{world_type}"')
 
@@ -98,4 +96,16 @@ class WorldBuilder(object):
             world_json = None
         else:
             world_json = json.load(open(f'{self.static_worlds_relative_path}/{static_world_filename}'))
+        return world_json
+
+    def generated_world(self, bn, s, l, i):
+        # For now we dont need to implement this. More important is to implement
+        # working with Dor's plans
+        world_json = None
+        return world_json
+
+    def third_party_world(self, bn, s, l, i):
+        # Meir says that the intersections doesnt matter so much.
+        # TODO: implement
+        world_json = None
         return world_json
