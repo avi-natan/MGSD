@@ -75,6 +75,9 @@ class Diagnoser(object):
 
         # write result to disk
         if result_json is not None:
+            print(f'spectra and error vector:')
+            for i, row in enumerate(result_json['spectra']['spectra_matrix']):
+                print(f'{row} | {result_json["spectra"]["error_vector"][i]}')
             print(f'sn: {sn}')
             print(f'sp: {sp}')
             print(f'dpcm: {dpcm}')
@@ -178,6 +181,7 @@ class Diagnoser(object):
                 "weighted_recall": weighted_recall
             }
         }
+        print(f'Metrics: {result_json["metrics"]}')
         return result_json
 
     def calc_precision_recall(self, agents, bugs, diagnoses):

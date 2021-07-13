@@ -136,8 +136,8 @@ def has_collisions(plan):
             for other_a in range(curr_a + 1, len(plan)):
                 # print(plan[curr_a][t], plan[other_a][t])
                 if plan[curr_a][t][0] == plan[other_a][t][0] and plan[curr_a][t][1] == plan[other_a][t][1]:
-                    return True
-    return False
+                    return True, t
+    return False, -1
 
 
 def print_matrix(matrix_type: str, matrix: List[List]):
@@ -154,6 +154,83 @@ def available(wanted_resource: List[int], occupied_resources: List[List[int]]) -
         if wanted_resource == ocr:
             return False
     return True
+
+def delay_and_wait_for_it_one_step_advance(present, next_planned, present_delay, p):
+    # Initialize databases
+    actual = [None for a in present]
+    togo = [True for a in present]
+    L = []
+    ixs = None
+
+    # a queue for agents management. first are faulty. then those that fall back to a resource
+    # that other agent wants. then the rest.
+    management_queue_idxs = []
+    agents_idxs = [i for i in range(len(present))]
+    for i, pd in enumerate(present_delay):
+        if pd:
+            if i not in management_queue_idxs:
+                management_queue_idxs.append(i)
+    for i, idx in enumerate(management_queue_idxs):
+        if idx in agents_idxs:
+            agents_idxs.remove(idx)
+    for i, pst in enumerate(present):
+        if pst in next_planned:
+            if i not in management_queue_idxs:
+                management_queue_idxs.append(i)
+    for i, idx in enumerate(management_queue_idxs):
+        if idx in agents_idxs:
+            agents_idxs.remove(idx)
+    for i, ai in enumerate(agents_idxs):
+        if ai not in management_queue_idxs:
+            management_queue_idxs.append(ai)
+    for i, idx in enumerate(management_queue_idxs):
+        if idx in agents_idxs:
+            agents_idxs.remove(idx)
+
+    print(f'present: {present}')
+    print(f'next_planned: {next_planned}')
+    print(f'present_delay: {present_delay}')
+    print(f'management_queue_idxs: {management_queue_idxs}')
+    print(f'actual: {actual}')
+    # Fill delay to actual; Remove delays from togo; get delayed to list L
+    for i, pd in enumerate(present_delay):
+        if pd:
+            actual[i] = present[i]
+            togo[i] = False
+            L.append(present[i])
+            management_queue_idxs.remove(i)
+
+    print(f'management_queue_idxs after fail: {management_queue_idxs}')
+    # While !togo.empty()
+    while any(togo):
+        if len(L) > 0:
+            x = L.pop(0)
+            if x in actual:
+                ixs = [ix for ix, s in enumerate(next_planned) if s == x]
+                ixs = [ix for ix in ixs if actual[ix] is None]
+                if len(ixs) > 0:
+                    for ix in ixs:
+                        actual[ix] = present[ix]
+                        togo[ix] = False
+                        L.append(present[ix])
+                        print(f'actual: {actual}')
+        else:
+            a = management_queue_idxs.pop(0)
+            print(f'management_queue_idxs after pop: {management_queue_idxs}')
+            if next_planned[a] not in actual:
+                actual[a] = next_planned[a]
+                p[a] += 1
+                togo[a] = False
+                L.append(next_planned[a])
+            else:
+                actual[a] = present[a]
+                togo[a] = False
+                L.append(present[a])
+            print(f'actual: {actual}')
+
+    # return actual
+    print(f'actual: {actual}')
+    return actual, p
 
 
 def simulate_delay_and_wait_for_it(agents: List[Agent],
@@ -192,55 +269,34 @@ def simulate_delay_and_wait_for_it(agents: List[Agent],
 
     # advance the agents step by step according to the delay table
     for timestep in range(timesteps_count - 1):
-        # initialize next step
-        next_step = [[[-1, -1]] * agent_count, [[-1, -1]] * agent_count]
-
-        # set next step for agents that have fault in this timestep
-        for ai in range(agent_count):
-            if delay_table[ai][timestep]:
-                next_step[0][ai] = plans[ai][p[ai]]
-        next_step.reverse()
-
-        # find all the agents that are blocked due to conflicts this round
-        # an iterative pass until there is a convergence
-        while next_step[0] != next_step[1]:
-            next_step[0] = list(next_step[1])
-            for ai in range(agent_count):
-                if next_step[0][ai] == [-1, -1]:
-                    if not available(plans[ai][p[ai] + 1], next_step[1]) \
-                            or not available(plans[ai][p[ai] + 1], next_step[0]):
-                        next_step[0][ai] = plans[ai][p[ai]]
-            next_step.reverse()
-
-        # set next step for the remaining agents - agents could still get stuck due to mutual exclusions
-        # an iterative pass until there is a convergence
-        for ai in range(agent_count):
-            if next_step[0][ai] == [-1, -1]:
-                p[ai] = p[ai] + 1
-                next_step[0][ai] = plans[ai][p[ai]]
-                next_step.reverse()
-
-                while next_step[0] != next_step[1]:
-                    next_step[0] = list(next_step[1])
-                    for ai2 in range(agent_count):
-                        if next_step[0][ai2] == [-1, -1]:
-                            if not available(plans[ai2][p[ai2] + 1], next_step[1]) \
-                                    or not available(plans[ai2][p[ai2] + 1], next_step[0]):
-                                next_step[0][ai2] = plans[ai2][p[ai2]]
-                    next_step.reverse()
-
+        # prepare present
+        present = [outcome[a][timestep] for a in range(len(outcome))]
+        # prepare next_planned
+        next_planned = [plans[i][p+1] for i, p in enumerate(p)]
+        # prepare present_delay
+        present_delay = [delay_table[a][timestep] for a in range(len(delay_table))]
+        print(f'time:{timestep}')
+        next_actual, p = delay_and_wait_for_it_one_step_advance(present, next_planned, present_delay, p)
         # insert the next step to the outcomes
         for ai in range(agent_count):
-            outcome[ai].append(next_step[0][ai])
+            outcome[ai].append(next_actual[ai])
 
     # check for no collisions (this code should never get invoked in a correct code)
-    if has_collisions(outcome):
+    hc, time = has_collisions(outcome)
+    if hc:
+        print(f'Collisions in time {time}')
+        print(f'Plan:')
+        for p in plans:
+            print(p)
+        print(f'Delay table:')
+        for d in delay_table:
+            print(d)
+        print(f'Actual execution:')
         for oc in outcome:
             print(oc)
         raise Exception('found collisions')
 
     return delay_table, outcome
-    # return consts.traffic_circle_custom_plan1_outcomes[3]
 
 
 #############################################################
@@ -449,7 +505,7 @@ def calculate_diagnoses_and_probabilities_barinel_avi(spectra: List[List[int]],
     diagnoses: List[List[int]] = conflict_directed_search(conflicts=conflicts)
 
     # # calculate probabilities
-    priors = methods[kwargs['method_for_calculating_priors']](spectra,
+    priors = methods[kwargs['mfcp']](spectra,
                                                               error_vector,
                                                               kwargs,
                                                               simulations)
@@ -470,6 +526,9 @@ def calculate_diagnoses_and_probabilities_barinel_avi(spectra: List[List[int]],
     lz_probabilities = list(z_probabilities)
     lz_diagnoses.reverse()
     lz_probabilities.reverse()
+
+    print(f'oracle: {[a.num for a in simulations[0].agents if a.is_faulty]}')
+    print(f'diagnoses: {list(zip(lz_diagnoses, lz_probabilities))}')
 
     # return ordered and normalized diagnoses and probabilities
     return lz_diagnoses, lz_probabilities
@@ -515,8 +574,7 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
         diag.diagnosis = list(diag_comps)
         diagnoses.append(diag)
 
-    print(f'used_components: {used_components}')
-    print(f'diagnoses: {diagnoses}')
+    # print(f'used_components: {used_components}')
 
     # transform diagnoses to 2 lists like the default barinel
     t_diagnoses, t_probabilities = [], []
@@ -533,6 +591,9 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
     lz_probabilities = list(z_probabilities)
     lz_diagnoses.reverse()
     lz_probabilities.reverse()
+
+    print(f'oracle: {[a.num for a in simulations[0].agents if a.is_faulty]}')
+    print(f'diagnoses: {list(zip(lz_diagnoses, lz_probabilities))}')
 
     return lz_diagnoses, lz_probabilities
 
@@ -635,7 +696,7 @@ def calculate_priors_intersections2(spectra: List[List[int]],
     pass_second = [sum(row) for row in intersections_table.transpose()]
 
     # Print pass_second number
-    print(f'pass_second: {[ps / len(error_vector) for ps in pass_second]}')
+    # print(f'pass_second: {[ps / len(error_vector) for ps in pass_second]}')
 
     # normalize and invert pass_second numbers to get agent-wise probabilities
     priors = copy.deepcopy(pass_second)
