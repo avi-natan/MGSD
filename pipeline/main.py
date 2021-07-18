@@ -1,6 +1,8 @@
+import json
 import os
 import shutil
 
+import statics
 from pipeline.diagnoser import Diagnoser
 from pipeline.scenario_builder import ScenarioBuilder
 from pipeline.simulator import Simulator
@@ -59,8 +61,11 @@ if __name__ == '__main__':
     # worlds
     worlds = [                                          # worlds (include map, critical areas and plans)
         # ['intersection0', 6, 12, 19, 'static'],       # world name, number of plans, plans length, number of intersections
-        ['intersection1', 6, 12, 18, 'static'],
-        # ['tcircle0', 6, 12, 78, 'static']
+        # ['intersection1', 6, 12, 18, 'static'],
+        # ['tcircle0', 6, 12, 78, 'static'],
+        ['generated1', 6, 12, -1, 'thirdparty'],
+        ['generated2', 6, 12, -1, 'thirdparty'],
+        ['generated3', 6, 12, -1, 'thirdparty']
     ]
     # scenarios
     ans = [6]                                           # an - agents number
@@ -96,12 +101,20 @@ if __name__ == '__main__':
     # create various worlds
     world_builder = WorldBuilder('../boards', '../static/worlds', '../worlds')
     created_worlds_count = 0
-    for static_world in worlds:
-        success = world_builder.build_world(static_world[0], static_world[1], static_world[2], static_world[3],
-                                            static_world[4])
+    for world in worlds:
+        success = world_builder.build_world(world[0], world[1], world[2], world[3], world[4])
         if success:
             created_worlds_count += 1
     print(f'created_worlds_count: {created_worlds_count}')
+    # visualize worlds
+    world_json_names = next(os.walk(f'../worlds'))[2]
+    for world_json_name in world_json_names:
+        world_json = json.load(open(f'../worlds/{world_json_name}'))
+        plan = world_json['plan']['individual_plans']
+        board = world_json['board']
+        statics.visualize(plan, board)
+        print(9)
+
 
     # create scenarios
     worlds_contents = next(os.walk('../worlds'))

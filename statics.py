@@ -17,6 +17,69 @@ from typing import List, Dict, Callable
 from typing import Tuple
 from scipy.optimize import minimize
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import colors
+
+
+def visualize(a_matrix, a_board, mode: str = 'grid') -> None:
+    board = np.zeros((a_board['board_width'], a_board['board_height']))
+    for ca in a_board['board_critical_areas']:
+        board[ca[0][0]:ca[1][0], ca[0][1]: ca[1][1]] = 1
+    plt.figure()
+    cmap = colors.ListedColormap(['white', 'red'])
+    plt.imshow(board, interpolation='none', vmin=0, vmax=1, aspect='equal', cmap=cmap)
+
+    ax = plt.gca()
+
+    # Major ticks
+    ax.set_xticks(np.arange(0, a_board['board_width'], 1))
+    ax.set_yticks(np.arange(0, a_board['board_height'], 1))
+
+    # Labels for major ticks
+    ax.set_xticklabels(np.arange(0, a_board['board_width'], 1))
+    ax.set_yticklabels(np.arange(0, a_board['board_height'], 1))
+
+    # Minor ticks
+    ax.set_xticks(np.arange(-.5, a_board['board_width'], 1), minor=True)
+    ax.set_yticks(np.arange(-.5, a_board['board_height'], 1), minor=True)
+
+    # Gridlines based on minor ticks
+    if mode == 'net':
+        ax.grid(which='major', color='black', linestyle='-', linewidth=2, zorder=0)
+    elif mode == 'grid':
+        ax.grid(which='minor', color='black', linestyle='-', linewidth=2, zorder=0)
+    else:
+        raise Exception("mode needs to be either 'grid' or 'net'")
+
+    ax.xaxis.tick_top()
+    for ai, _ in enumerate(a_matrix):
+        for i in range(len(a_matrix[ai][:-2])):
+            plt.arrow(a_matrix[ai][i][0], a_matrix[ai][i][1],
+                      a_matrix[ai][i + 1][0] - a_matrix[ai][i][0],
+                      a_matrix[ai][i + 1][1] - a_matrix[ai][i][1],
+                      width=0.5 - (0.5 / len(a_matrix)) * (ai % len(a_matrix)), color=get_pick_color(ai),
+                      head_length=0, head_width=0, zorder=3 + ai % len(a_matrix))
+        plt.arrow(a_matrix[ai][-2][0], a_matrix[ai][-2][1],
+                  a_matrix[ai][-1][0] - a_matrix[ai][-2][0],
+                  a_matrix[ai][-1][1] - a_matrix[ai][-2][1],
+                  width=0.5 - (0.5 / len(a_matrix)) * (ai % len(a_matrix)), color=get_pick_color(ai),
+                  head_width=0.5, head_length=0.5, zorder=3 + ai % len(a_matrix))
+
+    plt.show()
+
+def count_intersections(current_plans):
+    intersections_table = np.zeros((len(current_plans), len(current_plans)), dtype=int)
+    for a in range(len(current_plans)):
+        for t in range(len(current_plans[a]) - 1):
+            for a2 in range(len(current_plans)):
+                if a2 != a:
+                    for t2 in range(t + 1, len(current_plans[a2])):
+                        if current_plans[a][t] == current_plans[a2][t2]:
+                            # print(
+                            #     f'intersection at {a},{t} ({current_plans[a][t]}) and {a2},{t2} ({current_plans[a2][t2]})')
+                            intersections_table[a][a2] += 1
+    print(np.sum(intersections_table))
+    return np.sum(intersections_table)
 
 
 def get_pick_color(color_id):
