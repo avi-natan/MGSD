@@ -63,15 +63,24 @@ if __name__ == '__main__':
         # ['intersection0', 6, 12, 19, 'static'],       # world name, number of plans, plans length, number of intersections
         # ['intersection1', 6, 12, 18, 'static'],
         # ['tcircle0', 6, 12, 78, 'static'],
-        ['generated1', 6, 12, -1, 'thirdparty'],
-        ['generated2', 6, 12, -1, 'thirdparty'],
-        ['generated3', 6, 12, -1, 'thirdparty']
+        # ['generated1', 6, 12, -1, 'thirdparty'],
+        # ['generated2', 6, 12, -1, 'thirdparty'],
+        # ['generated3', 12, 12, -1, 'thirdparty'],
+        ['intersection', 12, 12, -1, 'thirdparty'],
+        ['intersection', 12, 12, -1, 'thirdparty'],
+        ['intersection', 12, 12, -1, 'thirdparty'],
+        ['intersection', 12, 12, -1, 'thirdparty'],
+        ['intersection', 12, 12, -1, 'thirdparty'],
+        ['intersection', 12, 12, -1, 'thirdparty'],
+        ['intersection', 12, 12, -1, 'thirdparty'],
+        ['intersection', 12, 12, -1, 'thirdparty']
     ]
     # scenarios
     ans = [6]                                           # an - agents number
     fans = [2, 3]                                       # fan - faulty agents number
     fps = [0.1]                                         # fp - fault probabilities
     sns = [10]                                          # sn - simulations number
+    # TODO: number of games
     # outcomes
     facms = [                                           # facms - fault and conflict methods
         ['dawfi', {}]
@@ -113,7 +122,7 @@ if __name__ == '__main__':
         plan = world_json['plan']['individual_plans']
         board = world_json['board']
         statics.visualize(plan, board)
-        print(9)
+        print(world_json_name)
 
 
     # create scenarios
