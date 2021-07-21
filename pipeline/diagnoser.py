@@ -188,18 +188,23 @@ class Diagnoser(object):
         return result_json
 
     def calc_precision_recall(self, agents, bugs, diagnoses):
-        recall_accum = 0
-        precision_accum = 0
-        validAgents = [a.num for a in agents if not a.is_faulty]
-        for d in diagnoses:
-            dg = d['diagnosis']
-            pr = d['probability']
-            precision, recall = self.precision_recall_for_diagnosis(bugs, dg, pr, validAgents)
-            if (recall != "undef"):
-                recall_accum = recall_accum + recall
-            if (precision != "undef"):
-                precision_accum = precision_accum + precision
-        return precision_accum, recall_accum
+        top_k_precision_accums = [0 for _ in diagnoses]
+        top_k_recall_accums = [0 for _ in diagnoses]
+        for k in range(len(diagnoses)):
+            top_k_diagnoses = diagnoses[:k+1]
+            precision_accum = 0
+            recall_accum = 0
+            validAgents = [a.num for a in agents if not a.is_faulty]
+            for d in top_k_diagnoses:
+                dg = d['diagnosis']
+                pr = d['probability']
+                precision, recall = self.precision_recall_for_diagnosis(bugs, dg, pr, validAgents)
+                if (recall != "undef"):
+                    recall_accum = recall_accum + recall
+                if (precision != "undef"):
+                    precision_accum = precision_accum + precision
+            top_k_precision_accums[k], top_k_recall_accums[k] = precision_accum, recall_accum
+        return top_k_precision_accums, top_k_recall_accums
 
     @staticmethod
     def precision_recall_for_diagnosis(buggedComps, dg, pr, validComps):

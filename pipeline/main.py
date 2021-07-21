@@ -97,13 +97,13 @@ if __name__ == '__main__':
     ]
     # results
     dpcms = [                                           # dpcm - diagnoses and probabilities calculation methods
-        ['ochiai', {}],
-        ['tarantula', {}],
+        # ['ochiai', {}],
+        # ['tarantula', {}],
         # ['barinelavi', {'mfcp': 'pone'}],               # mfcp - method for calculating priors
         # ['barinelavi', {'mfcp': 'pstatic'}],
         # ['barinelavi', {'mfcp': 'pintersections1'}],
         # ['barinelavi', {'mfcp': 'pintersections2'}],
-        # ['barinelamir', {'mfcp': 'pone'}],
+        ['barinelamir', {'mfcp': 'pone'}],
         # ['barinelamir', {'mfcp': 'pstatic'}],
         # ['barinelamir', {'mfcp': 'pintersections1'}],
         # ['barinelamir', {'mfcp': 'pintersections2'}]
@@ -163,7 +163,7 @@ if __name__ == '__main__':
                                                      f'../worlds/{scenario_folder}',
                                                      facm[0],
                                                      facm[1],
-                                                     'generated')
+                                                     'static')
                 if success:
                     created_outcomes_count += 1
     print(f'created_outcomes_count: {created_outcomes_count}')
@@ -192,7 +192,7 @@ if __name__ == '__main__':
                                                                          asm[1],
                                                                          evasfm[0],  # agent_pass_fail_contribution
                                                                          evasfm[1],  # invert_for_success
-                                                                         'generated')
+                                                                         'static')
                             if success:
                                 created_spectra_count += 1
     print(f'created_spectra_count: {created_spectra_count}')
