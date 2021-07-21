@@ -190,6 +190,9 @@ class SpectraGenerator(object):
             simulation.outcome = s_actual_execution
             simulations_to_run.append(simulation)
 
+        # count agent conflicts from actual executions and put it into matrix like the spectra
+        conflict_matrix = statics.count_actual_execution_conflicts(outcome_json)
+
         # generate the error vector and the spectra
         error_vector, spectra_matrix = statics.methods[evasfm](
             simulations_to_run,
@@ -213,6 +216,7 @@ class SpectraGenerator(object):
                 "spectra_type": "generated"
             },
             "outcome": outcome_json,
+            "conflict_matrix": conflict_matrix,
             "spectra_matrix": spectra_matrix,
             "error_vector": error_vector
         }

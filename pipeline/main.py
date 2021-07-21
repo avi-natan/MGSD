@@ -60,24 +60,24 @@ if __name__ == '__main__':
     # # chosen parameters:
     # worlds
     worlds = [                                          # worlds (include map, critical areas and plans)
-        # ['intersection0', 6, 12, 19, 'static'],       # world name, number of plans, plans length, number of intersections
-        # ['intersection1', 6, 12, 18, 'static'],
-        # ['tcircle0', 6, 12, 78, 'static'],
+        ['intersection0', 6, 12, 19, 'static'],       # world name, number of plans, plans length, number of intersections
+        ['intersection1', 6, 12, 18, 'static'],
+        ['tcircle0', 6, 12, 78, 'static'],
         # ['generated1', 6, 12, -1, 'thirdparty'],
         # ['generated2', 6, 12, -1, 'thirdparty'],
         # ['generated3', 12, 12, -1, 'thirdparty'],
-        ['intersection', 12, 12, -1, 'thirdparty'],
-        ['intersection', 12, 12, -1, 'thirdparty'],
-        ['intersection', 12, 12, -1, 'thirdparty'],
-        ['intersection', 12, 12, -1, 'thirdparty'],
-        ['intersection', 12, 12, -1, 'thirdparty'],
-        ['intersection', 12, 12, -1, 'thirdparty'],
-        ['intersection', 12, 12, -1, 'thirdparty'],
-        ['intersection', 12, 12, -1, 'thirdparty']
+        # ['intersection', 12, 12, -1, 'thirdparty'],
+        # ['intersection', 12, 12, -1, 'thirdparty'],
+        # ['intersection', 12, 12, -1, 'thirdparty'],
+        # ['intersection', 12, 12, -1, 'thirdparty'],
+        # ['intersection', 12, 12, -1, 'thirdparty'],
+        # ['intersection', 12, 12, -1, 'thirdparty'],
+        # ['intersection', 12, 12, -1, 'thirdparty'],
+        # ['intersection', 12, 12, -1, 'thirdparty']
     ]
     # scenarios
     ans = [6]                                           # an - agents number
-    fans = [2, 3]                                       # fan - faulty agents number
+    fans = [2]                                       # fan - faulty agents number
     fps = [0.1]                                         # fp - fault probabilities
     sns = [10]                                          # sn - simulations number
     # TODO: number of games
@@ -87,7 +87,7 @@ if __name__ == '__main__':
     ]
     # spectras
     ssms = [                                            # ssm - system success method
-        ['pfc', {'t': 0.89}]                            # t - threshold
+        ['pfc', {'t': 0.95}]                            # t - threshold
     ]
     asms = [                                            # asm - agent success method
         ['rfr', {}]
@@ -124,7 +124,6 @@ if __name__ == '__main__':
         statics.visualize(plan, board)
         print(world_json_name)
 
-
     # create scenarios
     worlds_contents = next(os.walk('../worlds'))
     world_names = list(map(lambda fn: fn[:-5], worlds_contents[2]))
@@ -142,7 +141,7 @@ if __name__ == '__main__':
                 for fp in fps:
                     # iterate over the number of simulations
                     for sn in sns:
-                        success = scenario_builder.build_scenario(wn, an, fan, fp, sn, 'generated')
+                        success = scenario_builder.build_scenario(wn, an, fan, fp, sn, 'static')
                         if success:
                             created_scenarios_count += 1
     print(f'created_scenarios_count: {created_scenarios_count}')

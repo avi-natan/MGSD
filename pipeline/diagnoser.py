@@ -75,6 +75,9 @@ class Diagnoser(object):
 
         # write result to disk
         if result_json is not None:
+            print(f'Conflict matrix:')
+            for i, row in enumerate(result_json['spectra']['conflict_matrix']):
+                print(f'{row}')
             print(f'spectra and error vector:')
             for i, row in enumerate(result_json['spectra']['spectra_matrix']):
                 print(f'{row} | {result_json["spectra"]["error_vector"][i]}')

@@ -81,6 +81,27 @@ def count_intersections(current_plans):
     print(np.sum(intersections_table))
     return np.sum(intersections_table)
 
+def count_actual_execution_conflicts(outcome_json):
+    simulations = outcome_json['simulations']
+    n_agents = outcome_json['scenario']['parameters']['agents_number']
+    l_plan = outcome_json['scenario']['world']['parameters']['plan_length']
+    conflict_matrix = [[0 for _ in range(n_agents)] for _ in simulations]
+
+    for si, s in enumerate(simulations):
+        n = s['name']
+        ft = s['fault_table']
+        ae = s['actual_execution']
+        for a in range(n_agents):
+            for t in range(l_plan-1):
+                if ae[a][t] == ae[a][t+1]:
+                    if ft[a][t]:
+                        pass
+                        # print(f'Delay in n: {n}, a: {a}, t: {t}, Fault')
+                    else:
+                        # print(f'Delay in n: {n}, a: {a}, t: {t}, Conflict')
+                        conflict_matrix[si][a] += 1
+    return conflict_matrix
+
 
 def get_pick_color(color_id):
     return consts.colors[color_id % 12]
