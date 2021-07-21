@@ -569,6 +569,57 @@ def calculate_diagnoses_and_probabilities_ochiai(spectra: List[List[int]],
         soj = ((dm[0][j] * 1.0) / math.sqrt((dm[0][j] + dm[1][j]) * (dm[0][j] + dm[2][j]))) if dm[0][j] != 0 else 0
         probabilities.append(soj)
 
+    # normalize probabilities and order them
+    probabilities_sum = sum(probabilities)
+    for i, probability in enumerate(probabilities):
+        probabilities[i] = probabilities[i] / probabilities_sum if probabilities_sum !=0 else 1.0 / len(probabilities)
+    z_probabilities, z_diagnoses = zip(*[(d, p) for d, p in sorted(zip(probabilities, diagnoses))])
+    lz_diagnoses = list(z_diagnoses)
+    lz_probabilities = list(z_probabilities)
+    lz_diagnoses.reverse()
+    lz_probabilities.reverse()
+
+    print(f'oracle: {[a.num for a in simulations[0].agents if a.is_faulty]}')
+    print(f'diagnoses: {list(zip(lz_diagnoses, lz_probabilities))}')
+
+    return diagnoses, probabilities
+
+def calculate_diagnoses_and_probabilities_tarantula(spectra: List[List[int]],
+                                                    error_vector: List[int],
+                                                    kwargs: Dict,
+                                                    simulations: List[Simulation]) -> Tuple[List[List[int]], List[float]]:
+    diagnoses = [[i] for i in range(len(spectra[0]))]
+
+    dm = calculate_dichotomy_matrix(spectra, error_vector)
+    print('Dichotomy matrix:')
+    for i in range(len(dm)):
+        print(dm[i])
+    """
+    dichotomy matrix example:
+                    c0  c1  ..  cJ
+            n11:    1   0       1
+            n10:    1   1       0
+            n01:    0   0       2
+            n00:    3   4       2
+    """
+    probabilities = []
+    for j in range(len(spectra[0])):
+        soj = (dm[0][j] * 1.0 / (dm[0][j] + dm[2][j])) / ((dm[1][j] / (dm[1][j] + dm[3][j])) + (dm[0][j] / (dm[0][j] + dm[2][j]))) if dm[0][j] != 0 else 0
+        probabilities.append(soj)
+
+    # normalize probabilities and order them
+    probabilities_sum = sum(probabilities)
+    for i, probability in enumerate(probabilities):
+        probabilities[i] = probabilities[i] / probabilities_sum if probabilities_sum !=0 else 1.0 / len(probabilities)
+    z_probabilities, z_diagnoses = zip(*[(d, p) for d, p in sorted(zip(probabilities, diagnoses))])
+    lz_diagnoses = list(z_diagnoses)
+    lz_probabilities = list(z_probabilities)
+    lz_diagnoses.reverse()
+    lz_probabilities.reverse()
+
+    print(f'oracle: {[a.num for a in simulations[0].agents if a.is_faulty]}')
+    print(f'diagnoses: {list(zip(lz_diagnoses, lz_probabilities))}')
+
     return diagnoses, probabilities
 
 
@@ -821,6 +872,7 @@ methods = {
 
     # Methods for calculating diagnoses and their probabilities
     'ochiai': calculate_diagnoses_and_probabilities_ochiai,
+    'tarantula': calculate_diagnoses_and_probabilities_tarantula,
     'barinelavi': calculate_diagnoses_and_probabilities_barinel_avi,
     'barinelamir': calculate_diagnoses_and_probabilities_barinel_amir,
 

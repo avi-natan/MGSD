@@ -97,10 +97,12 @@ if __name__ == '__main__':
     ]
     # results
     dpcms = [                                           # dpcm - diagnoses and probabilities calculation methods
-        ['barinelavi', {'mfcp': 'pone'}],               # mfcp - method for calculating priors
+        ['ochiai', {}],
+        ['tarantula', {}],
+        # ['barinelavi', {'mfcp': 'pone'}],               # mfcp - method for calculating priors
         # ['barinelavi', {'mfcp': 'pstatic'}],
         # ['barinelavi', {'mfcp': 'pintersections1'}],
-        ['barinelavi', {'mfcp': 'pintersections2'}],
+        # ['barinelavi', {'mfcp': 'pintersections2'}],
         # ['barinelamir', {'mfcp': 'pone'}],
         # ['barinelamir', {'mfcp': 'pstatic'}],
         # ['barinelamir', {'mfcp': 'pintersections1'}],
