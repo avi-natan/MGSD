@@ -582,7 +582,7 @@ def calculate_diagnoses_and_probabilities_ochiai(spectra: List[List[int]],
     print(f'oracle: {[a.num for a in simulations[0].agents if a.is_faulty]}')
     print(f'diagnoses: {list(zip(lz_diagnoses, lz_probabilities))}')
 
-    return diagnoses, probabilities
+    return lz_diagnoses, lz_probabilities
 
 def calculate_diagnoses_and_probabilities_tarantula(spectra: List[List[int]],
                                                     error_vector: List[int],
@@ -620,7 +620,7 @@ def calculate_diagnoses_and_probabilities_tarantula(spectra: List[List[int]],
     print(f'oracle: {[a.num for a in simulations[0].agents if a.is_faulty]}')
     print(f'diagnoses: {list(zip(lz_diagnoses, lz_probabilities))}')
 
-    return diagnoses, probabilities
+    return lz_diagnoses, lz_probabilities
 
 
 def calculate_diagnoses_and_probabilities_barinel_avi(spectra: List[List[int]],

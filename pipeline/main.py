@@ -64,11 +64,9 @@ if __name__ == '__main__':
     # worlds
     worlds = [                                          # worlds (include map, critical areas and plans)
         # ['intersection0', 6, 12, 19, 'static'],       # world name, number of plans, plans length, number of intersections
-        ['intersection1', 6, 12, 18, 'static'],
-        ['tcircle0', 6, 12, 78, 'static'],
-        # ['generated1', 6, 12, -1, 'thirdparty'],
-        # ['generated2', 6, 12, -1, 'thirdparty'],
-        # ['generated3', 12, 12, -1, 'thirdparty'],
+        # ['intersection1', 6, 12, 18, 'static'],
+        # ['tcircle0', 6, 12, 78, 'static'],
+        ['intersection', 12, 12, 70, 'static'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
@@ -79,10 +77,10 @@ if __name__ == '__main__':
         # ['intersection', 12, 12, -1, 'thirdparty']
     ]
     # scenarios
-    ans = [6]                                           # an - agents number
+    ans = [12]                                           # an - agents number
     fans = [2]                                       # fan - faulty agents number
     fps = [0.1]                                         # fp - fault probabilities
-    sns = [10]                                          # sn - simulations number
+    sns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]                                          # sn - simulations number
     scn = 10                                            # scn - scenarios number
     # outcomes
     facms = [                                           # facms - fault and conflict methods
@@ -100,11 +98,11 @@ if __name__ == '__main__':
     ]
     # results
     dpcms = [                                           # dpcm - diagnoses and probabilities calculation methods
-        # ['ochiai', {}],
-        # ['tarantula', {}],
+        ['ochiai', {}],
+        ['tarantula', {}],
         ['barinelavi', {'mfcp': 'pone'}],               # mfcp - method for calculating priors
         # ['barinelavi', {'mfcp': 'pstatic'}],
-        # ['barinelavi', {'mfcp': 'pintersections1'}],
+        ['barinelavi', {'mfcp': 'pintersections1'}],
         ['barinelavi', {'mfcp': 'pintersections2'}],
         # ['barinelamir', {'mfcp': 'pone'}],
         # ['barinelamir', {'mfcp': 'pstatic'}],
@@ -277,6 +275,7 @@ if __name__ == '__main__':
         result_row.append(result_json['spectra']['outcome']['scenario']['parameters']['faulty_agents_number'])
         result_row.append(result_json['spectra']['outcome']['scenario']['parameters']['fault_probability'])
         result_row.append(result_json['spectra']['outcome']['scenario']['parameters']['simulations_number'])
+        result_row.append(result_json['spectra']['outcome']['scenario']['parameters']['scenario_number'])
         result_row.append(result_json['spectra']['outcome']['parameters']['facm'])
         result_row.append(result_json['spectra']['outcome']['parameters']['facmargs'])
         result_row.append(result_json['spectra']['parameters']['ssm'])
@@ -333,6 +332,7 @@ if __name__ == '__main__':
         {'header': 'faulty_agents_number'},
         {'header': 'fault_probability'},
         {'header': 'simulations_number'},
+        {'header': 'scenario_number'},
         {'header': 'facm'},
         {'header': 'facmargs'},
         {'header': 'ssm'},
