@@ -26,6 +26,7 @@ class ScenarioBuilder(object):
                        faulty_agents_number,
                        fault_probability,
                        simulations_number,
+                       scenario_number,
                        scenario_type):
         """
         Builds a scenario using the arguments. A scenario object is composed of a world and a group
@@ -47,6 +48,7 @@ class ScenarioBuilder(object):
         :param faulty_agents_number: the number of faulty agents
         :param fault_probability: the probability of faulty agents to experience fault in every single timestep
         :param simulations_number: the number of simulations in this scenario
+        :param scenario_number: number of scenario
         :param scenario_type: whether the scenario should be static, generated, or from a third party
         module. specified by the datum [static, generated].
         in case of static, this function will load the static information about the agents defined for the
@@ -63,11 +65,12 @@ class ScenarioBuilder(object):
         fan = str(faulty_agents_number)
         fp = str(fault_probability)
         sn = str(simulations_number)
+        scn = scenario_number
         scenario_json = None
         if scenario_type == 'static':
-            scenario_json = self.static_scenario(wn, an, fan, fp, sn)
+            scenario_json = self.static_scenario(wn, an, fan, fp, sn, scn)
         elif scenario_type == 'generated':
-            scenario_json = self.generated_scenario(wn, an, fan, fp, sn)
+            scenario_json = self.generated_scenario(wn, an, fan, fp, sn, scn)
             pass
         else:
             raise Exception(f'unexpected scenario type: "{scenario_type}"')
@@ -79,12 +82,13 @@ class ScenarioBuilder(object):
             print(f'faulty_agents_number: {faulty_agents_number}')
             print(f'fault_probability: {fault_probability}')
             print(f'simulations_number: {simulations_number}')
+            print(f'scenario_number: {scn}')
             print(f'scenario_type: {scenario_type}')
-            outfile_path = f'../worlds/{wn}_scenarios/scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}.json'
+            outfile_path = f'../worlds/{wn}_scenarios/scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}_scn_{scn}.json'
             with open(outfile_path, 'w') as outfile:
                 json.dump(scenario_json, outfile)
 
-            outdir_path = f'../worlds/{wn}_scenarios/scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}_outcomes'
+            outdir_path = f'../worlds/{wn}_scenarios/scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}_scn_{scn}_outcomes'
             if not os.path.exists(outdir_path):
                 os.mkdir(outdir_path)
             else:
@@ -93,14 +97,14 @@ class ScenarioBuilder(object):
             return True
         else:
             print(f'No valid scenario generated for '
-                  f'scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}.json, skipping...')
+                  f'scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}_scn_{scn}.json, skipping...')
             return False
 
-    def static_scenario(self, wn, an, fan, fp, sn):
+    def static_scenario(self, wn, an, fan, fp, sn, scn):
         static_scenarios_contents = \
             next(os.walk(f'{self.static_worlds_relative_path}/{wn}_scenarios'))
         world_static_scenarios_filenames = static_scenarios_contents[2]
-        world_static_scenario_filename = f'scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}.json'
+        world_static_scenario_filename = f'scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}_scn_{scn}.json'
         if world_static_scenario_filename not in world_static_scenarios_filenames:
             scenario_json = None
         else:
@@ -108,7 +112,7 @@ class ScenarioBuilder(object):
                 f'{self.static_worlds_relative_path}/{wn}_scenarios/{world_static_scenario_filename}'))
         return scenario_json
 
-    def generated_scenario(self, wn, an, fan, fp, sn):
+    def generated_scenario(self, wn, an, fan, fp, sn, scn):
         world_json = json.load(open(f'{self.worlds_relative_path}/{wn}.json'))
 
         # Generate agents
@@ -131,13 +135,14 @@ class ScenarioBuilder(object):
 
         # build the scenario json
         scenario_json = {
-            "scenario_name": f"{world_json['world_name']}_scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}",
+            "scenario_name": f"{world_json['world_name']}_scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}_scn_{scn}",
             "parameters": {
                 "world_name": f"{world_json['world_name']}",
                 "agents_number": int(an),
                 "faulty_agents_number": int(fan),
                 "fault_probability": float(fp),
                 "simulations_number": int(sn),
+                "scenario_number": scn,
                 "scenario_type": "generated"
             },
             "world": world_json,

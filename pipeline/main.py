@@ -1,6 +1,8 @@
 import json
+import math
 import os
 import shutil
+import xlsxwriter
 
 import statics
 from pipeline.diagnoser import Diagnoser
@@ -31,6 +33,7 @@ if __name__ == '__main__':
     # fans = [1, 2, 3, 4, 5]                              # fan - faulty agents number
     # fps = [0.05, 0.1, 0.2, 0.3]                         # fp - fault probabilities
     # sns = [10, 50, 100]                                 # sn - simulations number
+    # scn = 1                                             # scn - scenarios number
     # # outcomes
     # facms = [                                           # facms - fault and conflict methods
     #     ['dawfi', {}]
@@ -60,7 +63,7 @@ if __name__ == '__main__':
     # # chosen parameters:
     # worlds
     worlds = [                                          # worlds (include map, critical areas and plans)
-        ['intersection0', 6, 12, 19, 'static'],       # world name, number of plans, plans length, number of intersections
+        # ['intersection0', 6, 12, 19, 'static'],       # world name, number of plans, plans length, number of intersections
         ['intersection1', 6, 12, 18, 'static'],
         ['tcircle0', 6, 12, 78, 'static'],
         # ['generated1', 6, 12, -1, 'thirdparty'],
@@ -80,7 +83,7 @@ if __name__ == '__main__':
     fans = [2]                                       # fan - faulty agents number
     fps = [0.1]                                         # fp - fault probabilities
     sns = [10]                                          # sn - simulations number
-    # TODO: number of games
+    scn = 10                                            # scn - scenarios number
     # outcomes
     facms = [                                           # facms - fault and conflict methods
         ['dawfi', {}]
@@ -99,11 +102,11 @@ if __name__ == '__main__':
     dpcms = [                                           # dpcm - diagnoses and probabilities calculation methods
         # ['ochiai', {}],
         # ['tarantula', {}],
-        # ['barinelavi', {'mfcp': 'pone'}],               # mfcp - method for calculating priors
+        ['barinelavi', {'mfcp': 'pone'}],               # mfcp - method for calculating priors
         # ['barinelavi', {'mfcp': 'pstatic'}],
         # ['barinelavi', {'mfcp': 'pintersections1'}],
-        # ['barinelavi', {'mfcp': 'pintersections2'}],
-        ['barinelamir', {'mfcp': 'pone'}],
+        ['barinelavi', {'mfcp': 'pintersections2'}],
+        # ['barinelamir', {'mfcp': 'pone'}],
         # ['barinelamir', {'mfcp': 'pstatic'}],
         # ['barinelamir', {'mfcp': 'pintersections1'}],
         # ['barinelamir', {'mfcp': 'pintersections2'}]
@@ -143,9 +146,10 @@ if __name__ == '__main__':
                 for fp in fps:
                     # iterate over the number of simulations
                     for sn in sns:
-                        success = scenario_builder.build_scenario(wn, an, fan, fp, sn, 'static')
-                        if success:
-                            created_scenarios_count += 1
+                        for s in range(scn):
+                            success = scenario_builder.build_scenario(wn, an, fan, fp, sn, s, 'generated')
+                            if success:
+                                created_scenarios_count += 1
     print(f'created_scenarios_count: {created_scenarios_count}')
 
     # run simulations and generate outcomes
@@ -163,7 +167,7 @@ if __name__ == '__main__':
                                                      f'../worlds/{scenario_folder}',
                                                      facm[0],
                                                      facm[1],
-                                                     'static')
+                                                     'generated')
                 if success:
                     created_outcomes_count += 1
     print(f'created_outcomes_count: {created_outcomes_count}')
@@ -192,7 +196,7 @@ if __name__ == '__main__':
                                                                          asm[1],
                                                                          evasfm[0],  # agent_pass_fail_contribution
                                                                          evasfm[1],  # invert_for_success
-                                                                         'static')
+                                                                         'generated')
                             if success:
                                 created_spectra_count += 1
     print(f'created_spectra_count: {created_spectra_count}')
@@ -224,6 +228,13 @@ if __name__ == '__main__':
                                                          'generated')
                         except IndexError as e:
                             print('Index Error')
+                            spectra_json = json.load(open(f'../worlds/{scenario_folder}/{outcome_folder}/{spectra_folder}/{spectra_name}.json'))
+                            print(f'Conflict matrix:')
+                            for i, row in enumerate(spectra_json['conflict_matrix']):
+                                print(f'{row}')
+                            print(f'spectra and error vector:')
+                            for i, row in enumerate(spectra_json['spectra_matrix']):
+                                print(f'{row} | {spectra_json["error_vector"][i]}')
                             success = False
                         if success:
                             created_results_count += 1
@@ -236,3 +247,134 @@ if __name__ == '__main__':
     print(f'created_outcomes_count: {created_outcomes_count}')
     print(f'created_spectra_count: {created_spectra_count}')
     print(f'created_results_count: {created_results_count}')
+
+    print(f'collecting results to excel...')
+    # prepare the data
+    all_json_paths = []
+    worlds_folders = next(os.walk(f'../worlds'))[1]
+    for wf in worlds_folders:
+        scenarios_folders = next(os.walk(f'../worlds/{wf}'))[1]
+        for scf in scenarios_folders:
+            outcomes_folders = next(os.walk(f'../worlds/{wf}/{scf}'))[1]
+            for of in outcomes_folders:
+                spectras_folders = next(os.walk(f'../worlds/{wf}/{scf}/{of}'))[1]
+                for spf in spectras_folders:
+                    results_files = next(os.walk(f'../worlds/{wf}/{scf}/{of}/{spf}'))[2]
+                    for rf in results_files:
+                        all_json_paths.append(f'../worlds/{wf}/{scf}/{of}/{spf}/{rf}')
+    data = []
+    for jp in all_json_paths:
+        result_json = json.load(open(f'{jp}'))
+        result_row = []
+        result_row.append(result_json['spectra']['outcome']['scenario']['world']['board']['board_name'])
+        result_row.append(result_json['spectra']['outcome']['scenario']['world']['board']['board_width'])
+        result_row.append(result_json['spectra']['outcome']['scenario']['world']['board']['board_height'])
+        result_row.append('\r\n'.join(list(map(lambda arr: str(arr), result_json['spectra']['outcome']['scenario']['world']['board']['board_critical_areas']))))
+        result_row.append(int(result_json['spectra']['outcome']['scenario']['world']['plan']['size']))
+        result_row.append(int(result_json['spectra']['outcome']['scenario']['world']['plan']['length']))
+        result_row.append(int(result_json['spectra']['outcome']['scenario']['world']['plan']['intersections']))
+        result_row.append(result_json['spectra']['outcome']['scenario']['parameters']['agents_number'])
+        result_row.append(result_json['spectra']['outcome']['scenario']['parameters']['faulty_agents_number'])
+        result_row.append(result_json['spectra']['outcome']['scenario']['parameters']['fault_probability'])
+        result_row.append(result_json['spectra']['outcome']['scenario']['parameters']['simulations_number'])
+        result_row.append(result_json['spectra']['outcome']['parameters']['facm'])
+        result_row.append(result_json['spectra']['outcome']['parameters']['facmargs'])
+        result_row.append(result_json['spectra']['parameters']['ssm'])
+        result_row.append(result_json['spectra']['parameters']['ssmargs'])
+        result_row.append(result_json['spectra']['parameters']['asm'])
+        result_row.append(result_json['spectra']['parameters']['asmargs'])
+        result_row.append(result_json['spectra']['parameters']['evasfm'])
+        result_row.append(result_json['spectra']['parameters']['evasfmargs'])
+        result_row.append(result_json['parameters']['dpcm'])
+        result_row.append(result_json['parameters']['dpcmargs'])
+        result_row.append('\r\n'.join(list(map(lambda arr: str(arr), result_json['spectra']['conflict_matrix']))))
+        result_row.append('\r\n'.join(list(map(lambda arr: str(arr), result_json['spectra']['spectra_matrix']))))
+        result_row.append('\r\n'.join(list(map(lambda num: str(num), result_json['spectra']['error_vector']))))
+        result_row.append('\r\n'.join(list(map(lambda dic: str(dic), result_json['diagnoses']))))
+        result_row.append(str([a['agent_num'] for a in result_json['spectra']['outcome']['scenario']['agents'] if a['agent_is_faulty']]))
+        result_row.append(result_json['metrics']['wasted_effort'])
+        result_row.append(result_json['metrics']['weighted_precision'][math.ceil(len(result_json['metrics']['weighted_precision']) * 10.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_precision'][math.ceil(len(result_json['metrics']['weighted_precision']) * 20.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_precision'][math.ceil(len(result_json['metrics']['weighted_precision']) * 30.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_precision'][math.ceil(len(result_json['metrics']['weighted_precision']) * 40.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_precision'][math.ceil(len(result_json['metrics']['weighted_precision']) * 50.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_precision'][math.ceil(len(result_json['metrics']['weighted_precision']) * 60.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_precision'][math.ceil(len(result_json['metrics']['weighted_precision']) * 70.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_precision'][math.ceil(len(result_json['metrics']['weighted_precision']) * 80.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_precision'][math.ceil(len(result_json['metrics']['weighted_precision']) * 90.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_precision'][math.ceil(len(result_json['metrics']['weighted_precision']) * 99.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_recall'][math.ceil(len(result_json['metrics']['weighted_recall']) * 10.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_recall'][math.ceil(len(result_json['metrics']['weighted_recall']) * 20.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_recall'][math.ceil(len(result_json['metrics']['weighted_recall']) * 30.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_recall'][math.ceil(len(result_json['metrics']['weighted_recall']) * 40.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_recall'][math.ceil(len(result_json['metrics']['weighted_recall']) * 50.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_recall'][math.ceil(len(result_json['metrics']['weighted_recall']) * 60.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_recall'][math.ceil(len(result_json['metrics']['weighted_recall']) * 70.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_recall'][math.ceil(len(result_json['metrics']['weighted_recall']) * 80.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_recall'][math.ceil(len(result_json['metrics']['weighted_recall']) * 90.0 / 100)-1])
+        result_row.append(result_json['metrics']['weighted_recall'][math.ceil(len(result_json['metrics']['weighted_recall']) * 99.0 / 100)-1])
+        data.append(result_row)
+        print(9)
+    # data = [
+    #     ['Apples', 10000, 5000, 8000, 6000],
+    #     ['Pears', 2000, 3000, 4000, 5000],
+    #     ['Bananas', 6000, 6000, 6500, 6000],
+    #     ['Oranges', 500, 300, 200, 700],
+    # ]
+    columns = [
+        {'header': 'board_name'},
+        {'header': 'board_width'},
+        {'header': 'board_height'},
+        {'header': 'board_critical_areas'},
+        {'header': 'plan_size'},
+        {'header': 'plan_length'},
+        {'header': 'intersections_number'},
+        {'header': 'agents_number'},
+        {'header': 'faulty_agents_number'},
+        {'header': 'fault_probability'},
+        {'header': 'simulations_number'},
+        {'header': 'facm'},
+        {'header': 'facmargs'},
+        {'header': 'ssm'},
+        {'header': 'ssmargs'},
+        {'header': 'asm'},
+        {'header': 'asmargs'},
+        {'header': 'evasfm'},
+        {'header': 'evasfmargs'},
+        {'header': 'dpcm'},
+        {'header': 'dpcmargs'},
+        {'header': 'conflict_matrix'},
+        {'header': 'spectra_matrix'},
+        {'header': 'error_vector'},
+        {'header': 'diagnoses_probabilities'},
+        {'header': 'oracle'},
+        {'header': 'wasted_effort'},
+        {'header': 'weighted_precision_10'},
+        {'header': 'weighted_precision_20'},
+        {'header': 'weighted_precision_30'},
+        {'header': 'weighted_precision_40'},
+        {'header': 'weighted_precision_50'},
+        {'header': 'weighted_precision_60'},
+        {'header': 'weighted_precision_70'},
+        {'header': 'weighted_precision_80'},
+        {'header': 'weighted_precision_90'},
+        {'header': 'weighted_precision_100'},
+        {'header': 'weighted_recall_10'},
+        {'header': 'weighted_recall_20'},
+        {'header': 'weighted_recall_30'},
+        {'header': 'weighted_recall_40'},
+        {'header': 'weighted_recall_50'},
+        {'header': 'weighted_recall_60'},
+        {'header': 'weighted_recall_70'},
+        {'header': 'weighted_recall_80'},
+        {'header': 'weighted_recall_90'},
+        {'header': 'weighted_recall_100'},
+        {'header': ''},
+    ]
+
+    # write the data to xlsx file
+    workbook = xlsxwriter.Workbook('../results.xlsx')
+    worksheet = workbook.add_worksheet('results')
+    worksheet.add_table(0, 0, len(data), len(columns)-1, {'data': data, 'columns': columns})
+    workbook.close()
+    print(f'results collected')
