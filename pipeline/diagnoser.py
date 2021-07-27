@@ -197,11 +197,14 @@ class Diagnoser(object):
     def calc_precision_recall(self, agents, bugs, diagnoses):
         top_k_precision_accums = [0 for _ in diagnoses]
         top_k_recall_accums = [0 for _ in diagnoses]
+        validAgents = [a.num for a in agents if not a.is_faulty]
         for k in range(len(diagnoses)):
             top_k_diagnoses = diagnoses[:k+1]
+            top_k_diagnoses_sum = sum([d1['probability'] for d1 in top_k_diagnoses])
+            for tkd in top_k_diagnoses:
+                tkd['probability'] = tkd['probability'] / top_k_diagnoses_sum
             precision_accum = 0
             recall_accum = 0
-            validAgents = [a.num for a in agents if not a.is_faulty]
             for d in top_k_diagnoses:
                 dg = d['diagnosis']
                 pr = d['probability']
