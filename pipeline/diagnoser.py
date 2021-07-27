@@ -105,6 +105,13 @@ class Diagnoser(object):
         else:
             result_json = json.load(open(
                 f'{static_s_path}/{sn}_results/{spectra_static_result_filename}'))
+
+            print(f"oracle: {[a['agent_num'] for a in result_json['spectra']['outcome']['scenario']['agents'] if a['agent_is_faulty']]}")
+            print(f'diagnoses and probabilities:')
+            for i, d in enumerate(result_json['diagnoses']):
+                print(f"{d['diagnosis']}: {d['probability']}")
+            print(f'Metrics: {result_json["metrics"]}')
+
         return result_json
 
     def generated_result(self, sn, sp, dpcm, dpcm_args, dpcm_args_string):

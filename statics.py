@@ -580,7 +580,10 @@ def calculate_diagnoses_and_probabilities_ochiai(spectra: List[List[int]],
     lz_probabilities.reverse()
 
     print(f'oracle: {[a.num for a in simulations[0].agents if a.is_faulty]}')
-    print(f'diagnoses: {list(zip(lz_diagnoses, lz_probabilities))}')
+
+    print(f'diagnoses and probabilities:')
+    for i, _ in enumerate(lz_diagnoses):
+        print(f'{lz_diagnoses[i]}: {lz_probabilities[i]}')
 
     return lz_diagnoses, lz_probabilities
 
@@ -618,7 +621,10 @@ def calculate_diagnoses_and_probabilities_tarantula(spectra: List[List[int]],
     lz_probabilities.reverse()
 
     print(f'oracle: {[a.num for a in simulations[0].agents if a.is_faulty]}')
-    print(f'diagnoses: {list(zip(lz_diagnoses, lz_probabilities))}')
+
+    print(f'diagnoses and probabilities:')
+    for i, _ in enumerate(lz_diagnoses):
+        print(f'{lz_diagnoses[i]}: {lz_probabilities[i]}')
 
     return lz_diagnoses, lz_probabilities
 
@@ -663,7 +669,10 @@ def calculate_diagnoses_and_probabilities_barinel_avi(spectra: List[List[int]],
     lz_probabilities.reverse()
 
     print(f'oracle: {[a.num for a in simulations[0].agents if a.is_faulty]}')
-    print(f'diagnoses: {list(zip(lz_diagnoses, lz_probabilities))}')
+
+    print(f'diagnoses and probabilities:')
+    for i, _ in enumerate(lz_diagnoses):
+        print(f'{lz_diagnoses[i]}: {lz_probabilities[i]}')
 
     # return ordered and normalized diagnoses and probabilities
     return lz_diagnoses, lz_probabilities
@@ -728,7 +737,10 @@ def calculate_diagnoses_and_probabilities_barinel_amir(spectra: List[List[int]],
     lz_probabilities.reverse()
 
     print(f'oracle: {[a.num for a in simulations[0].agents if a.is_faulty]}')
-    print(f'diagnoses: {list(zip(lz_diagnoses, lz_probabilities))}')
+
+    print(f'diagnoses and probabilities:')
+    for i, _ in enumerate(lz_diagnoses):
+        print(f'{lz_diagnoses[i]}: {lz_probabilities[i]}')
 
     return lz_diagnoses, lz_probabilities
 

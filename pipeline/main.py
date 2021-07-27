@@ -65,8 +65,8 @@ if __name__ == '__main__':
     worlds = [                                          # worlds (include map, critical areas and plans)
         # ['intersection0', 6, 12, 19, 'static'],       # world name, number of plans, plans length, number of intersections
         # ['intersection1', 6, 12, 18, 'static'],
-        # ['tcircle0', 6, 12, 78, 'static'],
-        ['intersection', 12, 12, 70, 'static'],
+        ['tcircle0', 6, 12, 78, 'static'],
+        # ['intersection', 12, 12, 70, 'static'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
@@ -77,11 +77,11 @@ if __name__ == '__main__':
         # ['intersection', 12, 12, -1, 'thirdparty']
     ]
     # scenarios
-    ans = [12]                                           # an - agents number
+    ans = [6]                                           # an - agents number
     fans = [2]                                       # fan - faulty agents number
     fps = [0.1]                                         # fp - fault probabilities
-    sns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]                                          # sn - simulations number
-    scn = 10                                            # scn - scenarios number
+    sns = [10]                                          # sn - simulations number
+    scn = 1                                            # scn - scenarios number
     # outcomes
     facms = [                                           # facms - fault and conflict methods
         ['dawfi', {}]
@@ -98,13 +98,13 @@ if __name__ == '__main__':
     ]
     # results
     dpcms = [                                           # dpcm - diagnoses and probabilities calculation methods
-        ['ochiai', {}],
-        ['tarantula', {}],
-        ['barinelavi', {'mfcp': 'pone'}],               # mfcp - method for calculating priors
+        # ['ochiai', {}],
+        # ['tarantula', {}],
+        # ['barinelavi', {'mfcp': 'pone'}],               # mfcp - method for calculating priors
         # ['barinelavi', {'mfcp': 'pstatic'}],
-        ['barinelavi', {'mfcp': 'pintersections1'}],
-        ['barinelavi', {'mfcp': 'pintersections2'}],
-        # ['barinelamir', {'mfcp': 'pone'}],
+        # ['barinelavi', {'mfcp': 'pintersections1'}],
+        # ['barinelavi', {'mfcp': 'pintersections2'}],
+        ['barinelamir', {'mfcp': 'pone'}],
         # ['barinelamir', {'mfcp': 'pstatic'}],
         # ['barinelamir', {'mfcp': 'pintersections1'}],
         # ['barinelamir', {'mfcp': 'pintersections2'}]
@@ -145,7 +145,7 @@ if __name__ == '__main__':
                     # iterate over the number of simulations
                     for sn in sns:
                         for s in range(scn):
-                            success = scenario_builder.build_scenario(wn, an, fan, fp, sn, s, 'generated')
+                            success = scenario_builder.build_scenario(wn, an, fan, fp, sn, s, 'static')
                             if success:
                                 created_scenarios_count += 1
     print(f'created_scenarios_count: {created_scenarios_count}')
@@ -165,7 +165,7 @@ if __name__ == '__main__':
                                                      f'../worlds/{scenario_folder}',
                                                      facm[0],
                                                      facm[1],
-                                                     'generated')
+                                                     'static')
                 if success:
                     created_outcomes_count += 1
     print(f'created_outcomes_count: {created_outcomes_count}')
@@ -194,7 +194,7 @@ if __name__ == '__main__':
                                                                          asm[1],
                                                                          evasfm[0],  # agent_pass_fail_contribution
                                                                          evasfm[1],  # invert_for_success
-                                                                         'generated')
+                                                                         'static')
                             if success:
                                 created_spectra_count += 1
     print(f'created_spectra_count: {created_spectra_count}')
