@@ -3,6 +3,7 @@ import math
 import os
 import shutil
 import xlsxwriter
+from datetime import datetime
 
 import statics
 from pipeline.diagnoser import Diagnoser
@@ -13,6 +14,7 @@ from pipeline.world_builder import WorldBuilder
 
 if __name__ == '__main__':
     print(f'Hi MGSD pipeline!')
+    start_time = datetime.now()
 
     # at start, clean the worlds folder
     shutil.rmtree(f'../worlds')
@@ -67,7 +69,7 @@ if __name__ == '__main__':
         # ['intersection1', 6, 12, 18, 'static'],
         # ['tcircle0', 6, 12, 78, 'static'],
         # ['intersection', 12, 12, 70, 'static'],
-        ['intersection', 6, 12, 34, 'static'],
+        ['intersection', 6, 12, 30, 'static'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
@@ -219,24 +221,25 @@ if __name__ == '__main__':
                     print(
                         f'\ngenerating result for {spectra_name} from {scenario_folder}/{outcome_folder}/{spectra_folder}...')
                     for dpcm in dpcms:
-                        try:
-                            success = diagnoser.diagnose(spectra_name,
-                                                         f'../worlds/{scenario_folder}/{outcome_folder}/{spectra_folder}',
-                                                         dpcm[0],  # barinel_amir
-                                                         dpcm[1],  # method_for_calculating_priors - priors_one
-                                                         'generated')
-                        except IndexError as e:
-                            print('Index Error')
-                            spectra_json = json.load(open(f'../worlds/{scenario_folder}/{outcome_folder}/{spectra_folder}/{spectra_name}.json'))
-                            print(f'Conflict matrix:')
-                            for i, row in enumerate(spectra_json['conflict_matrix']):
-                                print(f'{row}')
-                            print(f'spectra and error vector:')
-                            for i, row in enumerate(spectra_json['spectra_matrix']):
-                                print(f'{row} | {spectra_json["error_vector"][i]}')
-                            success = False
+                        print(f'sn: {spectra_name}')
+                        print(f"sp: {f'../worlds/{scenario_folder}/{outcome_folder}/{spectra_folder}'}")
+                        print(f'dpcm: {dpcm[0]}')
+                        print(f'dpcm_args: {dpcm[1]}')
+                        success = diagnoser.diagnose(spectra_name,
+                                                     f'../worlds/{scenario_folder}/{outcome_folder}/{spectra_folder}',
+                                                     dpcm[0],  # barinel_amir
+                                                     dpcm[1],  # method_for_calculating_priors - priors_one
+                                                     'generated')
                         if success:
                             created_results_count += 1
+                        spectra_json = json.load(
+                            open(f'../worlds/{scenario_folder}/{outcome_folder}/{spectra_folder}/{spectra_name}.json'))
+                        print(f'Conflict matrix:')
+                        for i, row in enumerate(spectra_json['conflict_matrix']):
+                            print(f'{row}')
+                        print(f'spectra and error vector:')
+                        for i, row in enumerate(spectra_json['spectra_matrix']):
+                            print(f'{row} | {spectra_json["error_vector"][i]}')
                         print('')
     print(f'created_results_count: {created_results_count}')
 
@@ -259,11 +262,18 @@ if __name__ == '__main__':
                 spectras_folders = next(os.walk(f'../worlds/{wf}/{scf}/{of}'))[1]
                 for spf in spectras_folders:
                     results_files = next(os.walk(f'../worlds/{wf}/{scf}/{of}/{spf}'))[2]
+                    valid = 1
                     for rf in results_files:
-                        all_json_paths.append(f'../worlds/{wf}/{scf}/{of}/{spf}/{rf}')
+                        js = json.load(open(f'../worlds/{wf}/{scf}/{of}/{spf}/{rf}'))
+                        if js['diagnoses'] == '-':
+                            valid = 0
+                    for rf in results_files:
+                        all_json_paths.append([f'../worlds/{wf}/{scf}/{of}/{spf}/{rf}', valid])
     data = []
+    invalid_results_num = 0
+    valid_results_num = 0
     for jp in all_json_paths:
-        result_json = json.load(open(f'{jp}'))
+        result_json = json.load(open(f'{jp[0]}'))
         result_row = []
         result_row.append(result_json['spectra']['outcome']['scenario']['world']['board']['board_name'])
         result_row.append(result_json['spectra']['outcome']['scenario']['world']['board']['board_width'])
@@ -313,7 +323,12 @@ if __name__ == '__main__':
         result_row.append(result_json['metrics']['weighted_recall'][math.ceil(len(result_json['metrics']['weighted_recall']) * 80.0 / 100)-1])
         result_row.append(result_json['metrics']['weighted_recall'][math.ceil(len(result_json['metrics']['weighted_recall']) * 90.0 / 100)-1])
         result_row.append(result_json['metrics']['weighted_recall'][math.ceil(len(result_json['metrics']['weighted_recall']) * 99.0 / 100)-1])
+        result_row.append(jp[1])
         data.append(result_row)
+        if jp[1] == 1:
+            valid_results_num += 1
+        else:
+            invalid_results_num += 1
     columns = [
         {'header': 'board_name'},
         {'header': 'board_width'},
@@ -363,7 +378,7 @@ if __name__ == '__main__':
         {'header': 'weighted_recall_80'},
         {'header': 'weighted_recall_90'},
         {'header': 'weighted_recall_100'},
-        {'header': ''},
+        {'header': 'valid'},
     ]
 
     # write the data to xlsx file
@@ -371,4 +386,10 @@ if __name__ == '__main__':
     worksheet = workbook.add_worksheet('results')
     worksheet.add_table(0, 0, len(data), len(columns)-1, {'data': data, 'columns': columns})
     workbook.close()
-    print(f'results collected')
+    print(f'{valid_results_num}/{valid_results_num + invalid_results_num} results collected')
+
+    end_time = datetime.now()
+    delta = end_time - start_time
+    print(f'time to finish: {delta}')
+
+    print(f'Bye MGSD pipeline!')

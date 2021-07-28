@@ -75,16 +75,16 @@ class Diagnoser(object):
 
         # write result to disk
         if result_json is not None:
-            print(f'Conflict matrix:')
-            for i, row in enumerate(result_json['spectra']['conflict_matrix']):
-                print(f'{row}')
-            print(f'spectra and error vector:')
-            for i, row in enumerate(result_json['spectra']['spectra_matrix']):
-                print(f'{row} | {result_json["spectra"]["error_vector"][i]}')
-            print(f'sn: {sn}')
-            print(f'sp: {sp}')
-            print(f'dpcm: {dpcm}')
-            print(f'dpcm_args: {dpcm_args}')
+            # print(f'sn: {sn}')
+            # print(f'sp: {sp}')
+            # print(f'dpcm: {dpcm}')
+            # print(f'dpcm_args: {dpcm_args}')
+            # print(f'Conflict matrix:')
+            # for i, row in enumerate(result_json['spectra']['conflict_matrix']):
+            #     print(f'{row}')
+            # print(f'spectra and error vector:')
+            # for i, row in enumerate(result_json['spectra']['spectra_matrix']):
+            #     print(f'{row} | {result_json["spectra"]["error_vector"][i]}')
 
             result_name = f'result_dpcm_{dpcm}_dpcmargs_{dpcm_args_string}'
             outfile_path = f'{sp}/{sn}_results/{result_name}.json'
@@ -156,24 +156,35 @@ class Diagnoser(object):
         spectra_matrix = spectra_json['spectra_matrix']
         error_vector = spectra_json['error_vector']
 
-        diagnoses, probabilities = statics.methods[dpcm](spectra_matrix,
-                                                         error_vector,
-                                                         dpcm_args,
-                                                         simulations_to_run)
+        try:
+            diagnoses, probabilities = statics.methods[dpcm](spectra_matrix,
+                                                             error_vector,
+                                                             dpcm_args,
+                                                             simulations_to_run)
+        except IndexError as e:
+            print('Index Error')
+            diagnoses, probabilities = '-', '-'
 
         # create diagnoses objects
         diagnoses_json = []
-        for i in range(len(diagnoses)):
-            diagnosis = {
-                "diagnosis": diagnoses[i],
-                "probability": probabilities[i]
-            }
-            diagnoses_json.append(diagnosis)
+        if diagnoses != '-':
+            for i in range(len(diagnoses)):
+                diagnosis = {
+                    "diagnosis": diagnoses[i],
+                    "probability": probabilities[i]
+                }
+                diagnoses_json.append(diagnosis)
+        else:
+            diagnoses_json = '-'
 
         # calculate metrics
-        bugs = [a.num for a in agents if a.is_faulty]
-        weighted_precision, weighted_recall = self.calc_precision_recall(agents, bugs, diagnoses_json)
-        wasted_effort = self.calc_wasted_effort(bugs, diagnoses_json)
+        if diagnoses_json != '-':
+            bugs = [a.num for a in agents if a.is_faulty]
+            weighted_precision, weighted_recall = self.calc_precision_recall(agents, bugs, diagnoses_json)
+            wasted_effort = self.calc_wasted_effort(bugs, diagnoses_json)
+        else:
+            weighted_precision, weighted_recall = '-', '-'
+            wasted_effort = '-'
 
         result_json = {
             "result_name": f"{spectra_json['spectra_name']}_result_dpcm_{dpcm}_dpcmargs_{dpcm_args_string}",
