@@ -66,6 +66,14 @@ class ScenarioBuilder(object):
         fp = str(fault_probability)
         sn = str(simulations_number)
         scn = scenario_number
+
+        # check that a scenario doesnt already exist
+        outfile_path = f'../worlds/{wn}_scenarios/scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}_scn_{scn}.json'
+        outdir_path = f'../worlds/{wn}_scenarios/scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}_scn_{scn}_outcomes'
+        if os.path.exists(outfile_path) and os.path.exists(outdir_path):
+            print(f'scenario json {outfile_path[:-5]} exists, skipping...')
+            return False
+
         scenario_json = None
         if scenario_type == 'static':
             scenario_json = self.static_scenario(wn, an, fan, fp, sn, scn)
@@ -84,11 +92,11 @@ class ScenarioBuilder(object):
             print(f'simulations_number: {simulations_number}')
             print(f'scenario_number: {scn}')
             print(f'scenario_type: {scenario_type}')
-            outfile_path = f'../worlds/{wn}_scenarios/scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}_scn_{scn}.json'
+            # outfile_path = f'../worlds/{wn}_scenarios/scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}_scn_{scn}.json'
             with open(outfile_path, 'w') as outfile:
                 json.dump(scenario_json, outfile)
 
-            outdir_path = f'../worlds/{wn}_scenarios/scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}_scn_{scn}_outcomes'
+            # outdir_path = f'../worlds/{wn}_scenarios/scenario_an_{an}_fan_{fan}_fp_{fp}_sn_{sn}_scn_{scn}_outcomes'
             if not os.path.exists(outdir_path):
                 os.mkdir(outdir_path)
             else:

@@ -63,6 +63,13 @@ class Diagnoser(object):
             for k, v in dpcm_args.items():
                 dpcm_args_string += f'{str(k)}#{str(v)}#'
 
+        # check that a outcome doesnt already exist
+        result_name = f'result_dpcm_{dpcm}_dpcmargs_{dpcm_args_string}'
+        outfile_path = f'{sp}/{sn}_results/{result_name}.json'
+        if os.path.exists(outfile_path):
+            print(f'outcome json {outfile_path[:-5]} exists, skipping...')
+            return False
+
         # satic or generated generation
         result_json = None
         if r_type == 'static':
@@ -75,19 +82,8 @@ class Diagnoser(object):
 
         # write result to disk
         if result_json is not None:
-            # print(f'sn: {sn}')
-            # print(f'sp: {sp}')
-            # print(f'dpcm: {dpcm}')
-            # print(f'dpcm_args: {dpcm_args}')
-            # print(f'Conflict matrix:')
-            # for i, row in enumerate(result_json['spectra']['conflict_matrix']):
-            #     print(f'{row}')
-            # print(f'spectra and error vector:')
-            # for i, row in enumerate(result_json['spectra']['spectra_matrix']):
-            #     print(f'{row} | {result_json["spectra"]["error_vector"][i]}')
-
-            result_name = f'result_dpcm_{dpcm}_dpcmargs_{dpcm_args_string}'
-            outfile_path = f'{sp}/{sn}_results/{result_name}.json'
+            # result_name = f'result_dpcm_{dpcm}_dpcmargs_{dpcm_args_string}'
+            # outfile_path = f'{sp}/{sn}_results/{result_name}.json'
             with open(outfile_path, 'w') as outfile:
                 json.dump(result_json, outfile)
             return True

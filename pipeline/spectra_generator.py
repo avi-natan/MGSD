@@ -94,6 +94,16 @@ class SpectraGenerator(object):
             for k, v in evasfm_args.items():
                 evasfm_args_string += f'{str(k)}#{str(v)}#'
 
+        # check that a spectra doesnt already exist
+        spectra_short_name = utils.spectra_names_dict[f'spectra_ssm_{ssm}_ssmargs_{ssm_args_string}_asm_{asm}'
+                                                      f'_asmargs_{asm_args_string}_evasfm_{evasfm}_evasfmargs'
+                                                      f'_{evasfm_args_string}']
+        outfile_path = f'{op}/{on}_spectras/{spectra_short_name}.json'
+        outdir_path = f'{op}/{on}_spectras/{spectra_short_name}_results'
+        if os.path.exists(outfile_path) and os.path.exists(outdir_path):
+            print(f'spectra json {outfile_path[:-5]} exists, skipping...')
+            return False
+
         # static or generated generation
         spectra_json = None
         if sp_type == 'static':
@@ -117,13 +127,13 @@ class SpectraGenerator(object):
             print(f'evasfm: {evasfm}')
             print(f'evasfm_args: {evasfm_args}')
 
-            spectra_short_name = utils.spectra_names_dict[f'spectra_ssm_{ssm}_ssmargs_{ssm_args_string}_asm_{asm}'
-                                                          f'_asmargs_{asm_args_string}_evasfm_{evasfm}_evasfmargs'
-                                                          f'_{evasfm_args_string}']
-            outfile_path = f'{op}/{on}_spectras/{spectra_short_name}.json'
+            # spectra_short_name = utils.spectra_names_dict[f'spectra_ssm_{ssm}_ssmargs_{ssm_args_string}_asm_{asm}'
+            #                                               f'_asmargs_{asm_args_string}_evasfm_{evasfm}_evasfmargs'
+            #                                               f'_{evasfm_args_string}']
+            # outfile_path = f'{op}/{on}_spectras/{spectra_short_name}.json'
             with open(outfile_path, 'w') as outfile:
                 json.dump(spectra_json, outfile)
-            outdir_path = f'{op}/{on}_spectras/{spectra_short_name}_results'
+            # outdir_path = f'{op}/{on}_spectras/{spectra_short_name}_results'
             if not os.path.exists(outdir_path):
                 os.mkdir(outdir_path)
             else:

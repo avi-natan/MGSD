@@ -16,9 +16,16 @@ if __name__ == '__main__':
     print(f'Hi MGSD pipeline!')
     start_time = datetime.now()
 
+    # toggle new experiments or continuing old ones
+    continue_old = False
+
     # at start, clean the worlds folder
-    shutil.rmtree(f'../worlds')
-    os.mkdir(f'../worlds')
+    if not continue_old:
+        shutil.rmtree(f'../worlds')
+        os.mkdir(f'../worlds')
+        os.remove(f"../number_of_collisions.txt")
+        file1 = open(f"../number_of_collisions.txt", "w")
+        file1.close()
 
     # IMPORTANT - to run static pipeline, insert 'static' in every argument that allows it
     # IMPORTANT - MUST NOT USE STATIC AFTER USING GENERATED OR THIRD_PARTY
@@ -69,7 +76,9 @@ if __name__ == '__main__':
         # ['intersection1', 6, 12, 18, 'static'],
         # ['tcircle0', 6, 12, 78, 'static'],
         # ['intersection', 12, 12, 70, 'static'],
-        ['intersection', 6, 12, 30, 'static'],
+        ['intersection', 12, 12, 41, 'static'],
+        ['intersection', 12, 12, 50, 'static'],
+        ['intersection', 12, 12, 60, 'static'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
@@ -80,7 +89,7 @@ if __name__ == '__main__':
         # ['intersection', 12, 12, -1, 'thirdparty']
     ]
     # scenarios
-    ans = [6]                                           # an - agents number
+    ans = [4, 6, 8]                                           # an - agents number
     fans = [2]                                       # fan - faulty agents number
     fps = [0.1]                                         # fp - fault probabilities
     sns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]                                          # sn - simulations number
@@ -116,6 +125,7 @@ if __name__ == '__main__':
     # create various worlds
     world_builder = WorldBuilder('../boards', '../static/worlds', '../worlds')
     created_worlds_count = 0
+    print(f'\ncreating worlds...')
     for world in worlds:
         success = world_builder.build_world(world[0], world[1], world[2], world[3], world[4])
         if success:

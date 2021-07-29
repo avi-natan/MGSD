@@ -66,6 +66,14 @@ class WorldBuilder(object):
         s = str(plan_size)
         l = str(plan_length)
         i = str(intersections_number)
+
+        # check that a world doesnt already exist
+        outfile_path = f'../worlds/world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}.json'
+        outdir_path = f'../worlds/world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}_scenarios'
+        if os.path.exists(outfile_path) and os.path.exists(outdir_path):
+            print(f'world json {outfile_path[:-5]} exists, skipping...')
+            return False
+
         world_json = None
         if world_type == 'static':
             world_json = self.static_world(bn, s, l, i)
@@ -77,10 +85,10 @@ class WorldBuilder(object):
             raise Exception(f'unexpected world type: "{world_type}"')
 
         if world_json is not None:
-            outfile_path = f'../worlds/world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}.json'
+            # outfile_path = f'../worlds/world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}.json'
             with open(outfile_path, 'w') as outfile:
                 json.dump(world_json, outfile)
-            outdir_path = f'../worlds/world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}_scenarios'
+            # outdir_path = f'../worlds/world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}_scenarios'
             if not os.path.exists(outdir_path):
                 os.mkdir(outdir_path)
             else:

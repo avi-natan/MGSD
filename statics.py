@@ -378,7 +378,7 @@ def simulate_delay_and_wait_for_it(agents: List[Agent],
         print(f'Actual execution:')
         for oc in outcome:
             print(oc)
-        raise Exception('found collisions')
+        delay_table, outcome = None, None
 
     return delay_table, outcome
 

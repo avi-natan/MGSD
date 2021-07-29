@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+import random
 
 import statics
 from agent import Agent
@@ -63,6 +64,13 @@ class Simulator(object):
             for k, v in facm_args.items():
                 facm_args_string += f'{str(k)}#{str(v)}#'
 
+        # check that a outcome doesnt already exist
+        outfile_path = f'{sc_path}/{sc_name}_outcomes/outcome_facm_{facm}_facmargs_{facm_args_string}.json'
+        outdir_path = f'{sc_path}/{sc_name}_outcomes/outcome_facm_{facm}_facmargs_{facm_args_string}_spectras'
+        if os.path.exists(outfile_path) and os.path.exists(outdir_path):
+            print(f'outcome json {outfile_path[:-5]} exists, skipping...')
+            return False
+
         # run the simulations and generate outcomes
         outcome_json = None
         if oc_type == 'static':
@@ -70,7 +78,39 @@ class Simulator(object):
             pass
         elif oc_type == 'generated':
             outcome_json = self.generated_outcome(sc_name, sc_path, facm, facm_args, facm_args_string)
-            pass
+            # if outcome_json is None:
+            #     print(f'found collisions, deleting scenario {sc_path}/{sc_name} outcomes folder and json file...')
+            #     os.remove(f'{sc_path}/{sc_name}.json')
+            #     shutil.rmtree(f'{sc_path}/{sc_name}_outcomes')
+            #     raise Exception('found collisions')
+            # pass
+            while outcome_json is None:
+                file1 = open(f"../number_of_collisions.txt", "a")
+                file1.write(f"{sc_path}/{sc_name}.json\n")
+                file1.close()
+                s_json = json.load(open(f'{sc_path}/{sc_name}.json'))
+                # Generate agents
+                agents_json = []
+                for i in range(int(s_json['parameters']['agents_number'])):
+                    agent = {
+                        "agent_num": i,
+                        "agent_name": f"a{i}",
+                        "agent_is_faulty": False,
+                        "agent_fail_prob": 0.0
+                    }
+                    agents_json.append(agent)
+                # randomly shuffle the list and add faults to the first <fan> agents
+                random.shuffle(agents_json)
+                for i in range(int(s_json['parameters']['faulty_agents_number'])):
+                    agents_json[i]['agent_is_faulty'] = True
+                    agents_json[i]['agent_fail_prob'] = float(s_json['parameters']['fault_probability'])
+                # return list to its original order
+                agents_json.sort(key=lambda a: a['agent_num'])
+                s_json['agents'] = agents_json
+                os.remove(f'{sc_path}/{sc_name}.json')
+                with open(f'{sc_path}/{sc_name}.json', 'w') as outfile:
+                    json.dump(s_json, outfile)
+                outcome_json = self.generated_outcome(sc_name, sc_path, facm, facm_args, facm_args_string)
         else:
             raise Exception(f'unexpected outcome type: "{oc_type}"')
 
@@ -87,10 +127,10 @@ class Simulator(object):
             else:
                 for k, v in facm_args.items():
                     facm_args_string += f'{str(k)}#{str(v)}#'
-            outfile_path = f'{sc_path}/{sc_name}_outcomes/outcome_facm_{facm}_facmargs_{facm_args_string}.json'
+            # outfile_path = f'{sc_path}/{sc_name}_outcomes/outcome_facm_{facm}_facmargs_{facm_args_string}.json'
             with open(outfile_path, 'w') as outfile:
                 json.dump(outcome_json, outfile)
-            outdir_path = f'{sc_path}/{sc_name}_outcomes/outcome_facm_{facm}_facmargs_{facm_args_string}_spectras'
+            # outdir_path = f'{sc_path}/{sc_name}_outcomes/outcome_facm_{facm}_facmargs_{facm_args_string}_spectras'
             if not os.path.exists(outdir_path):
                 os.mkdir(outdir_path)
             else:
@@ -144,6 +184,8 @@ class Simulator(object):
         simulations_json = []
         for i in range(scenario_json['simulations_number']):
             fault_table, actual_execution = statics.methods[facm](agents, plan, facm_args)
+            if fault_table is None and actual_execution is None:
+                return None
             simulation = {
                 "name": f"s{i}",
                 "fault_table": fault_table,
