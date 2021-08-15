@@ -607,7 +607,10 @@ def calculate_diagnoses_and_probabilities_tarantula(spectra: List[List[int]],
     """
     probabilities = []
     for j in range(len(spectra[0])):
-        soj = (dm[0][j] * 1.0 / (dm[0][j] + dm[2][j])) / ((dm[1][j] / (dm[1][j] + dm[3][j])) + (dm[0][j] / (dm[0][j] + dm[2][j]))) if dm[0][j] != 0 else 0
+        try:
+            soj = (dm[0][j] * 1.0 / (dm[0][j] + dm[2][j])) / ((dm[1][j] / (dm[1][j] + dm[3][j])) + (dm[0][j] / (dm[0][j] + dm[2][j])))
+        except ZeroDivisionError as zde:
+            soj = 0
         probabilities.append(soj)
 
     # normalize probabilities and order them

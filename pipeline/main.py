@@ -38,7 +38,7 @@ if __name__ == '__main__':
     #     ['tcircle0', 6, 12, 78, 'static']
     # ]
     # # scenarios
-    # ans = [3, 4, 5, 6]                                  # an - agents number
+    # ans = [3, 4, 5, 6], 'board_max'                     # an - agents number. if board max, use board max agents
     # fans = [1, 2, 3, 4, 5]                              # fan - faulty agents number
     # fps = [0.05, 0.1, 0.2, 0.3]                         # fp - fault probabilities
     # sns = [10, 50, 100]                                 # sn - simulations number
@@ -150,7 +150,11 @@ if __name__ == '__main__':
         print(f'\ngenerating scenarios for world {wn}...')
         max_agent_size = int(wn.split('_')[5])
         # iterate over the agent numbers
-        for an in ans:
+        if ans == 'board_max':
+            ans2 = [max_agent_size]
+        else:
+            ans2 = ans
+        for an in ans2:
             # iterate over the faulty agent numbers
             for fan in fans:
                 # iterate over the fault probabilities
