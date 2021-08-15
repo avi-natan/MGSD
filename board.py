@@ -11,28 +11,34 @@ class Board(object):
                  name: str = None,
                  width: int = 3,
                  height: int = 3,
-                 critical_areas: List[List[List[int]]] = None) -> None:
+                 critical_areas: List[List[List[int]]] = None,
+                 obstacles: List[List[List[int]]] = None) -> None:
         if width < 3 or height < 3:
             raise Exception(f'manually input board dimensions must be at least 3X3, received {width}X{height}')
         if name is None:
             name = 'Anonymous_Board_' + str(Board.object_id)
         if critical_areas is None:
             critical_areas = [((1, 1), (2, 2))]
+        if obstacles is None:
+            obstacles = []
 
         self.id = Board.object_id
         self.name = name
         self.width = width
         self.height = height
         self.critical_areas = critical_areas
+        self.obstacles = obstacles
         Board.object_id += 1
 
     def visualize(self, mode: str = 'grid') -> None:
         board = np.zeros((self.width, self.height))
         for ca in self.critical_areas:
             board[ca[0][0]:ca[1][0], ca[0][1]: ca[1][1]] = 1
+        for o in self.obstacles:
+            board[o[0][0]:o[1][0], o[0][1]: o[1][1]] = 2
         plt.figure()
-        cmap = colors.ListedColormap(['white', 'red'])
-        plt.imshow(board, interpolation='none', vmin=0, vmax=1, aspect='equal', cmap=cmap)
+        cmap = colors.ListedColormap(['white', 'red', 'black'])
+        plt.imshow(board, interpolation='none', vmin=0, vmax=2, aspect='equal', cmap=cmap)
 
         ax = plt.gca()
 
@@ -63,6 +69,9 @@ class Board(object):
         critical_areas_string = ""
         for ca in self.critical_areas:
             critical_areas_string += '\t' + str(ca) + '\n# '
+        obstacles_string = ""
+        for o in self.obstacles:
+            obstacles_string += '\t' + str(o) + '\n# '
         print(f"""
 #######################################################
 #                    Board Summary
@@ -74,5 +83,8 @@ class Board(object):
 # 
 # Critical areas:
 # {critical_areas_string}
+#
+# Obstacles:
+# {obstacles_string}
 #######################################################
         """)

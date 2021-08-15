@@ -171,7 +171,8 @@ class SpectraGenerator(object):
         b_width = outcome_json['scenario']['world']['board']['board_width']
         b_height = outcome_json['scenario']['world']['board']['board_height']
         b_critical_areas = outcome_json['scenario']['world']['board']['board_critical_areas']
-        board = Board(b_name, b_width, b_height, b_critical_areas)
+        b_obstacles = outcome_json['scenario']['world']['board']['board_obstacles']
+        board = Board(b_name, b_width, b_height, b_critical_areas, b_obstacles)
         # plan
         p_size = outcome_json['scenario']['world']['plan']['size']
         p_length = outcome_json['scenario']['world']['plan']['length']

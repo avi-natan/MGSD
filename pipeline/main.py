@@ -89,7 +89,7 @@ if __name__ == '__main__':
         # ['intersection', 12, 12, -1, 'thirdparty']
     ]
     # scenarios
-    ans = [4, 6, 8]                                           # an - agents number
+    ans = 'board_max'                                           # an - agents number
     fans = [2]                                       # fan - faulty agents number
     fps = [0.1]                                         # fp - fault probabilities
     sns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]                                          # sn - simulations number
@@ -134,11 +134,11 @@ if __name__ == '__main__':
     # visualize worlds
     world_json_names = next(os.walk(f'../worlds'))[2]
     for world_json_name in world_json_names:
+        print(world_json_name)
         world_json = json.load(open(f'../worlds/{world_json_name}'))
         plan = world_json['plan']['individual_plans']
         board = world_json['board']
         statics.visualize(plan, board)
-        print(world_json_name)
 
     # create scenarios
     worlds_contents = next(os.walk('../worlds'))

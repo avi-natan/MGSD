@@ -119,7 +119,8 @@ class Diagnoser(object):
         b_width = spectra_json['outcome']['scenario']['world']['board']['board_width']
         b_height = spectra_json['outcome']['scenario']['world']['board']['board_height']
         b_critical_areas = spectra_json['outcome']['scenario']['world']['board']['board_critical_areas']
-        board = Board(b_name, b_width, b_height, b_critical_areas)
+        b_obstacles = spectra_json['outcome']['scenario']['world']['board']['board_obstacles']
+        board = Board(b_name, b_width, b_height, b_critical_areas, b_obstacles)
         # plan
         p_size = spectra_json['outcome']['scenario']['world']['plan']['size']
         p_length = spectra_json['outcome']['scenario']['world']['plan']['length']

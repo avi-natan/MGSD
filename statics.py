@@ -5,7 +5,7 @@ from functools import reduce
 import random
 
 import consts
-from board import Board
+# from board import Board
 from sfl.Diagnoser.Diagnosis import Diagnosis
 from sfl.Diagnoser.Barinel import Barinel
 from sfl.Diagnoser.FullMatrix import FullMatrix
@@ -25,9 +25,11 @@ def visualize(a_matrix, a_board, mode: str = 'grid') -> None:
     board = np.zeros((a_board['board_width'], a_board['board_height']))
     for ca in a_board['board_critical_areas']:
         board[ca[0][0]:ca[1][0], ca[0][1]: ca[1][1]] = 1
+    for o in a_board['board_obstacles']:
+        board[o[0][0]:o[1][0], o[0][1]: o[1][1]] = 2
     plt.figure()
-    cmap = colors.ListedColormap(['white', 'red'])
-    plt.imshow(board, interpolation='none', vmin=0, vmax=1, aspect='equal', cmap=cmap)
+    cmap = colors.ListedColormap(['white', 'red', 'black'])
+    plt.imshow(board, interpolation='none', vmin=0, vmax=2, aspect='equal', cmap=cmap)
 
     ax = plt.gca()
 

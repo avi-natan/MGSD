@@ -13,7 +13,8 @@
 		"board_height": 12,
 		"board_critical_areas": [
 			[[3,3],[9,9]]
-		]
+		],
+		"board_obstacles": []
 	},
 	"plan": {
 		"size": 8,
