@@ -85,10 +85,10 @@ class WorldBuilder(object):
             raise Exception(f'unexpected world type: "{world_type}"')
 
         if world_json is not None:
-            # outfile_path = f'../worlds/world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}.json'
+            outfile_path = f'../worlds/world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}.json'
             with open(outfile_path, 'w') as outfile:
                 json.dump(world_json, outfile)
-            # outdir_path = f'../worlds/world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}_scenarios'
+            outdir_path = f'../worlds/world_board_{board_name}_plan_s_{s}_l_{l}_i_{i}_scenarios'
             if not os.path.exists(outdir_path):
                 os.mkdir(outdir_path)
             else:
@@ -192,7 +192,134 @@ class WorldBuilder(object):
             "board_height": 12,
             "board_critical_areas": [
                 [[3, 3], [9, 9]]
-            ]
+            ],
+            "board_obstacles": []
+        }
+        plan_json = {
+            'size': int(s),
+            'length': int(l),
+            'intersections': int(n_intersections),
+            'individual_plans': iv_plans
+        }
+
+        world_json = {
+            'world_name': world_name_json,
+            'parameters': parameters_json,
+            'board': board_json,
+            'plan': plan_json
+        }
+
+        print(9)
+        return world_json, str(n_intersections)
+
+    def third_party_world_dao_maps(self, bn, s, l, i):
+        # Meir says that the intersections doesnt matter so much.
+
+        # extract the critical areas
+        critical_areas_string = '['
+        critical_areas_json = []
+        obstacles_json = []
+        map_matrix = []
+        bn_map_file = open(f'../third party terminal/cpf-experiment/dao_maps/{bn}.map', 'r')
+        bn_map_file.readline()
+        width = bn_map_file.readline()
+        width = int(width.split(' ')[1])
+        height = bn_map_file.readline()
+        height = int(height.split(' ')[1])
+        bn_map_file.readline()
+        line = bn_map_file.readline()
+        while line != '':
+            ll = list(line)
+            ll = ll[:-1] if ll[-1] == '\n' else ll
+            map_matrix.append(ll)
+            print(line, end='')
+            line = bn_map_file.readline()
+        bn_map_file.close()
+        for row in range(len(map_matrix)):
+            for col in range(len(map_matrix[row])):
+                if map_matrix[row][col] == 'C':
+                    print(f'{row}, {col}')
+                    critical_areas_string += f'[[{row}.{col}],[{row+1}.{col+1}]]|'
+                    critical_areas_json.append([[row, col], [row+1, col+1]])
+                if map_matrix[row][col] in 'T@':
+                    obstacles_json.append([[row, col], [row+1, col+1]])
+        if critical_areas_string[-1] == '|':
+            critical_areas_string = critical_areas_string[:-1] + ']'
+        else:
+            critical_areas_string += ']'
+
+        # create the instructions file in the 'third party terminal' folder
+        instructions_file = open(f'../third party terminal/instructions', 'w')
+        instructions_file.write(f'inputs?\n')
+        instructions_file.write(f'board_name?{bn}\n')
+        instructions_file.write(f'board_path?dao_maps\\{bn}.map\n')
+        instructions_file.write(f'plan_size?{s}\n')
+        instructions_file.write(f'plan_length?{l}\n')
+        instructions_file.write(f'critical_areas?{critical_areas_string}\n')
+        instructions_file.write(f'tpp?\\third party terminal\\cpf-experiment\\mgsd_d0_bench.exe\n')
+        instructions_file.write(f'===\n')
+        instructions_file.close()
+
+        # call the external program and receive its output
+        argument = os.getcwd() + "\\..\\third party terminal\\instructions"
+        thirdPartyExecutable = "..\\third party terminal\\cpf-experiment\\mgsd_d0_bench.exe"
+
+        iv_plans = [[[0,0]] * int(l) for _ in range(int(s))]
+
+        has_collisions, collision_time = statics.has_collisions(iv_plans)
+
+        while has_collisions:
+            # process = Popen([thirdPartyExecutable, argument], stdout=PIPE)
+            # (output, err) = process.communicate()
+            # exit_code = process.wait()
+            #
+            # while err is not None:
+            #     print(f'third party program failed, trying again...')
+            #     process = Popen([thirdPartyExecutable, argument], stdout=PIPE)
+            #     (output, err) = process.communicate()
+            #     exit_code = process.wait()
+            #
+            # output_str = output.decode("utf-8")
+            # print(f'{output_str}')
+
+            # read the generated third party plan and construct the plans matrix
+            f = open(f'../third party terminal/thirdPartyPlan')
+            f.readline()
+            f.readline()
+            f.readline()
+            line = f.readline()
+            ai = 0
+            while line != '':
+                print(line)
+                line_split = line[1:-2].split('|')
+                for i, ls in enumerate(line_split):
+                    ls_split = ls[1:-1].split(',')
+                    iv_plans[ai][i] = [int(ls_split[0]), int(ls_split[1])]
+                line = f.readline()
+                ai += 1
+            f.close()
+
+            # has_collisions, collision_time = statics.has_collisions(iv_plans)
+            has_collisions = False
+            collision_time = -1
+            print(f'Collisions:  {has_collisions}, time: {collision_time}')
+
+        # construct the world json
+        n_intersections = statics.count_intersections(iv_plans)
+        world_name_json = f'world_board_{bn}_plan_s_{s}_l_{l}_i_{n_intersections}'
+        parameters_json = {
+            "board_name": bn,
+            "plan_size": int(s),
+            "plan_length": int(l),
+            "intersections_number": int(n_intersections),
+            "world_type": "thirdparty"
+        }
+        board_json = {
+            "board_name": bn,
+            "board_width": width,
+            "board_height": height,
+            "board_critical_areas": critical_areas_json,
+            "board_obstacles": obstacles_json
         }
         plan_json = {
             'size': int(s),

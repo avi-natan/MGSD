@@ -76,9 +76,9 @@ if __name__ == '__main__':
         # ['intersection1', 6, 12, 18, 'static'],
         # ['tcircle0', 6, 12, 78, 'static'],
         # ['intersection', 12, 12, 70, 'static'],
-        ['intersection', 12, 12, 41, 'static'],
-        ['intersection', 12, 12, 50, 'static'],
-        ['intersection', 12, 12, 60, 'static'],
+        # ['intersection', 12, 12, 41, 'static'],
+        # ['intersection', 12, 12, 50, 'static'],
+        # ['intersection', 12, 12, 60, 'static'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
@@ -86,12 +86,13 @@ if __name__ == '__main__':
         # ['intersection', 12, 12, -1, 'thirdparty'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
-        # ['intersection', 12, 12, -1, 'thirdparty']
+        # ['intersection', 12, 12, -1, 'thirdparty'],
+        ['maze0', 12, 12, 88, 'static'],
     ]
     # scenarios
     ans = 'board_max'                                           # an - agents number
-    fans = [2]                                       # fan - faulty agents number
-    fps = [0.1]                                         # fp - fault probabilities
+    fans = [3]                                       # fan - faulty agents number
+    fps = [0.2]                                         # fp - fault probabilities
     sns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]                                          # sn - simulations number
     scn = 10                                            # scn - scenarios number
     # outcomes
@@ -100,7 +101,7 @@ if __name__ == '__main__':
     ]
     # spectras
     ssms = [                                            # ssm - system success method
-        ['pfc', {'t': 0.95}]                            # t - threshold
+        ['pfc', {'t': 0.97}]                            # t - threshold
     ]
     asms = [                                            # asm - agent success method
         ['rfr', {}]
@@ -131,13 +132,26 @@ if __name__ == '__main__':
         if success:
             created_worlds_count += 1
     print(f'created_worlds_count: {created_worlds_count}')
+
     # visualize worlds
     world_json_names = next(os.walk(f'../worlds'))[2]
+    # world_json_names = [
+    #     # 'world_board_maze0_plan_s_12_l_12_i_88.json',
+    #     # 'world_board_intersection_plan_s_12_l_12_i_88.json',
+    #     # 'world_board_intersection_plan_s_12_l_12_i_91.json',
+    #     # 'world_board_intersection_plan_s_12_l_12_i_92.json',
+    #     # 'world_board_tcircle0_plan_s_6_l_12_i_78.json',
+    #     # 'world_board_intersection0_plan_s_6_l_12_i_19.json',
+    #     # 'world_board_intersection1_plan_s_6_l_12_i_18.json',
+    #     # 'world_board_intersection_plan_s_12_l_12_i_70.json'
+    # ]
     for world_json_name in world_json_names:
         print(world_json_name)
         world_json = json.load(open(f'../worlds/{world_json_name}'))
         plan = world_json['plan']['individual_plans']
         board = world_json['board']
+        print(statics.count_intersections(plan))
+        print(statics.has_collisions(plan))
         statics.visualize(plan, board)
 
     # create scenarios

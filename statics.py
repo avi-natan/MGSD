@@ -5,7 +5,7 @@ from functools import reduce
 import random
 
 import consts
-# from board import Board
+from board import Board
 from sfl.Diagnoser.Diagnosis import Diagnosis
 from sfl.Diagnoser.Barinel import Barinel
 from sfl.Diagnoser.FullMatrix import FullMatrix
@@ -24,26 +24,31 @@ from matplotlib import colors
 def visualize(a_matrix, a_board, mode: str = 'grid') -> None:
     board = np.zeros((a_board['board_width'], a_board['board_height']))
     for ca in a_board['board_critical_areas']:
-        board[ca[0][0]:ca[1][0], ca[0][1]: ca[1][1]] = 1
+        board[ca[0][1]: ca[1][1], ca[0][0]:ca[1][0]] = 1
     for o in a_board['board_obstacles']:
-        board[o[0][0]:o[1][0], o[0][1]: o[1][1]] = 2
-    plt.figure()
+        board[o[0][1]: o[1][1], o[0][0]:o[1][0]] = 2
+    # plt.figure()
+    plt.figure(dpi=300)
     cmap = colors.ListedColormap(['white', 'red', 'black'])
     plt.imshow(board, interpolation='none', vmin=0, vmax=2, aspect='equal', cmap=cmap)
 
     ax = plt.gca()
 
     # Major ticks
-    ax.set_xticks(np.arange(0, a_board['board_width'], 1))
-    ax.set_yticks(np.arange(0, a_board['board_height'], 1))
+    ax.set_xticks(np.arange(0, a_board['board_height'], 1))
+    ax.set_yticks(np.arange(0, a_board['board_width'], 1))
 
     # Labels for major ticks
-    ax.set_xticklabels(np.arange(0, a_board['board_width'], 1))
-    ax.set_yticklabels(np.arange(0, a_board['board_height'], 1))
+    ax.set_xticklabels(np.arange(0, a_board['board_height'], 1))
+    ax.set_yticklabels(np.arange(0, a_board['board_width'], 1))
 
     # Minor ticks
-    ax.set_xticks(np.arange(-.5, a_board['board_width'], 1), minor=True)
-    ax.set_yticks(np.arange(-.5, a_board['board_height'], 1), minor=True)
+    ax.set_xticks(np.arange(-.5, a_board['board_height'], 1), minor=True)
+    ax.set_yticks(np.arange(-.5, a_board['board_width'], 1), minor=True)
+
+    # We change the fontsize of minor ticks label
+    ax.tick_params(axis='both', which='major', labelsize=6)
+    ax.tick_params(axis='both', which='minor', labelsize=1)
 
     # Gridlines based on minor ticks
     if mode == 'net':
@@ -68,6 +73,7 @@ def visualize(a_matrix, a_board, mode: str = 'grid') -> None:
                   head_width=0.5, head_length=0.5, zorder=3 + ai % len(a_matrix))
 
     plt.show()
+    # plt.savefig('books_read.png')
 
 def count_intersections(current_plans):
     intersections_table = np.zeros((len(current_plans), len(current_plans)), dtype=int)

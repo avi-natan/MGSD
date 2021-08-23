@@ -11,5 +11,7 @@ spectra_names_dict = {
     "spectra_ssm_pfc_ssmargs_#t#0.59#_asm_rfr_asmargs_##_evasfm_apfc_evasfmargs_#ifs#True#": "spectra_9",
     "spectra_ssm_pfc_ssmargs_#t#0.54#_asm_rfr_asmargs_##_evasfm_apfc_evasfmargs_#ifs#True#": "spectra_10",
     "spectra_ssm_pfc_ssmargs_#t#0.49#_asm_rfr_asmargs_##_evasfm_apfc_evasfmargs_#ifs#True#": "spectra_11",
-    "spectra_ssm_pfc_ssmargs_#t#0.44#_asm_rfr_asmargs_##_evasfm_apfc_evasfmargs_#ifs#True#": "spectra_12"
+    "spectra_ssm_pfc_ssmargs_#t#0.44#_asm_rfr_asmargs_##_evasfm_apfc_evasfmargs_#ifs#True#": "spectra_12",
+    "spectra_ssm_pfc_ssmargs_#t#0.98#_asm_rfr_asmargs_##_evasfm_apfc_evasfmargs_#ifs#True#": "spectra_13",
+    "spectra_ssm_pfc_ssmargs_#t#0.97#_asm_rfr_asmargs_##_evasfm_apfc_evasfmargs_#ifs#True#": "spectra_14"
 }
