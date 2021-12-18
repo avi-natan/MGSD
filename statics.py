@@ -279,11 +279,11 @@ def delay_and_wait_for_it_one_step_advance(present, next_planned, present_delay,
         if idx in agents_idxs:
             agents_idxs.remove(idx)
 
-    print(f'present: {present}')
-    print(f'next_planned: {next_planned}')
-    print(f'present_delay: {present_delay}')
-    print(f'management_queue_idxs: {management_queue_idxs}')
-    print(f'actual: {actual}')
+    # print(f'present: {present}')
+    # print(f'next_planned: {next_planned}')
+    # print(f'present_delay: {present_delay}')
+    # print(f'management_queue_idxs: {management_queue_idxs}')
+    # print(f'actual: {actual}')
     # Fill delay to actual; Remove delays from togo; get delayed to list L
     for i, pd in enumerate(present_delay):
         if pd:

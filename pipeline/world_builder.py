@@ -1,6 +1,8 @@
 import os
 import json
 import shutil
+import subprocess
+import sys
 from subprocess import Popen, PIPE
 
 import statics
@@ -80,7 +82,10 @@ class WorldBuilder(object):
         elif world_type == 'generated':
             world_json = self.generated_world(bn, s, l, i)
         elif world_type == 'thirdparty':
-            world_json, i = self.third_party_world(bn, s, l, i)
+            if bn == 'intersection':
+                world_json, i = self.third_party_world(bn, s, l, i)
+            else:
+                world_json, i = self.third_party_world_benchmark_maps(bn, s, l, i)
         else:
             raise Exception(f'unexpected world type: "{world_type}"')
 
@@ -212,11 +217,10 @@ class WorldBuilder(object):
         print(9)
         return world_json, str(n_intersections)
 
-    def third_party_world_dao_maps(self, bn, s, l, i):
+    def third_party_world_benchmark_maps(self, bn, s, l, i):
         # Meir says that the intersections doesnt matter so much.
 
         # extract the critical areas
-        critical_areas_string = '['
         critical_areas_json = []
         obstacles_json = []
         map_matrix = []
@@ -238,49 +242,72 @@ class WorldBuilder(object):
         for row in range(len(map_matrix)):
             for col in range(len(map_matrix[row])):
                 if map_matrix[row][col] == 'C':
-                    print(f'{row}, {col}')
-                    critical_areas_string += f'[[{row}.{col}],[{row+1}.{col+1}]]|'
-                    critical_areas_json.append([[row, col], [row+1, col+1]])
+                    print(f'{col}, {row}')
+                    critical_areas_json.append([[col, row], [col + 1, row + 1]])
                 if map_matrix[row][col] in 'T@':
-                    obstacles_json.append([[row, col], [row+1, col+1]])
-        if critical_areas_string[-1] == '|':
-            critical_areas_string = critical_areas_string[:-1] + ']'
-        else:
-            critical_areas_string += ']'
+                    obstacles_json.append([[col, row], [col + 1, row + 1]])
 
         # create the instructions file in the 'third party terminal' folder
         instructions_file = open(f'../third party terminal/instructions', 'w')
-        instructions_file.write(f'inputs?\n')
-        instructions_file.write(f'board_name?{bn}\n')
-        instructions_file.write(f'board_path?dao_maps\\{bn}.map\n')
-        instructions_file.write(f'plan_size?{s}\n')
-        instructions_file.write(f'plan_length?{l}\n')
-        instructions_file.write(f'critical_areas?{critical_areas_string}\n')
-        instructions_file.write(f'tpp?\\third party terminal\\cpf-experiment\\mgsd_d0_bench.exe\n')
+        instructions_file.write(f'inputs:\n')
+        instructions_file.write(f'name: {bn}\n')
+        instructions_file.write(f'realwkdir: C:\\PythonProjects\\MGSD\\third party terminal\\cpf-experiment\n')
+        instructions_file.write(f'r: {width * width}\n')
+        instructions_file.write(f'a: {s}\n')
+        instructions_file.write(f't: {l}\n')
+        instructions_file.write(f'i: -1\n')
+        instructions_file.write(f'p: -1\n')
+        # instructions_file.write('ca: [[[4.4],[8.5]]|[[4.7],[8.8]]|[[4.5],[5.7]]|[[7.5],[8.7]]]\n')  # [ [[4. 4], [8. 5]] | [[4. 7], [8. 8]] | [[4. 5], [5. 7]] | [[7. 5], [8. 7]] ]
+        instructions_file.write('ca: -1\n')
+        # instructions_file.write(f'fa: [-1]\n')
+        instructions_file.write(f'ft: [-1]\n')
+        instructions_file.write(f'tpp: \\third party terminal\\cpf-experiment\\d0.exe\n')
         instructions_file.write(f'===\n')
         instructions_file.close()
 
         # call the external program and receive its output
         argument = os.getcwd() + "\\..\\third party terminal\\instructions"
-        thirdPartyExecutable = "..\\third party terminal\\cpf-experiment\\mgsd_d0_bench.exe"
+        thirdPartyExecutable = "..\\third party terminal\\cpf-experiment\\d0.exe"
 
-        iv_plans = [[[0,0]] * int(l) for _ in range(int(s))]
+        iv_plans = [[[0, 0]] * int(l) for _ in range(int(s))]
 
         has_collisions, collision_time = statics.has_collisions(iv_plans)
 
         while has_collisions:
-            # process = Popen([thirdPartyExecutable, argument], stdout=PIPE)
+            process = subprocess.Popen([thirdPartyExecutable, argument], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             # (output, err) = process.communicate()
             # exit_code = process.wait()
-            #
-            # while err is not None:
-            #     print(f'third party program failed, trying again...')
-            #     process = Popen([thirdPartyExecutable, argument], stdout=PIPE)
-            #     (output, err) = process.communicate()
-            #     exit_code = process.wait()
-            #
-            # output_str = output.decode("utf-8")
-            # print(f'{output_str}')
+            while True:
+                nextline = process.stdout.readline()
+                output_str = nextline.decode("utf-8")
+                if output_str == '' and process.poll() is not None:
+                    break
+                sys.stdout.write(output_str)
+                sys.stdout.flush()
+
+            output = process.communicate()[0]
+            exitCode = process.returncode
+
+            while exitCode != 0:
+                print(f'third party program failed, trying again...')
+                shutil.rmtree(f'../third party terminal/cpf-experiment/Instances')
+                process = subprocess.Popen([thirdPartyExecutable, argument], shell=True, stdout=subprocess.PIPE,
+                                           stderr=subprocess.STDOUT)
+                # (output, err) = process.communicate()
+                # exit_code = process.wait()
+                while True:
+                    nextline = process.stdout.readline()
+                    output_str = nextline.decode("utf-8")
+                    if output_str == '' and process.poll() is not None:
+                        break
+                    sys.stdout.write(output_str)
+                    sys.stdout.flush()
+
+                output = process.communicate()[0]
+                exitCode = process.returncode
+
+            output_str = output.decode("utf-8")
+            print(f'{output_str}')
 
             # read the generated third party plan and construct the plans matrix
             f = open(f'../third party terminal/thirdPartyPlan')
@@ -299,9 +326,7 @@ class WorldBuilder(object):
                 ai += 1
             f.close()
 
-            # has_collisions, collision_time = statics.has_collisions(iv_plans)
-            has_collisions = False
-            collision_time = -1
+            has_collisions, collision_time = statics.has_collisions(iv_plans)
             print(f'Collisions:  {has_collisions}, time: {collision_time}')
 
         # construct the world json

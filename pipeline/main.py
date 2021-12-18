@@ -4,6 +4,12 @@ import os
 import shutil
 import xlsxwriter
 from datetime import datetime
+import sys
+
+print(os.getcwd())
+print('this is the current working directory!')
+print(sys.version)
+print('this is the version!')
 
 import statics
 from pipeline.diagnoser import Diagnoser
@@ -74,7 +80,7 @@ if __name__ == '__main__':
     worlds = [                                          # worlds (include map, critical areas and plans)
         # ['intersection0', 6, 12, 19, 'static'],       # world name, number of plans, plans length, number of intersections
         # ['intersection1', 6, 12, 18, 'static'],
-        # ['tcircle0', 6, 12, 78, 'static'],
+        ['tcircle0', 6, 12, 78, 'static'],
         # ['intersection', 12, 12, 70, 'static'],
         # ['intersection', 12, 12, 41, 'static'],
         # ['intersection', 12, 12, 50, 'static'],
@@ -87,21 +93,61 @@ if __name__ == '__main__':
         # ['intersection', 12, 12, -1, 'thirdparty'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
         # ['intersection', 12, 12, -1, 'thirdparty'],
-        ['maze0', 12, 12, 88, 'static'],
+        # ['maze0small', 11, 12, -1, 'thirdparty'],
+        # ['maze1small', 11, 12, -1, 'thirdparty'],
+        # ['random0small', 11, 12, -1, 'thirdparty'],
+        # ['random1small', 11, 12, -1, 'thirdparty'],
+        # ['room0small', 11, 12, -1, 'thirdparty'],
+
+        # ['maze0small', 8, 12, 60, 'static'],
+        # ['maze1small', 8, 12, 57, 'static'],
+        # ['random0small', 8, 12, 27, 'static'],
+        # ['random1small', 8, 12, 78, 'static'],
+        # ['room0small', 8, 12, 53, 'static'],
+        #
+        # ['maze0small', 9, 12, 69, 'static'],
+        # ['maze1small', 9, 12, 96, 'static'],
+        # ['random0small', 9, 12, 49, 'static'],
+        # ['random1small', 9, 12, 55, 'static'],
+        # ['room0small', 9, 12, 62, 'static'],
+        #
+        # ['maze0small', 10, 12, 72, 'static'],
+        # ['maze1small', 10, 12, 69, 'static'],
+        # ['random0small', 10, 12, 51, 'static'],
+        # ['random1small', 10, 12, 121, 'static'],
+        # ['room0small', 10, 12, 90, 'static'],
+        #
+        # ['maze0small', 11, 12, 117, 'static'],
+        # ['maze1small', 11, 12, 109, 'static'],
+        # ['random0small', 11, 12, 78, 'static'],
+        # ['random1small', 11, 12, 87, 'static'],
+        # ['room0small', 11, 12, 72, 'static'],
+        #
+        # ['maze0small', 12, 12, 157, 'static'],
+        # ['maze1small', 12, 12, 142, 'static'],
+        # ['random0small', 12, 12, 86, 'static'],
+        # ['random1small', 12, 12, 136, 'static'],
+        # ['room0small', 12, 12, 101, 'static']
+
+        # ['intersection', 8, 12, 37, 'static'],
+        # ['intersection', 9, 12, 48, 'static'],
+        # ['intersection', 10, 12, 52, 'static'],
+        # ['intersection', 11, 12, 74, 'static'],
+        # ['intersection', 12, 12, 79, 'static'],
     ]
     # scenarios
     ans = 'board_max'                                           # an - agents number
-    fans = [3]                                       # fan - faulty agents number
-    fps = [0.2]                                         # fp - fault probabilities
-    sns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]                                          # sn - simulations number
-    scn = 10                                            # scn - scenarios number
+    fans = [1, 2, 3, 4, 5]                                       # fan - faulty agents number
+    fps = [0.1]                                         # fp - fault probabilities
+    sns = [10, 20]                                          # sn - simulations number
+    scn = 1                                            # scn - scenarios number
     # outcomes
     facms = [                                           # facms - fault and conflict methods
         ['dawfi', {}]
     ]
     # spectras
     ssms = [                                            # ssm - system success method
-        ['pfc', {'t': 0.97}]                            # t - threshold
+        ['pfc', {'t': 0.95}]                            # t - threshold
     ]
     asms = [                                            # asm - agent success method
         ['rfr', {}]
@@ -133,26 +179,26 @@ if __name__ == '__main__':
             created_worlds_count += 1
     print(f'created_worlds_count: {created_worlds_count}')
 
-    # visualize worlds
-    world_json_names = next(os.walk(f'../worlds'))[2]
-    # world_json_names = [
-    #     # 'world_board_maze0_plan_s_12_l_12_i_88.json',
-    #     # 'world_board_intersection_plan_s_12_l_12_i_88.json',
-    #     # 'world_board_intersection_plan_s_12_l_12_i_91.json',
-    #     # 'world_board_intersection_plan_s_12_l_12_i_92.json',
-    #     # 'world_board_tcircle0_plan_s_6_l_12_i_78.json',
-    #     # 'world_board_intersection0_plan_s_6_l_12_i_19.json',
-    #     # 'world_board_intersection1_plan_s_6_l_12_i_18.json',
-    #     # 'world_board_intersection_plan_s_12_l_12_i_70.json'
-    # ]
-    for world_json_name in world_json_names:
-        print(world_json_name)
-        world_json = json.load(open(f'../worlds/{world_json_name}'))
-        plan = world_json['plan']['individual_plans']
-        board = world_json['board']
-        print(statics.count_intersections(plan))
-        print(statics.has_collisions(plan))
-        statics.visualize(plan, board)
+    # # visualize worlds
+    # world_json_names = next(os.walk(f'../worlds'))[2]
+    # # world_json_names = [
+    # #     # 'world_board_maze0_plan_s_12_l_12_i_88.json',
+    # #     # 'world_board_intersection_plan_s_12_l_12_i_88.json',
+    # #     # 'world_board_intersection_plan_s_12_l_12_i_91.json',
+    # #     # 'world_board_intersection_plan_s_12_l_12_i_92.json',
+    # #     # 'world_board_tcircle0_plan_s_6_l_12_i_78.json',
+    # #     # 'world_board_intersection0_plan_s_6_l_12_i_19.json',
+    # #     # 'world_board_intersection1_plan_s_6_l_12_i_18.json',
+    # #     # 'world_board_intersection_plan_s_12_l_12_i_70.json'
+    # # ]
+    # for world_json_name in world_json_names:
+    #     print(world_json_name)
+    #     world_json = json.load(open(f'../worlds/{world_json_name}'))
+    #     plan = world_json['plan']['individual_plans']
+    #     board = world_json['board']
+    #     print(statics.count_intersections(plan))
+    #     print(statics.has_collisions(plan))
+    #     statics.visualize(plan, board)
 
     # create scenarios
     worlds_contents = next(os.walk('../worlds'))
