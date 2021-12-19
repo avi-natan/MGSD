@@ -292,7 +292,7 @@ def delay_and_wait_for_it_one_step_advance(present, next_planned, present_delay,
             L.append(present[i])
             management_queue_idxs.remove(i)
 
-    print(f'management_queue_idxs after fail: {management_queue_idxs}')
+    # print(f'management_queue_idxs after fail: {management_queue_idxs}')
     # While !togo.empty()
     while any(togo):
         if len(L) > 0:
@@ -305,10 +305,10 @@ def delay_and_wait_for_it_one_step_advance(present, next_planned, present_delay,
                         actual[ix] = present[ix]
                         togo[ix] = False
                         L.append(present[ix])
-                        print(f'actual: {actual}')
+                        # print(f'actual: {actual}')
         else:
             a = management_queue_idxs.pop(0)
-            print(f'management_queue_idxs after pop: {management_queue_idxs}')
+            # print(f'management_queue_idxs after pop: {management_queue_idxs}')
             if next_planned[a] not in actual:
                 actual[a] = next_planned[a]
                 p[a] += 1
@@ -318,10 +318,10 @@ def delay_and_wait_for_it_one_step_advance(present, next_planned, present_delay,
                 actual[a] = present[a]
                 togo[a] = False
                 L.append(present[a])
-            print(f'actual: {actual}')
+            # print(f'actual: {actual}')
 
     # return actual
-    print(f'actual: {actual}')
+    # print(f'actual: {actual}')
     return actual, p
 
 
@@ -367,7 +367,7 @@ def simulate_delay_and_wait_for_it(agents: List[Agent],
         next_planned = [plans[i][p+1] for i, p in enumerate(p)]
         # prepare present_delay
         present_delay = [delay_table[a][timestep] for a in range(len(delay_table))]
-        print(f'time:{timestep}')
+        # print(f'time:{timestep}')
         next_actual, p = delay_and_wait_for_it_one_step_advance(present, next_planned, present_delay, p)
         # insert the next step to the outcomes
         for ai in range(agent_count):

@@ -7,7 +7,7 @@ from datetime import datetime
 import sys
 
 print(os.getcwd())
-print('this is the current working directory!')
+print('this is the current working directory!!!')
 print(sys.version)
 print('this is the version!')
 
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     worlds = [                                          # worlds (include map, critical areas and plans)
         # ['intersection0', 6, 12, 19, 'static'],       # world name, number of plans, plans length, number of intersections
         # ['intersection1', 6, 12, 18, 'static'],
-        ['tcircle0', 6, 12, 78, 'static'],
+        # ['tcircle0', 6, 12, 78, 'static'],
         # ['intersection', 12, 12, 70, 'static'],
         # ['intersection', 12, 12, 41, 'static'],
         # ['intersection', 12, 12, 50, 'static'],
@@ -99,6 +99,12 @@ if __name__ == '__main__':
         # ['random1small', 11, 12, -1, 'thirdparty'],
         # ['room0small', 11, 12, -1, 'thirdparty'],
 
+        # # Experiments over 3 synthetic worlds
+        # ['intersection', 12, 12, 88, 'static'],
+        # ['intersection', 12, 12, 91, 'static'],
+        # ['intersection', 12, 12, 92, 'static'],
+
+        # # Experiments over 5 MAPF generated worlds
         # ['maze0small', 8, 12, 60, 'static'],
         # ['maze1small', 8, 12, 57, 'static'],
         # ['random0small', 8, 12, 27, 'static'],
@@ -129,18 +135,114 @@ if __name__ == '__main__':
         # ['random1small', 12, 12, 136, 'static'],
         # ['room0small', 12, 12, 101, 'static']
 
+        # # Experiments over 5 synthetic worlds
         # ['intersection', 8, 12, 37, 'static'],
         # ['intersection', 9, 12, 48, 'static'],
         # ['intersection', 10, 12, 52, 'static'],
         # ['intersection', 11, 12, 74, 'static'],
         # ['intersection', 12, 12, 79, 'static'],
+
+        # # Cluster experiments
+        # # number of scenarios is always 30
+
+        # # ########### Experiment 1 (Varying agents number) ##################################
+        # # parameters:
+        # #     agents number: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        # #     faulty agents number: [3]
+        # #     fault probabilities: [0.5]
+        # #     simulations number: [100]
+
+        # # Synthetic maps
+        # ['intersection', 12, 12, 85, 'static'],
+        # ['intersection', 12, 12, 87, 'static'],
+        # ['intersection', 12, 12, 88, 'static'],
+        # ['intersection', 12, 12, 91, 'static'],
+        # ['intersection', 12, 12, 92, 'static'],
+
+        # # MAPF maps
+        # ['maze0small', 12, 12, 157, 'static'],
+        # ['maze1small', 12, 12, 142, 'static'],
+        # ['random0small', 12, 12, 86, 'static'],
+        # ['random1small', 12, 12, 136, 'static'],
+        # ['room0small', 12, 12, 101, 'static']
+
+
+
+        # # ########### Experiment 2 (Varying faulty agents number) ###########################
+        # # parameters:
+        # #     agents number: [12]
+        # #     faulty agents number: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        # #     fault probabilities: [0.5]
+        # #     simulations number: [100]
+
+        # # Synthetic maps
+        # ['intersection', 12, 12, 85, 'static'],
+        # ['intersection', 12, 12, 87, 'static'],
+        # ['intersection', 12, 12, 88, 'static'],
+        # ['intersection', 12, 12, 91, 'static'],
+        # ['intersection', 12, 12, 92, 'static'],
+
+        # # MAPF maps
+        # ['maze0small', 12, 12, 157, 'static'],
+        # ['maze1small', 12, 12, 142, 'static'],
+        # ['random0small', 12, 12, 86, 'static'],
+        # ['random1small', 12, 12, 136, 'static'],
+        # ['room0small', 12, 12, 101, 'static']
+
+
+
+        # # ########### Experiment 3 (Varying fault probabilities) ############################
+        # # parameters:
+        # #     agents number: [12]
+        # #     faulty agents number: [3]
+        # #     fault probabilities: [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
+        # #     simulations number: [100]
+
+        # # Synthetic maps
+        # ['intersection', 12, 12, 85, 'static'],
+        # ['intersection', 12, 12, 87, 'static'],
+        # ['intersection', 12, 12, 88, 'static'],
+        # ['intersection', 12, 12, 91, 'static'],
+        # ['intersection', 12, 12, 92, 'static'],
+
+        # # MAPF maps
+        # ['maze0small', 12, 12, 157, 'static'],
+        # ['maze1small', 12, 12, 142, 'static'],
+        # ['random0small', 12, 12, 86, 'static'],
+        # ['random1small', 12, 12, 136, 'static'],
+        # ['room0small', 12, 12, 101, 'static']
+
+
+
+        # # ########### Experiment 4 (Varying simulations number) ############################
+        # # parameters:
+        # #     agents number: [12]
+        # #     faulty agents number: [3]
+        # #     fault probabilities: [0.5]
+        # #     simulations number: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+
+        # # Synthetic maps
+        # ['intersection', 12, 12, 85, 'static'],
+        # ['intersection', 12, 12, 87, 'static'],
+        # ['intersection', 12, 12, 88, 'static'],
+        # ['intersection', 12, 12, 91, 'static'],
+        # ['intersection', 12, 12, 92, 'static'],
+
+        # # MAPF maps
+        ['maze0small', 12, 12, 157, 'static'],
+        ['maze1small', 12, 12, 142, 'static'],
+        ['random0small', 12, 12, 86, 'static'],
+        ['random1small', 12, 12, 136, 'static'],
+        ['room0small', 12, 12, 101, 'static']
+
+
     ]
     # scenarios
-    ans = 'board_max'                                           # an - agents number
-    fans = [1, 2, 3, 4, 5]                                       # fan - faulty agents number
-    fps = [0.1]                                         # fp - fault probabilities
-    sns = [10, 20]                                          # sn - simulations number
-    scn = 1                                            # scn - scenarios number
+    ans = [12]                                           # an - agents number
+    fans = [3]                                       # fan - faulty agents number
+    fps = [0.5]                                         # fp - fault probabilities
+    sns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]                                          # sn - simulations number
+    scn = 30                                            # scn - scenarios number
     # outcomes
     facms = [                                           # facms - fault and conflict methods
         ['dawfi', {}]

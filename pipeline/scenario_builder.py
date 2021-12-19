@@ -134,24 +134,25 @@ class ScenarioBuilder(object):
     def generated_scenario(self, wn, an, fan, fp, sn, scn):
         world_json = json.load(open(f'{self.worlds_relative_path}/{wn}.json'))
 
-        # # Update critical areas
-        # print(9)
-        # plan = world_json['plan']['individual_plans']
-        # updated_critical_areas = []
-        #
-        # percentage_plan_to_crit = 1 - (float(fp) * 3.0 / 4.0)
-        # plan_length = world_json['parameters']['plan_length']
-        # last_crit_index = math.floor(plan_length * percentage_plan_to_crit)
-        #
-        # last_positions = [p[i] for i in range(last_crit_index, plan_length) for p in plan]
-        # for i in range(int(an)):
-        #     for index in range(last_crit_index+1):
-        #         if [plan[i][index][0], plan[i][index][1]] not in last_positions:
-        #             critical_area = [[plan[i][index][0], plan[i][index][1]], [plan[i][index][0]+1, plan[i][index][1]+1]]
-        #             updated_critical_areas.append(critical_area)
-        #
-        #
-        # world_json['board']['board_critical_areas'] = updated_critical_areas
+        # Update critical areas
+        if world_json['board']['board_name'] != 'intersection':
+            print(9)
+            plan = world_json['plan']['individual_plans']
+            updated_critical_areas = []
+
+            percentage_plan_to_crit = 1 - (float(fp) * 3.0 / 4.0)
+            plan_length = world_json['parameters']['plan_length']
+            last_crit_index = math.floor(plan_length * percentage_plan_to_crit)
+
+            last_positions = [p[i] for i in range(last_crit_index, plan_length) for p in plan]
+            for i in range(int(an)):
+                for index in range(last_crit_index+1):
+                    if [plan[i][index][0], plan[i][index][1]] not in last_positions:
+                        critical_area = [[plan[i][index][0], plan[i][index][1]], [plan[i][index][0]+1, plan[i][index][1]+1]]
+                        updated_critical_areas.append(critical_area)
+
+
+            world_json['board']['board_critical_areas'] = updated_critical_areas
 
         # Generate agents
         agents_json = []
