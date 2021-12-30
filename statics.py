@@ -766,11 +766,13 @@ def populate_intersections_table(num_agents, simulations) -> np.ndarray:
     # populate intersections table across the different simulations
     for i, simulation in enumerate(simulations):
         current_plans = simulation.plans
-        for a in range(len(current_plans)):
+        for a in range(num_agents):
             for t in range(len(current_plans[a]) - 1):
-                for a2 in range(len(current_plans)):
+                for a2 in range(num_agents):
                     if a2 != a:
                         for t2 in range(t + 1, len(current_plans[a2])):
+                            avi = current_plans[a][t]
+                            bruno = current_plans[a2][t2]
                             if current_plans[a][t] == current_plans[a2][t2]:
                                 intersections_table[a][a2] += 1
     return intersections_table
