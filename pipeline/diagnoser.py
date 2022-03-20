@@ -148,6 +148,8 @@ class Diagnoser(object):
             simulation.delay_table = s_fault_table
             simulation.outcome = s_actual_execution
             simulations_to_run.append(simulation)
+            # visualize actual execution - comment out for performance!
+            statics.visualize(s_actual_execution, spectra_json['outcome']['scenario']['world']['board'])
 
         # create the spectra matrix and the error vector
         spectra_matrix = spectra_json['spectra_matrix']

@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
+      <paths name="natanavr@132.72.46.240:22">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/sise/home/natanavr/natanavr/MGSD/" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="natanavr@132.72.80.148:22">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/sise/home/natanavr/natanavr/MGSD/" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
       <paths name="natanavr@localhost:6005">
         <serverdata>
           <mappings>
@@ -10,5 +24,6 @@
         </serverdata>
       </paths>
     </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>

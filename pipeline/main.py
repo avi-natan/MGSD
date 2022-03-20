@@ -80,7 +80,7 @@ if __name__ == '__main__':
     worlds = [                                          # worlds (include map, critical areas and plans)
         # ['intersection0', 6, 12, 19, 'static'],       # world name, number of plans, plans length, number of intersections
         # ['intersection1', 6, 12, 18, 'static'],
-        # ['tcircle0', 6, 12, 78, 'static'],
+        ['tcircle0', 6, 12, 78, 'static'],
         # ['intersection', 12, 12, 70, 'static'],
         # ['intersection', 12, 12, 41, 'static'],
         # ['intersection', 12, 12, 50, 'static'],
@@ -228,21 +228,47 @@ if __name__ == '__main__':
         # ['intersection', 12, 12, 91, 'static'],
         # ['intersection', 12, 12, 92, 'static'],
 
-        # # MAPF maps
-        ['maze0small', 12, 12, 157, 'static'],
-        ['maze1small', 12, 12, 142, 'static'],
-        ['random0small', 12, 12, 86, 'static'],
-        ['random1small', 12, 12, 136, 'static'],
-        ['room0small', 12, 12, 101, 'static']
+        # MAPF maps
+        # ['maze0small', 12, 12, 157, 'static'],
+        # ['maze1small', 12, 12, 142, 'static'],
+        # ['random0small', 12, 12, 86, 'static'],
+        # ['random1small', 12, 12, 136, 'static'],
+        # ['room0small', 12, 12, 101, 'static']
+
+        # # ########### Experiment ?? (Custom) ############################
+        # # parameters:
+        # #     agents number: [5, 6, 7, 8, 9, 10, 11, 12]
+        # #     faulty agents number: [1, 2, 3, 4, 5]
+        # #     fault probabilities: [0.1, 0.2, 0.3, 0.4, 0.5]
+        # #     simulations number: [10, 20, 30, 40, 50]
+
+        # Synthetic maps
+        # ['intersection', 12, 12, 39, 'static'],
+        # ['intersection', 12, 12, 41, 'static'],
+        # ['intersection', 12, 12, 50, 'static'],
+        # ['intersection', 12, 12, 58, 'static'],
+        # ['intersection', 12, 12, 64, 'static'],
+        # ['intersection', 12, 12, 68, 'static'],
+        # ['intersection', 12, 12, 71, 'static'],
+        # ['intersection', 12, 12, 72, 'static'],
+        # ['intersection', 12, 12, 75, 'static'],
+        # ['intersection', 12, 12, 80, 'static'],
+
+        # MAPF maps
+        # ['maze0small', 12, 12, 157, 'static'],
+        # ['maze1small', 12, 12, 142, 'static'],
+        # ['random0small', 12, 12, 86, 'static'],
+        # ['random1small', 12, 12, 136, 'static'],
+        # ['room0small', 12, 12, 101, 'static']
 
 
     ]
     # scenarios
-    ans = [12]                                           # an - agents number
-    fans = [3]                                       # fan - faulty agents number
-    fps = [0.5]                                         # fp - fault probabilities
-    sns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]                                          # sn - simulations number
-    scn = 30                                            # scn - scenarios number
+    ans = [6]                                           # an - agents number
+    fans = [2]                                       # fan - faulty agents number
+    fps = [0.1]                                         # fp - fault probabilities
+    sns = [10]                                          # sn - simulations number
+    scn = 1                                            # scn - scenarios number
     # outcomes
     facms = [                                           # facms - fault and conflict methods
         ['dawfi', {}]
@@ -259,13 +285,13 @@ if __name__ == '__main__':
     ]
     # results
     dpcms = [                                           # dpcm - diagnoses and probabilities calculation methods
-        ['ochiai', {}],
-        ['tarantula', {}],
-        ['barinelavi', {'mfcp': 'pone'}],               # mfcp - method for calculating priors
+        # ['ochiai', {}],
+        # ['tarantula', {}],
+        # ['barinelavi', {'mfcp': 'pone'}],               # mfcp - method for calculating priors
         # ['barinelavi', {'mfcp': 'pstatic'}],
-        ['barinelavi', {'mfcp': 'pintersections1'}],
-        ['barinelavi', {'mfcp': 'pintersections2'}],
-        # ['barinelamir', {'mfcp': 'pone'}],
+        # ['barinelavi', {'mfcp': 'pintersections1'}],
+        # ['barinelavi', {'mfcp': 'pintersections2'}],
+        ['barinelamir', {'mfcp': 'pone'}],
         # ['barinelamir', {'mfcp': 'pstatic'}],
         # ['barinelamir', {'mfcp': 'pintersections1'}],
         # ['barinelamir', {'mfcp': 'pintersections2'}]
@@ -281,26 +307,26 @@ if __name__ == '__main__':
             created_worlds_count += 1
     print(f'created_worlds_count: {created_worlds_count}')
 
-    # # visualize worlds
-    # world_json_names = next(os.walk(f'../worlds'))[2]
-    # # world_json_names = [
-    # #     # 'world_board_maze0_plan_s_12_l_12_i_88.json',
-    # #     # 'world_board_intersection_plan_s_12_l_12_i_88.json',
-    # #     # 'world_board_intersection_plan_s_12_l_12_i_91.json',
-    # #     # 'world_board_intersection_plan_s_12_l_12_i_92.json',
-    # #     # 'world_board_tcircle0_plan_s_6_l_12_i_78.json',
-    # #     # 'world_board_intersection0_plan_s_6_l_12_i_19.json',
-    # #     # 'world_board_intersection1_plan_s_6_l_12_i_18.json',
-    # #     # 'world_board_intersection_plan_s_12_l_12_i_70.json'
-    # # ]
-    # for world_json_name in world_json_names:
-    #     print(world_json_name)
-    #     world_json = json.load(open(f'../worlds/{world_json_name}'))
-    #     plan = world_json['plan']['individual_plans']
-    #     board = world_json['board']
-    #     print(statics.count_intersections(plan))
-    #     print(statics.has_collisions(plan))
-    #     statics.visualize(plan, board)
+    # visualize worlds
+    world_json_names = next(os.walk(f'../worlds'))[2]
+    # world_json_names = [
+    #     # 'world_board_maze0_plan_s_12_l_12_i_88.json',
+    #     # 'world_board_intersection_plan_s_12_l_12_i_88.json',
+    #     # 'world_board_intersection_plan_s_12_l_12_i_91.json',
+    #     # 'world_board_intersection_plan_s_12_l_12_i_92.json',
+    #     # 'world_board_tcircle0_plan_s_6_l_12_i_78.json',
+    #     # 'world_board_intersection0_plan_s_6_l_12_i_19.json',
+    #     # 'world_board_intersection1_plan_s_6_l_12_i_18.json',
+    #     # 'world_board_intersection_plan_s_12_l_12_i_70.json'
+    # ]
+    for world_json_name in world_json_names:
+        print(world_json_name)
+        world_json = json.load(open(f'../worlds/{world_json_name}'))
+        plan = world_json['plan']['individual_plans']
+        board = world_json['board']
+        print(statics.count_intersections(plan))
+        print(statics.has_collisions(plan))
+        statics.visualize(plan, board)
 
     # create scenarios
     worlds_contents = next(os.walk('../worlds'))
@@ -324,7 +350,7 @@ if __name__ == '__main__':
                     # iterate over the number of simulations
                     for sn in sns:
                         for s in range(scn):
-                            success = scenario_builder.build_scenario(wn, an, fan, fp, sn, s, 'generated')
+                            success = scenario_builder.build_scenario(wn, an, fan, fp, sn, s, 'static')
                             if success:
                                 created_scenarios_count += 1
     print(f'created_scenarios_count: {created_scenarios_count}')
@@ -440,6 +466,7 @@ if __name__ == '__main__':
                     results_files = next(os.walk(f'../worlds/{wf}/{scf}/{of}/{spf}'))[2]
                     valid = 1
                     for rf in results_files:
+                        print(f'opening file ../worlds/{wf}/{scf}/{of}/{spf}/{rf}')
                         js = json.load(open(f'../worlds/{wf}/{scf}/{of}/{spf}/{rf}'))
                         if js['diagnoses'] == '-':
                             valid = 0
